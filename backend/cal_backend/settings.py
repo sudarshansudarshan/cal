@@ -40,6 +40,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+
+    'cal_backend.courses',
+    'cal_backend.students',
+    'cal_backend.instructors',
 ]
 
 MIDDLEWARE = [

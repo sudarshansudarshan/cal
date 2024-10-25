@@ -1,3 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
+from cal_backend.instructors import models
+
+admin.site.register(models.Instructor)
