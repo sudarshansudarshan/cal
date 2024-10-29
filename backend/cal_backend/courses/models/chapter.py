@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from cal_backend.courses.constants import *
 
 class Chapter(models.Model):
-    id = models.AutoField(primary_key=True)
+    id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=CHAPTER_TITLE_MAX_LEN)
     videos = models.JSONField(default=list, blank=True)
     assessmentIDs = models.ManyToManyField('Assessment', through='ChapterAssessmentBind', related_name='chapters') # TO REVIEW
