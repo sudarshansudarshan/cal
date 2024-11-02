@@ -1,9 +1,7 @@
 from django import forms
-
 from django.contrib import admin
 
 from .constants import *
-
 from .models import CalUser
 
 FORM_DISPLAY_FIELDS = ['first_name', 'last_name', 'email']
@@ -17,7 +15,7 @@ class CalUserForm(forms.ModelForm):
     class Meta:
         model = CalUser
         fields = FORM_DISPLAY_FIELDS + ['password']
-    
+
     def __init__(self, *args, **kwargs):
         super(CalUserForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.pk:

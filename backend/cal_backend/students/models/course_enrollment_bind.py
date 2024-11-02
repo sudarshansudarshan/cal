@@ -21,10 +21,10 @@ class CourseEnrollmentBind(models.Model):
     
         validate_chapters(self.progress, chapter_map, original_progress)
 
-            # TODO: Ensure 
-            # 1. the assessment, when created has is_completed = False, score = None, submission_date = None, assessment_data = None, last_accessed = init_access_date, init_access_date = some value
-            # 2. the assessment_data, score, submission_date are only modified one time when is_completed = True
-            # 3. the last_accessed is updated every time the assessment is accessed
+        # TODO: Ensure 
+        # 1. the assessment, when created has is_completed = False, score = None, submission_date = None, assessment_data = None, last_accessed = init_access_date, init_access_date = some value
+        # 2. the assessment_data, score, submission_date are only modified one time when is_completed = True
+        # 3. the last_accessed is updated every time the assessment is accessed
 
     class Meta:
         verbose_name = 'Enrolled Course'

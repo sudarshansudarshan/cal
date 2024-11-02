@@ -2,7 +2,7 @@ from django.db import models
 from django.forms import ValidationError
 from django.core.validators import MinLengthValidator, MaxLengthValidator
 
-from cal_backend.courses.constants import *
+from ..constants import *
 
 class Course(models.Model):
     title = models.CharField(max_length=COURSE_TITLE_MAX_LEN)

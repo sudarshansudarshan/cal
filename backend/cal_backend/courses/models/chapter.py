@@ -1,8 +1,8 @@
 from django.db import models
 from django.forms import ValidationError
 
-from cal_backend.courses.data_handlers import *
-from cal_backend.courses.constants import *
+from ..data_handlers import *
+from ..constants import *
 
 class Chapter(models.Model):
     id = models.BigAutoField(primary_key=True)

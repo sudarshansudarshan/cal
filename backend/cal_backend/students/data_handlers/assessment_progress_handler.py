@@ -1,5 +1,6 @@
 from datetime import datetime
-from cal_backend.students.data.assessment_progress import AssessmentProgress
+
+from ..data.assessment_progress import AssessmentProgress
 
 
 def deserialize_assessment_progress(progress_json):

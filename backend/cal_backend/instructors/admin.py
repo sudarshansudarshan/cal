@@ -1,19 +1,12 @@
 from django.contrib import admin
 
 from cal_backend.cal_users.forms import CalUserAdmin, CalUserForm
-
 from .models import Instructor
 
 class InstructorForm(CalUserForm):
     class Meta:
         model = Instructor
         fields = CalUserForm.Meta.fields
-
-    def save(self, commit=True):
-        staff_profile = super().save(commit=False)
-        if commit:
-            staff_profile.save()
-        return staff_profile
 
 class InstructorAdmin(CalUserAdmin):
     form = InstructorForm

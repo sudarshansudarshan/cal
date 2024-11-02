@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django import forms
 
-from cal_backend.courses.models import Chapter, ChapterAssessmentBind
-from cal_backend.courses.constants import *
+from ..models import Chapter, ChapterAssessmentBind
+from ..constants import *
 
 class ChapterForm(forms.ModelForm):
     class Meta:

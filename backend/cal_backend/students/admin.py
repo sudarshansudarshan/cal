@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from .models.course_enrollment_bind import CourseEnrollmentBind
+from .models import CourseEnrollmentBind
 from cal_backend.cal_users.forms import CalUserAdmin, CalUserForm
-from .models.student import Student
+from .models import Student
 
 class StudentForm(CalUserForm):
     class Meta:

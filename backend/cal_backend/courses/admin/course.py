@@ -1,10 +1,9 @@
 from django.contrib import admin
-from django.contrib.admin.widgets import FilteredSelectMultiple
 from django import forms
 from django.core.validators import MinValueValidator
 
-from cal_backend.courses.models import Course, Chapter, Assessment, CourseChapterBind
-from cal_backend.courses.constants import *
+from ..models import *
+from ..constants import *
 
 STATISTICS_FIELDS = ['num_enrollments', 'num_students_completed', 'num_students_in_progress', 'num_students_not_started']
 METADATA_FIELDS = ['description', 'tags']

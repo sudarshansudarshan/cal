@@ -2,7 +2,7 @@ from datetime import datetime
 from django.forms import ValidationError
 
 from .assessment_progress_handler import *
-from cal_backend.students.data.chapter_progress import ChapterProgress
+from ..data.chapter_progress import ChapterProgress
 
 
 def deserialize_chapter_progress(progress_json):

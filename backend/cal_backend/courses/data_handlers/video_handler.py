@@ -1,8 +1,8 @@
 from django.core.validators import URLValidator
 from django.forms import ValidationError
 
-from cal_backend.courses.constants import VIDEO_TITLE_MAX_LEN
-from cal_backend.courses.data.video import Video
+from ..constants import VIDEO_TITLE_MAX_LEN
+from ..data.video import Video
 
 def deserialize_video(video_json):
     return Video(**video_json)
