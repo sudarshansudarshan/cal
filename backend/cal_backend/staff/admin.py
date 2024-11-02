@@ -1,12 +1,11 @@
 from django.contrib import admin
 
+from cal_backend.staff.models import Staff
 from cal_backend.cal_users.forms import CalUserAdmin, CalUserForm
 
-from .models import Instructor
-
-class InstructorForm(CalUserForm):
+class StaffForm(CalUserForm):
     class Meta:
-        model = Instructor
+        model = Staff
         fields = CalUserForm.Meta.fields
 
     def save(self, commit=True):
@@ -15,7 +14,7 @@ class InstructorForm(CalUserForm):
             staff_profile.save()
         return staff_profile
 
-class InstructorAdmin(CalUserAdmin):
-    form = InstructorForm
+class StaffAdmin(CalUserAdmin):
+    form = StaffForm
 
-admin.site.register(Instructor, InstructorAdmin)
+admin.site.register(Staff, StaffAdmin)

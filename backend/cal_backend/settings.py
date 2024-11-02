@@ -41,9 +41,11 @@ INSTALLED_APPS = [
 
     'rest_framework',
 
+    'cal_backend.cal_users',
     'cal_backend.courses',
     'cal_backend.students',
     'cal_backend.instructors',
+    'cal_backend.staff',
 ]
 
 MIDDLEWARE = [
@@ -110,6 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'cal_users.CalUser'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

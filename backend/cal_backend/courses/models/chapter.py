@@ -1,36 +1,26 @@
 from django.db import models
-from django.core.exceptions import ValidationError
+from django.forms import ValidationError
 
+from cal_backend.courses.data_handlers import *
 from cal_backend.courses.constants import *
 
 class Chapter(models.Model):
     id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=CHAPTER_TITLE_MAX_LEN)
     videos = models.JSONField(default=list, blank=True)
-    assessmentIDs = models.ManyToManyField('Assessment', through='ChapterAssessmentBind', related_name='chapters') # TO REVIEW
+    assessments = models.ManyToManyField('Assessment', through='ChapterAssessmentBind', related_name='chapters') # TO REVIEW
 
     def clean(self):
-        validate_videos(self.videos)
+        if not isinstance(self.videos, list):
+            raise ValidationError("Videos should be a list of dictionaries.")
+
+        for video_json in self.videos:
+            try:
+                video = deserialize_video(video_json)
+            except BaseException as e:
+                raise ValidationError(f'Invalid video data: {e}')
+
+            validate_video(video)
 
     def __str__(self):
         return f'{self.title} (# {self.id})'
-
-def validate_videos(videos):
-    if not isinstance(videos, list):
-        raise ValidationError('Videos must be a list')
-
-    for video in videos:
-        if not isinstance(video, dict):
-            raise ValidationError('Each video must be a dictionary')
-
-        if 'title' not in video:
-            raise ValidationError('Each video must contain a title field')
-
-        if not isinstance(video['title'], str):
-            raise ValidationError('Title must be a string')
-
-        if 'source' not in video:
-            raise ValidationError('Each video must contain a source field')
-
-        if not isinstance(video['source'], str):
-            raise ValidationError('source must be a string')
