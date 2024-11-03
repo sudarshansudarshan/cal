@@ -1,1 +1,3 @@
 from .video_handler import deserialize_video, validate_video
+from .metadata_handler import deserialize_course_metadata, validate_course_metadata
+from .statistics_handler import deserialize_course_statistics, validate_course_statistics

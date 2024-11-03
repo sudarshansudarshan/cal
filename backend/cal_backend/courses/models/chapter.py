@@ -11,7 +11,7 @@ class Chapter(models.Model):
     assessments = models.ManyToManyField('Assessment', through='ChapterAssessmentBind', related_name='chapters') # TO REVIEW
 
     def clean(self):
-        if not isinstance(self.videos, list):
+        if not isinstance(self.videos, list) and not all(isinstance(video, dict) for video in self.videos):
             raise ValidationError("Videos should be a list of dictionaries.")
 
         for video_json in self.videos:
