@@ -9,6 +9,7 @@ import SuperHome from "@/pages/Admins/SuperHome";
 import Admins from "@/pages/Admins/Admins";
 import Courses from "@/pages/Students/Courses";
 import DummyForm from "@/pages/Students/DummyForm";
+import AITesting from "@/pages/Students/AITesting";
 
 const router = createBrowserRouter([
     {
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
                     {
                         path: "/dummyform",
                         element: React.createElement(DummyForm)
+                    },
+                    {
+                        path: "/aiTesting",
+                        element: React.createElement(AITesting)
                     }
                 ]
             },
