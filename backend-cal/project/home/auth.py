@@ -13,6 +13,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.decorators import api_view
 from django.db import transaction
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework_simplejwt.tokens import Token, BlacklistMixin
 
 from django.core.mail import send_mail
 from django.conf import settings
@@ -220,7 +221,7 @@ class UserLoginView(APIView):
                 # Get and validate refresh token
                 refresh_token = auth_header.split(' ')[1]
                 try:
-                    token = AccessToken(refresh_token)
+                    token = CustomAccessToken(refresh_token)
                 except:
                     return Response(
                         {"error": f"Invalid token"}, 
@@ -297,3 +298,6 @@ class UserLoginView(APIView):
         else:
             ip = request.META.get('REMOTE_ADDR', 'Unknown')
         return ip
+
+class CustomAccessToken(AccessToken, BlacklistMixin):
+    pass
