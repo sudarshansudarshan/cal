@@ -16,6 +16,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar"
 import RealTimeHandBlurDetection from "./proctoring-components/realTimeBlurDetection"
+import MultiPersonDetection from "./proctoring-components/MultiPersonDetection"
 
 
 // This is sample data.
@@ -60,7 +61,9 @@ export function SidebarRight({
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
+        <MultiPersonDetection/>
         <RealTimeHandBlurDetection/>
+        
           <SidebarMenuItem>
             <SidebarMenuButton>
               <Plus />
