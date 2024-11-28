@@ -42,6 +42,49 @@ const Courses: React.FC = () => {
       correctAnswer: "4",
     },
   ]);
+  const [data] = useState([
+    {
+      video: "1z-E_KOC2L0",
+      timestamps: {
+        35 : [
+          {
+            question_id: 1,
+            question: "What is the capital of France?",
+            options: ["Paris", "London", "Berlin"]
+          },
+          {
+            question_id: 2,
+            question: "What is 2 + 2?",
+            options: ["3", "4", "5"]
+          },
+        ],
+        45 : [
+          {
+            question_id: 3,
+            question: "What is the capital of France?",
+            options: ["Paris", "London", "Berlin"]
+          },
+          {
+            question_id: 4,
+            question: "What is 2 + 2?",
+            options: ["3", "4", "5"]
+          },
+        ],
+        55 : [
+          {
+            question_id: 5,
+            question: "What is the capital of France?",
+            options: ["Paris", "London", "Berlin"]
+          },
+          {
+            question_id: 6,
+            question: "What is 2 + 2?",
+            options: ["3", "4", "5"]
+          },
+        ],
+      }
+    }
+  ])
 
   useEffect(() => {
     if (!window.YT) {
