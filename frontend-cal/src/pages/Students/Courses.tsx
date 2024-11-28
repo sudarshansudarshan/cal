@@ -1,29 +1,97 @@
+import React, { useEffect, useRef, useState } from "react";
+
+declare global {
+  interface Window {
+    onYouTubeIframeAPIReady: () => void;
+    YT: any;
+  }
+}
 import KeyboardLock from "@/components/proctoring-components/KeyboardLock";
 import RightClickDisabler from "@/components/proctoring-components/RightClickDisable";
-import React, { useEffect, useRef, useState } from "react";
-import { FaPlay } from "react-icons/fa";
-import { FaPause } from "react-icons/fa";
-import { FaExpand } from "react-icons/fa"; // Import Fullscreen Icon
+import { FaPlay, FaPause, FaExpand } from "react-icons/fa";
 
-const Courses = () => {
-  const videoPlayerRef = useRef(null);
-  const [player, setPlayer] = useState(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [timestamps] = useState([10, 20, 30, 40, 50, 120]); // Timestamps in seconds
-  const [showPopup, setShowPopup] = useState(false);
-  const [currentTimestamp, setCurrentTimestamp] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [totalDuration, setTotalDuration] = useState(0);
-  const [volume, setVolume] = useState(50); // Volume percentage (0-100)
-  const [playbackSpeed, setPlaybackSpeed] = useState(1); // Default playback speed
-  const triggeredTimestamps = useRef(new Set()); // To track triggered timestamps
+interface Question {
+  question: string;
+  options: string[];
+  correctAnswer: string;
+}
+
+const Courses: React.FC = () => {
+  const videoPlayerRef = useRef<HTMLDivElement>(null);
+  const [player, setPlayer] = useState<YT.Player | null>(null);
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [timestamps] = useState<number[]>([10, 20, 30, 40, 50, 120]);
+  const [showPopup, setShowPopup] = useState<boolean>(false);
+  const [currentTimestamp, setCurrentTimestamp] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [totalDuration, setTotalDuration] = useState<number>(0);
+  const [volume, setVolume] = useState<number>(50);
+  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
+  const triggeredTimestamps = useRef<Set<number>>(new Set());
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<string>("");
+  const [questions] = useState<Question[]>([
+    {
+      question: "What is the capital of France?",
+      options: ["Paris", "London", "Berlin"],
+      correctAnswer: "Paris",
+    },
+    {
+      question: "What is 2 + 2?",
+      options: ["3", "4", "5"],
+      correctAnswer: "4",
+    },
+  ]);
+  const [data] = useState([
+    {
+      video: "1z-E_KOC2L0",
+      timestamps: {
+        35 : [
+          {
+            question_id: 1,
+            question: "What is the capital of France?",
+            options: ["Paris", "London", "Berlin"]
+          },
+          {
+            question_id: 2,
+            question: "What is 2 + 2?",
+            options: ["3", "4", "5"]
+          },
+        ],
+        45 : [
+          {
+            question_id: 3,
+            question: "What is the capital of France?",
+            options: ["Paris", "London", "Berlin"]
+          },
+          {
+            question_id: 4,
+            question: "What is 2 + 2?",
+            options: ["3", "4", "5"]
+          },
+        ],
+        55 : [
+          {
+            question_id: 5,
+            question: "What is the capital of France?",
+            options: ["Paris", "London", "Berlin"]
+          },
+          {
+            question_id: 6,
+            question: "What is 2 + 2?",
+            options: ["3", "4", "5"]
+          },
+        ],
+      }
+    }
+  ])
 
   useEffect(() => {
     if (!window.YT) {
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
       const firstScriptTag = document.getElementsByTagName("script")[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
 
       window.onYouTubeIframeAPIReady = initPlayer;
     } else {
@@ -32,32 +100,33 @@ const Courses = () => {
   }, []);
 
   useEffect(() => {
-    let interval;
+    let interval: NodeJS.Timeout | undefined;
     if (isPlaying) {
       interval = setInterval(() => {
         if (player) {
-          const current = player.getCurrentTime(); // Sync with video current time
+          const current = player.getCurrentTime();
           setCurrentTime(current);
 
-          // Check if currentTime matches any unprocessed timestamp
           const currentTimestamp = Math.floor(current);
           if (
             timestamps.includes(currentTimestamp) &&
             !triggeredTimestamps.current.has(currentTimestamp)
           ) {
-            triggeredTimestamps.current.add(currentTimestamp); // Mark timestamp as processed
+            triggeredTimestamps.current.add(currentTimestamp);
             pauseVideoAndShowPopup(currentTimestamp);
           }
         }
-      }, 500); // Update every 500ms
+      }, 500);
     } else {
-      clearInterval(interval); // Stop updating when video is paused
+      if (interval) clearInterval(interval);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [isPlaying, player, timestamps]);
 
   const initPlayer = () => {
-    const playerInstance = new window.YT.Player(videoPlayerRef.current, {
+    const playerInstance = new window.YT.Player(videoPlayerRef.current!, {
       videoId: "1z-E_KOC2L0",
       playerVars: {
         enablejsapi: 1,
@@ -73,14 +142,14 @@ const Courses = () => {
     setPlayer(playerInstance);
   };
 
-  const onPlayerReady = (event) => {
+  const onPlayerReady = (event: YT.PlayerEvent) => {
     const duration = event.target.getDuration();
-    setTotalDuration(duration); // Set total duration of the video
-    player.setVolume(volume); // Set initial volume
-    setPlaybackSpeed(player.getPlaybackRate()); // Initialize playback speed
+    setTotalDuration(duration);
+    player?.setVolume(volume);
+    setPlaybackSpeed(player?.getPlaybackRate() ?? 1);
   };
 
-  const pauseVideoAndShowPopup = (timestamp) => {
+  const pauseVideoAndShowPopup = (timestamp: number) => {
     if (player) {
       player.pauseVideo();
       setIsPlaying(false);
@@ -97,7 +166,21 @@ const Courses = () => {
     }
   };
 
-  const onPlayerStateChange = (event) => {
+  const handleIncorrectAnswer = () => {
+    if (currentTimestamp !== null) {
+      const lastTimestamp = [...triggeredTimestamps.current]
+        .filter((t) => t < currentTimestamp)
+        .sort((a, b) => b - a)[0];
+      const resetTime = lastTimestamp ?? 0;
+      setCurrentTime(resetTime);
+      player?.seekTo(resetTime, true);
+      triggeredTimestamps.current.delete(currentTimestamp);
+      setShowPopup(false); // Close the popup
+    }
+    alert("Wrong answer. Try again!");
+  };
+
+  const onPlayerStateChange = (event: YT.OnStateChangeEvent) => {
     if (event.data === window.YT.PlayerState.PLAYING) {
       setIsPlaying(true);
     } else if (event.data === window.YT.PlayerState.PAUSED) {
@@ -105,9 +188,28 @@ const Courses = () => {
     }
   };
 
+  const handleAnswerSelection = (answer: string) => {
+    setSelectedAnswer(answer);
+  };
+
+  const goToNextQuestion = () => {
+    const currentQuestion = questions[currentQuestionIndex];
+    if (selectedAnswer !== currentQuestion.correctAnswer) {
+      handleIncorrectAnswer();
+      setSelectedAnswer("");
+      return;
+    }
+
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setSelectedAnswer("");
+    } else {
+      closePopup();
+    }
+  };
+
   const togglePlayPause = () => {
     if (player && !showPopup) {
-      // Prevent playing video if popup is active
       if (isPlaying) {
         player.pauseVideo();
       } else {
@@ -119,44 +221,39 @@ const Courses = () => {
     }
   };
 
-  const seekVideo = (newTime) => {
+  const seekVideo = (newTime: number) => {
     if (player && newTime <= currentTime) {
-      // Allow only rewinding
-      player.seekTo(newTime, true); // Seek to the specified time
-      setCurrentTime(newTime); // Update state
+      player.seekTo(newTime, true);
+      setCurrentTime(newTime);
     } else {
-      alert("Skipping forward is not allowed."); // Notify the user
+      alert("Skipping forward is not allowed.");
     }
   };
 
-  const changeVolume = (newVolume) => {
+  const changeVolume = (newVolume: number) => {
     setVolume(newVolume);
-    if (player) {
-      player.setVolume(newVolume); // Adjust the volume
-    }
+    player?.setVolume(newVolume);
   };
 
-  const changePlaybackSpeed = (speed) => {
-    if (player) {
-      player.setPlaybackRate(speed); // Set the new playback speed
-      setPlaybackSpeed(speed); // Update state
-    }
+  const changePlaybackSpeed = (speed: number) => {
+    player?.setPlaybackRate(speed);
+    setPlaybackSpeed(speed);
   };
 
   const toggleFullscreen = () => {
-    const videoContainer = document.querySelector(".video-container");
+    const videoContainer = document.querySelector(".video-container") as HTMLElement;
     if (videoContainer.requestFullscreen) {
       videoContainer.requestFullscreen();
-    } else if (videoContainer.mozRequestFullScreen) {
-      videoContainer.mozRequestFullScreen();
-    } else if (videoContainer.webkitRequestFullscreen) {
-      videoContainer.webkitRequestFullscreen();
-    } else if (videoContainer.msRequestFullscreen) {
-      videoContainer.msRequestFullscreen();
+    } else if ((videoContainer as any).mozRequestFullScreen) {
+      (videoContainer as any).mozRequestFullScreen();
+    } else if ((videoContainer as any).webkitRequestFullscreen) {
+      (videoContainer as any).webkitRequestFullscreen();
+    } else if ((videoContainer as any).msRequestFullscreen) {
+      (videoContainer as any).msRequestFullscreen();
     }
   };
 
-  const formatTime = (time) => {
+  const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
@@ -165,13 +262,10 @@ const Courses = () => {
   return (
     <div className="youtube-player h-full relative">
       <RightClickDisabler />
-      <KeyboardLock/>
+      <KeyboardLock />
       <div className="youtube-player h-4/5">
         <div className="video-container h-full bg-gray-400 p-3 mx-20">
-          <div
-            ref={videoPlayerRef}
-            className="w-full h-full no-interaction"
-          ></div>
+          <div ref={videoPlayerRef} className="w-full h-full no-interaction"></div>
         </div>
         <div className="flex justify-center">
           <div className="controls-container w-full mx-20 mt-4 bg-white p-4 rounded-lg shadow">
@@ -185,7 +279,6 @@ const Courses = () => {
                 onChange={(e) => seekVideo(Number(e.target.value))}
               />
             </div>
-            {/* Play/Pause and Volume */}
             <div className="flex justify-between">
               <div className="flex items-center">
                 <button
@@ -209,15 +302,11 @@ const Courses = () => {
                   />
                 </div>
               </div>
-
-              {/* Current Time and Duration */}
               <div className="flex items-center">
                 <div className="text-sm font-medium">
                   {formatTime(currentTime)} / {formatTime(totalDuration)}
                 </div>
               </div>
-
-              {/* Playback Speed Buttons */}
               <div className="flex items-center">
                 {[0.5, 1, 1.5, 2].map((speed) => (
                   <button
@@ -233,8 +322,6 @@ const Courses = () => {
                   </button>
                 ))}
               </div>
-
-              {/* Fullscreen Button */}
               <div>
                 <button
                   onClick={toggleFullscreen}
@@ -247,20 +334,38 @@ const Courses = () => {
           </div>
         </div>
       </div>
-
-      {/* Popup Modal */}
       {showPopup && (
         <div className="popup absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="popup-content bg-white p-5 rounded shadow-lg">
-            <p className="text-lg font-bold">
-              Video paused at {formatTime(currentTimestamp)}.
-            </p>
-            <p>You must close this popup to continue watching.</p>
+            <div className="mb-4">
+              <p className="font-semibold">
+                {questions[currentQuestionIndex].question}
+              </p>
+              {questions[currentQuestionIndex].options.map((option, i) => (
+                <div key={i} className="flex items-center mt-2">
+                  <input
+                    type="radio"
+                    id={`option-${i}`}
+                    name="current-question"
+                    value={option}
+                    onChange={() => handleAnswerSelection(option)}
+                    checked={selectedAnswer === option}
+                    className="mr-2"
+                  />
+                  <label htmlFor={`option-${i}`}>{option}</label>
+                </div>
+              ))}
+            </div>
             <button
-              onClick={closePopup}
-              className="mt-3 px-4 py-2 bg-blue-500 text-white rounded"
+              onClick={goToNextQuestion}
+              disabled={!selectedAnswer}
+              className={`mt-4 px-4 py-2 rounded ${
+                selectedAnswer
+                  ? "bg-blue-500 text-white hover:bg-blue-600"
+                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
+              }`}
             >
-              Close Popup
+              {currentQuestionIndex < questions.length - 1 ? "Next" : "Submit"}
             </button>
           </div>
         </div>
