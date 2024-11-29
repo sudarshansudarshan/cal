@@ -8,7 +8,7 @@ interface CalibrationPosition {
 
 const EyeTrackingWithWebGazer: React.FC = () => {
   const [status, setStatus] = useState<string>("Initializing...");
-  const [gazeDirection, setGazeDirection] = useState<string>("Center");
+  const [inViewport, setInViewport] = useState<boolean>(true);
 
   const calibrationCounterRef = useRef<number>(0);
   const totalCalibrationPoints = 9;
@@ -42,35 +42,18 @@ const EyeTrackingWithWebGazer: React.FC = () => {
             const horizontalThreshold = screenWidth / 6;
             const verticalThreshold = screenHeight / 6;
 
-            let gazeHorizontal: string, gazeVertical: string;
-
             // Horizontal Gaze Direction
             if (x < screenWidth / 2 - horizontalThreshold) {
-              gazeHorizontal = "Left";
+              setInViewport(false);
             } else if (x > screenWidth / 2 + horizontalThreshold) {
-              gazeHorizontal = "Right";
-            } else {
-              gazeHorizontal = "Center";
+              setInViewport(false);
             }
 
             // Vertical Gaze Direction
             if (y < screenHeight / 2 - verticalThreshold) {
-              gazeVertical = "Up";
+              setInViewport(false);
             } else if (y > screenHeight / 2 + verticalThreshold) {
-              gazeVertical = "Down";
-            } else {
-              gazeVertical = "Center";
-            }
-
-            // Combine gaze directions
-            if (gazeVertical === "Center" && gazeHorizontal === "Center") {
-              setGazeDirection("Center");
-            } else if (gazeVertical === "Center") {
-              setGazeDirection(gazeHorizontal);
-            } else if (gazeHorizontal === "Center") {
-              setGazeDirection(gazeVertical);
-            } else {
-              setGazeDirection(`${gazeVertical}-${gazeHorizontal}`);
+              setInViewport(false);
             }
           })
           .saveDataAcrossSessions(true)
@@ -135,13 +118,11 @@ const EyeTrackingWithWebGazer: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1>Eye Tracking with WebGazer.js</h1>
-      <div style={{ marginTop: "20px", fontSize: "1.5em" }}>{status}</div>
-      <div style={{ marginTop: "20px", fontSize: "1.5em" }}>
-        Gaze Direction: {gazeDirection}
-      </div>
-    </div>
+  <div style={{ textAlign: 'center', marginTop: '20px' }}>
+<div style={{marginTop: '10px' }}>
+    (Gaze Detection) In Viewport: {inViewport.toString()}
+</div>
+</div>
   );
 };
 
