@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useCreateVideoDetailsMutation } from "../../store/apiService"; // Adjust import path
-import EyeTrackingWithWebGazer from "@/components/proctoring-components/EyeTrackingWithWebGazer";
 
 const DummyForm = () => {
   const [videoData, setvideoData] = useState({
@@ -35,7 +34,6 @@ const DummyForm = () => {
 
   return (
     <div>
-      <EyeTrackingWithWebGazer/>
       <form onSubmit={handleSubmit}>
         <label htmlFor="title">Title:</label>
         <input

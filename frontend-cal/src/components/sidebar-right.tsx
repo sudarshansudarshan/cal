@@ -16,6 +16,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar"
 import RealTimeHandBlurDetection from "./proctoring-components/realTimeBlurDetection"
+import EyeTrackingWithWebGazer from "./proctoring-components/EyeTrackingWithWebGazer"
 
 // This is sample data.
 const data = {
@@ -59,7 +60,8 @@ export function SidebarRight({
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-        <RealTimeHandBlurDetection/>
+          <RealTimeHandBlurDetection />
+          <EyeTrackingWithWebGazer />
           <SidebarMenuItem>
             <SidebarMenuButton>
               <Plus />
