@@ -28,7 +28,7 @@ const EyeTrackingWithWebGazer: React.FC = () => {
     const initializeWebGazer = async () => {
       setStatus("WebGazer.js initialized. Starting calibration...");
 
-      if (typeof window.webgazer !== "undefined") {
+      if (window.webgazer) {
         window.webgazer
           .setRegression("ridge")
           .setGazeListener((data, elapsedTime) => {
@@ -42,25 +42,37 @@ const EyeTrackingWithWebGazer: React.FC = () => {
             const horizontalThreshold = screenWidth / 6;
             const verticalThreshold = screenHeight / 6;
 
+            let gazeHorizontal = false, gazeVertical = false;
+
             // Horizontal Gaze Direction
             if (x < screenWidth / 2 - horizontalThreshold) {
-              setInViewport(false);
+              gazeHorizontal = false;
             } else if (x > screenWidth / 2 + horizontalThreshold) {
-              setInViewport(false);
+              gazeHorizontal = false;
+            } else {
+              gazeHorizontal = true;
             }
 
             // Vertical Gaze Direction
             if (y < screenHeight / 2 - verticalThreshold) {
-              setInViewport(false);
+              gazeVertical = false;
             } else if (y > screenHeight / 2 + verticalThreshold) {
+              gazeVertical = false;
+            } else {
+              gazeVertical = true;
+            }
+
+            if (gazeHorizontal && gazeVertical) {
+              setInViewport(true);
+            } else {
               setInViewport(false);
             }
+  
           })
           .saveDataAcrossSessions(true)
           .begin()
-          .showVideo(false)
-          .showFaceOverlay(false)
-          .showFaceFeedbackBox(false);
+
+          window.webgazer.showVideo(false)
 
         startCalibration();
       } else {
@@ -120,7 +132,7 @@ const EyeTrackingWithWebGazer: React.FC = () => {
   return (
   <div style={{ textAlign: 'center', marginTop: '20px' }}>
 <div style={{marginTop: '10px' }}>
-    (Gaze Detection) In Viewport: {inViewport.toString()}
+        (Gaze Detection) Status: {status}, In Viewport: {inViewport.toString()}
 </div>
 </div>
   );
