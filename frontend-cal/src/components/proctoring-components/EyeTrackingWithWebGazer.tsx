@@ -28,7 +28,7 @@ const EyeTrackingWithWebGazer: React.FC = () => {
     const initializeWebGazer = async () => {
       setStatus("WebGazer.js initialized. Starting calibration...");
 
-      if (window.webgazer) {
+      if (typeof window.webgazer !== "undefined") {
         window.webgazer
           .setRegression("ridge")
           .setGazeListener((data, elapsedTime) => {
@@ -45,22 +45,10 @@ const EyeTrackingWithWebGazer: React.FC = () => {
             let gazeHorizontal = false, gazeVertical = false;
 
             // Horizontal Gaze Direction
-            if (x < screenWidth / 2 - horizontalThreshold) {
-              gazeHorizontal = false;
-            } else if (x > screenWidth / 2 + horizontalThreshold) {
-              gazeHorizontal = false;
-            } else {
-              gazeHorizontal = true;
-            }
+              gazeHorizontal = x > screenWidth / 2 - horizontalThreshold && x < screenWidth / 2 + horizontalThreshold;
 
             // Vertical Gaze Direction
-            if (y < screenHeight / 2 - verticalThreshold) {
-              gazeVertical = false;
-            } else if (y > screenHeight / 2 + verticalThreshold) {
-              gazeVertical = false;
-            } else {
-              gazeVertical = true;
-            }
+              gazeVertical = y > screenHeight / 2 - verticalThreshold && y < screenHeight / 2 + verticalThreshold;
 
             if (gazeHorizontal && gazeVertical) {
               setInViewport(true);
