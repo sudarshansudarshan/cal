@@ -18,3 +18,9 @@ docs:
       - any-glob-to-any-file:
         - "**/README.md"
         - "**/docs/**"
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+        - "frontend-cal/package*.json"
+        - "backend-cal/requirements.txt"
