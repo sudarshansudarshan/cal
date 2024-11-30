@@ -12,6 +12,10 @@ jobs:
     name: Frontend Code Linting
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./frontend-cal
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -33,6 +37,10 @@ jobs:
   lint_backend:
     name: Backend Code Linting
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./backend-cal
 
     steps:
       - name: Checkout repository
