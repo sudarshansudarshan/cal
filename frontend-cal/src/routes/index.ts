@@ -12,6 +12,7 @@ import DummyForm from "@/pages/Students/DummyForm";
 import StudentHome from "@/pages/Students/StudentHome";
 import AllCourses from "@/pages/Students/AllCourses";
 import Assignments from "@/pages/Students/Assignments";
+import Testing from "@/pages/Students/Testing";
 
 const router = createBrowserRouter([
     {
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
                     {
                         path : "/assignments",
                         element: React.createElement(Assignments)
+                    },
+                    {
+                        path : "/testing",
+                        element: React.createElement(Testing)
                     }
                 ]
             },

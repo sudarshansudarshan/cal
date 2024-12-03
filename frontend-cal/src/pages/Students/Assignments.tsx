@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const assignmentsData = [
+const assignmentsData: { id: number; title: string; course: string; dueDate: string; status: "Pending" | "In Progress" | "Completed"; grade: string }[] = [
   { id: 1, title: "Math Assignment", course: "Algebra", dueDate: "2023-12-15", status: "Pending", grade: "A" },
   { id: 2, title: "Science Project", course: "Physics", dueDate: "2023-12-20", status: "In Progress", grade: "B" },
   { id: 3, title: "History Essay", course: "World History", dueDate: "2023-12-25", status: "Completed", grade: "A+" },
@@ -17,13 +17,21 @@ const statusClasses = {
   Completed: "bg-green-200 text-green-800",
 };
 
-const StatusBadge = ({ status }) => (
+const StatusBadge = ({ status }: { status: keyof typeof statusClasses }) => (
   <span className={`px-3 py-1 text-sm font-semibold rounded-full ${statusClasses[status] || ""}`}>
     {status}
   </span>
 );
 
-const AssignmentRow = ({ title, course, dueDate, status, grade }) => (
+interface AssignmentRowProps {
+  title: string;
+  course: string;
+  dueDate: string;
+  status: keyof typeof statusClasses;
+  grade: string;
+}
+
+const AssignmentRow: React.FC<AssignmentRowProps> = ({ title, course, dueDate, status, grade }) => (
   <div className="grid grid-cols-2 gap-4 p-4 bg-white rounded-lg border border-gray-200">
     <div>
       <div className="text-xl font-semibold">{title}</div>
