@@ -9,6 +9,9 @@ import SuperHome from "@/pages/Admins/SuperHome";
 import Admins from "@/pages/Admins/Admins";
 import Courses from "@/pages/Students/Courses";
 import DummyForm from "@/pages/Students/DummyForm";
+import StudentHome from "@/pages/Students/StudentHome";
+import AllCourses from "@/pages/Students/AllCourses";
+import Assignments from "@/pages/Students/Assignments";
 
 const router = createBrowserRouter([
     {
@@ -20,12 +23,24 @@ const router = createBrowserRouter([
                 element: React.createElement(Home),
                 children:[
                     {
+                        path : "",
+                        element: React.createElement(StudentHome)
+                    },
+                    {
                         path: "/courses",
                         element: React.createElement(Courses)
                     },
                     {
                         path: "/dummyform",
                         element: React.createElement(DummyForm)
+                    },
+                    {
+                        path : "/allCourses",
+                        element: React.createElement(AllCourses)
+                    },
+                    {
+                        path : "/assignments",
+                        element: React.createElement(Assignments)
                     }
                 ]
             },

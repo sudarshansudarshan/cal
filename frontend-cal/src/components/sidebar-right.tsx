@@ -30,16 +30,16 @@ const data = {
   },
   calendars: [
     {
-      name: "My Calendars",
-      items: ["Personal", "Work", "Family"],
+      name: "My Schedules",
+      items: [],
     },
     {
-      name: "Favorites",
-      items: ["Holidays", "Birthdays"],
+      name: "Announcements",
+      items: [],
     },
     {
-      name: "Other",
-      items: ["Travel", "Reminders", "Deadlines"],
+      name: "Updates",
+      items: [],
     },
   ],
 }
@@ -63,14 +63,14 @@ export function SidebarRight({
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-        <MultiPersonDetection/>
+        {/* <MultiPersonDetection/>
         <RealTimeHandBlurDetection/>
         <EyeTrackingWithWebGazer/>
-        <CameraAndMicCheck/>
+        <CameraAndMicCheck/> */}
           <SidebarMenuItem>
             <SidebarMenuButton>
               <Plus />
-              <span>New Calendar</span>
+              <span>New Schedule</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
