@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.apps import apps
-from .models import Video, VideoSegment
+from .models import Video, VideoSegment, Article
 
 
 class VideoSegmentInline(admin.TabularInline):
@@ -10,13 +10,13 @@ class VideoSegmentInline(admin.TabularInline):
 
 
 class VideoAdmin(admin.ModelAdmin):
-    list_display = ('title', 'module', 'created_at', 'updated_at')
+    list_display = ('title', 'section', 'created_at', 'updated_at')
     inlines = [VideoSegmentInline]
 
-# class ArticleAdmin(admin.ModelAdmin):
-#     list_display = ('title', 'content_type', 'module', 'created_at', 'updated_at')
+class ArticleAdmin(admin.ModelAdmin):
+    list_display = ('title', 'content_type', 'section', 'created_at', 'updated_at')
 
 
 admin.site.register(Video, VideoAdmin)
-# admin.site.register(Article, ArticleAdmin)
+admin.site.register(Article, ArticleAdmin)
 
