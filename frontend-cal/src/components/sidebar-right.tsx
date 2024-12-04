@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/sidebar"
 import RealTimeHandBlurDetection from "./proctoring-components/realTimeBlurDetection"
 import MultiPersonDetection from "./proctoring-components/MultiPersonDetection"
+import VoiceActivityDetection from "./proctoring-components/VoiceActivityDetection"
 
 
 // This is sample data.
@@ -63,7 +64,7 @@ export function SidebarRight({
         <SidebarMenu>
         <MultiPersonDetection/>
         <RealTimeHandBlurDetection/>
-        
+        <VoiceActivityDetection/>
           <SidebarMenuItem>
             <SidebarMenuButton>
               <Plus />
