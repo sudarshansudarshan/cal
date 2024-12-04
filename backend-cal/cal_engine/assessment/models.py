@@ -5,6 +5,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import re
 
 
 class Assessment(models.Model):
@@ -84,12 +85,13 @@ class NATSolution(models.Model):
                     raise ValidationError("tolerance_min cannot be greater than tolerance_max.")
 
     def save(self, *args, **kwargs):
-        # Calculate default tolerances if not provided
-        if self.tolerance_min is None:
-            self.tolerance_min = self.value * 0.99  # -1%
-        if self.tolerance_max is None:
-            self.tolerance_max = self.value * 1.01  # +1%
+        if self.value != 0:
+            if self.tolerance_min is None:
+                self.tolerance_min = self.value * 0.99  # -1%
+            if self.tolerance_max is None:
+                self.tolerance_max = self.value * 1.01  # +1%
         super().save(*args, **kwargs)
+
 
     def __str__(self):
         return f"Value: {self.value}, Tolerance: [{self.tolerance_min}, {self.tolerance_max}]"
@@ -109,6 +111,17 @@ class ChoiceSolution(models.Model):
     format = models.CharField(max_length=10, choices=FORMAT_CHOICES, default='text', help_text="Format of the option (text or image).")
     value = models.TextField(help_text="The text or image url for the option.")
     is_correct = models.BooleanField(default=False, help_text="Is this the correct option?")
+
+    def clean(self):
+        # Ensure 'value' is not empty depending on the format
+        if self.format == 'text' and not self.value.strip():
+            raise ValidationError("Text value cannot be empty when format is 'text'.")
+        
+        if self.format == 'image':
+            # Optionally, you can validate if the URL is a valid image URL
+            image_url_pattern = r'^(https?://.*\.(?:png|jpg|jpeg|gif|bmp|tiff))$'
+            if not re.match(image_url_pattern, self.value.strip()):
+                raise ValidationError("Invalid image URL format.")
 
     
     def __str__(self):
