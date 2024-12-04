@@ -28,7 +28,7 @@ class Question(models.Model):
 
     text = models.TextField()
     type = models.CharField(max_length=20, choices=QUESTION_TYPES)
-    marks = models.PositiveIntegerField(help_text="Maximum marks for the question.", default=0)
+    marks = models.PositiveIntegerField(help_text="Maximum marks for the question.", default=1)
     assessments = models.ManyToManyField('Assessment', related_name='questions', blank=True)
     tags = models.TextField(null=True, blank=True, help_text="Comma-separated tags for question segregation.")
     time_limit = models.PositiveIntegerField(null=True, blank=True, help_text="Time limit in seconds.")
