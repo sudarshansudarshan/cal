@@ -19,7 +19,7 @@ const VoiceActivityDetection: React.FC = () => {
       const classifier = await AudioClassifier.createFromOptions(resolver, {
         baseOptions: {
           modelAssetPath:
-            "https://storage.googleapis.com/mediapipe-models/audio_classifier/yamnet/float32/1/yamnet.tflite",
+            "src/models/yamnet.tflite",
         },
       });
 
