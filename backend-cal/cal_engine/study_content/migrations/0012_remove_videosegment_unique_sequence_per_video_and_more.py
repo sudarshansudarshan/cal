@@ -10,12 +10,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveConstraint(
-            model_name='videosegment',
-            name='unique_sequence_per_video',
-        ),
-        migrations.AddConstraint(
-            model_name='videosegment',
-            constraint=models.UniqueConstraint(fields=('video', 'start_time'), name='unique_sequence_per_video'),
-        ),
+
     ]

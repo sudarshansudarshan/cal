@@ -10,14 +10,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='videosegment',
-            name='sequence',
-            field=models.PositiveIntegerField(default=0, help_text='The sequence of this segment within the video.'),
-            preserve_default=False,
-        ),
-        migrations.AddConstraint(
-            model_name='videosegment',
-            constraint=models.UniqueConstraint(fields=('video', 'sequence'), name='unique_sequence_per_video'),
-        ),
+
     ]

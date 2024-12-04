@@ -17,7 +17,7 @@ class VideoSegment(models.Model):
     video = models.ForeignKey(Video, on_delete=models.CASCADE, related_name='segments')
     title = models.CharField(max_length=255)
     start_time = models.PositiveIntegerField(help_text="Start time in seconds", blank=True, null=True)
-    sequence = models.PositiveIntegerField(help_text="The sequence of this segment within the video.")
+    transcript = models.TextField(null=True, blank=True)
     assessment = models.ForeignKey(
         'assessment.Assessment',
         on_delete=models.CASCADE,
@@ -28,12 +28,8 @@ class VideoSegment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['video', 'sequence'], name='unique_sequence_per_video')
-        ]
     def __str__(self):
-        return f"{self.video.title} - Segment: {self.title} (Sequence: {self.sequence})"
+        return f"{self.video.title} - Segment: {self.title}"
 
 class Article(models.Model):
     CONTENT_TYPES = [
