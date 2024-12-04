@@ -4,15 +4,8 @@ from django.contrib import admin
 from .models import Course, Module, Section, SectionItem
 
 
-class SectionItemInline(admin.TabularInline):
-    model = SectionItem
-    fields = ('content_type', 'object_id', 'sequence')
-    extra = 0
-
-
 class SectionAdmin(admin.ModelAdmin):
     list_display = ('title', 'module', 'sequence', 'created_at', 'updated_at')
-    inlines = [SectionItemInline]
 
 
 class ModuleAdmin(admin.ModelAdmin):

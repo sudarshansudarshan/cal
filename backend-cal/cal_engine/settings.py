@@ -38,10 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
+    #3rd Party
     'rest_framework',
     'rest_framework_simplejwt',
-    
+    'django_extensions',
+
     'cal_engine.authentication',
     'cal_engine.user',
     'cal_engine.institution',

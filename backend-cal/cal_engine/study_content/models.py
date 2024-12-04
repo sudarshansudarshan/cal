@@ -1,14 +1,13 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from cal_engine.course.models import SectionItem
 
-class Video(models.Model):
-    section = models.ForeignKey('course.Section', on_delete=models.CASCADE, related_name='videos', null=True)
+class Video(SectionItem):
+    content_type = models.CharField(max_length=10, default="video")
     title = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     link = models.URLField()
     youtube_id = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
@@ -32,19 +31,13 @@ class VideoSegment(models.Model):
     def __str__(self):
         return f"{self.video.title} - Segment: {self.title}"
 
-class Article(models.Model):
-    CONTENT_TYPES = [
-        ('markdown', 'Markdown'),
-        ('pdf', 'PDF'),
-        ('link', 'Link'),
-    ]
-
-    section = models.ForeignKey('course.Section', on_delete=models.CASCADE, related_name='articles')
+class Article(SectionItem):
+    content_type = models.CharField(max_length=10, default="article")
     title = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField()
-    content_type = models.CharField(max_length=50, choices=CONTENT_TYPES)
-    content = models.TextField(null=True, blank=True, help_text="Content for Markdown or link to PDF/URL")
+    content = models.TextField(null=True, blank=True, help_text="Content for Markdown")
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

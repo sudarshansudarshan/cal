@@ -14,7 +14,7 @@ class VideoAdmin(admin.ModelAdmin):
     inlines = [VideoSegmentInline]
 
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('title', 'content_type', 'section', 'created_at', 'updated_at')
+    list_display = ('title', 'section', 'created_at', 'updated_at')
 
 
 admin.site.register(Video, VideoAdmin)

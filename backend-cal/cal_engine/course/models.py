@@ -59,10 +59,13 @@ class Section(models.Model):  # Sub-parts within a Module
 
 
 class SectionItem(models.Model):
-    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='items')
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    section = models.ForeignKey(
+        Section,
+        on_delete=models.CASCADE,
+        related_name="%(class)s_items",  # Dynamically generate related_name
+        help_text="The section this item belongs to."
+    )
+    content_type = models.CharField(max_length=10)
     sequence = models.PositiveIntegerField(help_text="The order of this item within the section.")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -70,6 +73,8 @@ class SectionItem(models.Model):
     class Meta:
         unique_together = ('section', 'sequence')
         ordering = ['sequence']
+        abstract = True
 
     def __str__(self):
-        return f"Item in {self.section.title}: {self.content_object} (Sequence: {self.sequence})"
+        return f"{self.section} - Item Sequence {self.sequence}"
+

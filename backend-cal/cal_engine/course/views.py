@@ -10,7 +10,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
 class ModuleViewSet(viewsets.ModelViewSet):
     """
-    A viewset for managing modules within a course. 
+    A viewset for managing modules within a course.
     Allows listing, creating, updating, retrieving, and deleting modules.
     """
     queryset = Module.objects.all()
@@ -19,12 +19,12 @@ class ModuleViewSet(viewsets.ModelViewSet):
     # def list(self, request, *args, **kwargs):
     #     """
     #     Retrieve a list of all modules, optionally filtering by course.
-        
+
     #     Args:
     #         request (Request): The HTTP request object containing query parameters (optional).
     #         *args (tuple): Additional positional arguments passed to the method.
     #         **kwargs (dict): Additional keyword arguments passed to the method.
-        
+
     #     Returns:
     #         Response: A DRF Response object containing the list of modules.
     #     """
@@ -37,12 +37,12 @@ class ModuleViewSet(viewsets.ModelViewSet):
     # def create(self, request, *args, **kwargs):
     #     """
     #     Create a new module within a specific course.
-        
+
     #     Args:
     #         request (Request): The HTTP request object containing data for the new module.
     #         *args (tuple): Additional positional arguments passed to the method.
     #         **kwargs (dict): Additional keyword arguments passed to the method.
-        
+
     #     Returns:
     #         Response: A DRF Response object containing the created module's data.
     #     """
@@ -54,12 +54,12 @@ class ModuleViewSet(viewsets.ModelViewSet):
     # def retrieve(self, request, *args, **kwargs):
     #     """
     #     Retrieve a specific module by its ID.
-        
+
     #     Args:
     #         request (Request): The HTTP request object containing metadata.
     #         *args (tuple): Additional positional arguments passed to the method.
     #         **kwargs (dict): Contains the `pk` (primary key) of the module to retrieve.
-        
+
     #     Returns:
     #         Response: A DRF Response object containing the module data.
     #     """
@@ -70,12 +70,12 @@ class ModuleViewSet(viewsets.ModelViewSet):
     # def update(self, request, *args, **kwargs):
     #     """
     #     Update an existing module.
-        
+
     #     Args:
     #         request (Request): The HTTP request object containing updated data for the module.
     #         *args (tuple): Additional positional arguments passed to the method.
     #         **kwargs (dict): Contains the `pk` (primary key) of the module to update.
-        
+
     #     Returns:
     #         Response: A DRF Response object containing the updated module data.
     #     """
@@ -89,12 +89,12 @@ class ModuleViewSet(viewsets.ModelViewSet):
     # def destroy(self, request, *args, **kwargs):
     #     """
     #     Delete (soft delete by marking inactive) a module.
-        
+
     #     Args:
     #         request (Request): The HTTP request object containing metadata.
     #         *args (tuple): Additional positional arguments passed to the method.
     #         **kwargs (dict): Contains the `pk` (primary key) of the module to delete.
-        
+
     #     Returns:
     #         Response: A DRF Response object containing a success message.
     #     """
@@ -109,8 +109,3 @@ class ModuleViewSet(viewsets.ModelViewSet):
 class SectionViewSet(viewsets.ModelViewSet):
     queryset = Section.objects.all()
     serializer_class = SectionSerializer
-
-
-class SectionItemViewSet(viewsets.ModelViewSet):
-    queryset = SectionItem.objects.all()
-    serializer_class = SectionItemSerializer
