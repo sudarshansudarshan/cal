@@ -13,6 +13,7 @@ import StudentHome from "@/pages/Students/StudentHome";
 import AllCourses from "@/pages/Students/AllCourses";
 import Assignments from "@/pages/Students/Assignments";
 import Testing from "@/pages/Students/Testing";
+import SingleCourse from "@/pages/Students/SingleCourse";
 
 const router = createBrowserRouter([
     {
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
                     {
                         path : "/testing",
                         element: React.createElement(Testing)
+                    },
+                    {
+                        path : "/singleCourse",
+                        element: React.createElement(SingleCourse)
                     }
                 ]
             },

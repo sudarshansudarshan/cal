@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useLoginMutation, useSignupMutation } from '../store/apiService';
-import { setUser } from '../store/authSlice';
+import { setUser } from '../store/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {

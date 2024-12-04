@@ -1,7 +1,7 @@
-// src/store/authSlice.ts
+// src/store/slices/authSlice.ts
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { apiService, AuthResponse } from './apiService';
+import { apiService, AuthResponse } from '../apiService';
 
 interface AuthState {
   user: AuthResponse['user'] | null;

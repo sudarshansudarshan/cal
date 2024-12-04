@@ -3,15 +3,15 @@
 import * as React from "react"
 import {
   AudioWaveform,
-  Blocks,
+  BookMarked,
   Calendar,
   Command,
+  File,
   Home,
   Inbox,
+  LogOut,
   MessageCircleQuestion,
-  Search,
   Settings2,
-  Sparkles,
   Trash2,
 } from "lucide-react"
 
@@ -50,17 +50,17 @@ const data = {
     {
       title: "Dashboard",
       url: "#",
-      icon: Search,
+      icon: Home,
     },
     {
       title: "Courses",
       url: "#",
-      icon: Sparkles,
+      icon: BookMarked,
     },
     {
       title: "Assignments",
       url: "#",
-      icon: Home,
+      icon: File,
       isActive: true,
     },
     {
@@ -84,7 +84,7 @@ const data = {
     {
       title: "Logout",
       url: "#",
-      icon: Blocks,
+      icon: LogOut,
     },
     {
       title: "Trash",

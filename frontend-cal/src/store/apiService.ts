@@ -45,17 +45,16 @@ export const apiService = createApi({
       { first_name: string; last_name: string; username: string; email: string; password: string; user_type: string }
     >({
       query: (userData) => ({
-      url: "/register/",
-      method: "POST",
-      body: userData,
+        url: "/register/",
+        method: "POST",
+        body: userData,
       }),
       onQueryStarted: async (arg, { queryFulfilled }) => {
-      try {
-        const { data } = await queryFulfilled;
-        Cookies.set("access_token", data.token); // Store token after signup
-      } catch (error) {
-        console.error("Failed to store access token in cookies", error);
-      }
+        try {
+          await queryFulfilled;
+        } catch (error) {
+          console.error("Signup failed", error);
+        }
       },
     }),
 
@@ -111,7 +110,7 @@ export const apiService = createApi({
           })),
         };
       },
-    }), 
+    }),
     fetchVideoDetailsWithAuth: builder.query<{ videoDetails: any[] }, void>({
       query: () => ({
         url: "/videos/",
@@ -143,12 +142,12 @@ export const apiService = createApi({
   }),
 });
 
-export const { 
+export const {
   useCreateVideoDetailsMutation,
   useFetchVideoDetailsWithAuthQuery,
-  useFetchInstitutesWithAuthQuery, 
+  useFetchInstitutesWithAuthQuery,
   useFetchUsersWithAuthQuery,
-  useLoginMutation, 
-  useSignupMutation, 
-  useLogoutMutation 
+  useLoginMutation,
+  useSignupMutation,
+  useLogoutMutation
 } = apiService;
