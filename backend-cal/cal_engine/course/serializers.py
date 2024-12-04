@@ -1,10 +1,6 @@
 from rest_framework import serializers
 from .models import Course, Module, Section, SectionItem
-
-class CourseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Course
-        fields = '__all__'
+from cal_engine.institution.models import Institution
 
 class ModuleSerializer(serializers.ModelSerializer):
     """
@@ -12,7 +8,7 @@ class ModuleSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Module
-        fields = '__all__'
+        exclude = ('created_at', 'updated_at')
 
 class SectionSerializer(serializers.ModelSerializer):
     """
@@ -20,7 +16,33 @@ class SectionSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Section
-        fields = '__all__'
+        exclude = ('created_at', 'updated_at')
+
+class CourseModuleSummarySerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Module model to be used in CourseSerializer.
+    """
+    class Meta:
+        model = Module
+        fields = ('id', 'title','description', 'sequence')
+
+class CourseInstitutionSummarySerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Institution model to be used in CourseSerializer.
+    """
+    class Meta:
+        model = Institution
+        fields = ('id', 'name', 'description')
+
+class CourseSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Course model.
+    """
+    modules = CourseModuleSummarySerializer(many=True, read_only=True)
+    institution_details = CourseInstitutionSummarySerializer(source='institution', read_only=True)
+    class Meta:
+        model = Course
+        fields = ('id', 'name', 'visibility', 'institution_details', 'description', 'modules')
 
 
 class SectionItemSerializer(serializers.ModelSerializer):
@@ -29,4 +51,4 @@ class SectionItemSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = SectionItem
-        fields = '__all__'
+        exclude = ('created_at', 'updated_at')
