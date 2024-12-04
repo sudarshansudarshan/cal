@@ -57,6 +57,7 @@ class Section(models.Model):  # Sub-parts within a Module
     def __str__(self):
         return f"Section {self.sequence}: {self.title} (Module {self.module.sequence})"
 
+
 class SectionItem(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='items')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)

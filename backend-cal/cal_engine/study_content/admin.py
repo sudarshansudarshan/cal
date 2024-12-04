@@ -5,7 +5,7 @@ from .models import Video, VideoSegment, Article
 
 class VideoSegmentInline(admin.TabularInline):
     model = VideoSegment
-    fields = ('title', 'sequence', 'start_time', 'end_time', 'assessment')
+    fields = ('title', 'start_time', 'assessment')
     extra = 0
 
 

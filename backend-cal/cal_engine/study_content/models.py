@@ -17,7 +17,6 @@ class VideoSegment(models.Model):
     video = models.ForeignKey(Video, on_delete=models.CASCADE, related_name='segments')
     title = models.CharField(max_length=255)
     start_time = models.PositiveIntegerField(help_text="Start time in seconds", blank=True, null=True)
-    end_time = models.PositiveIntegerField(help_text="End time in seconds")
     sequence = models.PositiveIntegerField(help_text="The sequence of this segment within the video.")
     assessment = models.ForeignKey(
         'assessment.Assessment',
