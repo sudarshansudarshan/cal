@@ -6,6 +6,7 @@ class Video(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     link = models.URLField()
+    youtube_id = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

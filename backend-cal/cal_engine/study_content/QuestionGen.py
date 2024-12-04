@@ -11,19 +11,27 @@ import uuid
 import time
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.formatters import TextFormatter
-from .models import Video, Segment
+from .models import Video, VideoSegment
 
 genai.configure(api_key="AIzaSyBOe0ZxXCHfjX2dzaVPkP67tqjCcspsvs0")
 
 class transcriptAndQueGen:
 
+    """
+    This class is used to generate questions from a given video transcript.
+    This takes title, section_id, url as mandatory fields
+    """
+
     def __init__(self) -> None:
+
         self.url = ""
+        self.section_id = None
+        self.title = ""
+
         self.transcripts = []
         self.questions = []
         self.timestamps = []
         self.answers = []
-        self.title = ""
         self.transcript = ""
         self.description = ""
         self.duration = ""
@@ -31,12 +39,14 @@ class transcriptAndQueGen:
         self.segmentsCount = 4
         self.video_id = None
 
+
     # Calling on Gemini API
     def generateFromGemini(self, prompt):
         model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content(prompt)
         time.sleep(10)
         return response.text
+
 
     # Get data from LLM and format it in favourable json format
     def parseLlamaJson(self, text):
@@ -57,6 +67,7 @@ class transcriptAndQueGen:
         except json.JSONDecodeError as e:
             raise ValueError(f"Failed to parse JSON: {e}")
     
+
     # Format the prompt
     def generateQuestionsFromPrompt(self, text):
         
@@ -100,9 +111,9 @@ class transcriptAndQueGen:
 
         return response
     
+
     # Extract video ID from the URL
     def extractVideoId(self):
-
         # Extract the video ID from the URL
         patterns = [
             r"(?:https?://)?(?:www\.)?youtu\.be/([^?&]+)",  # youtu.be short links
@@ -115,22 +126,28 @@ class transcriptAndQueGen:
         for pattern in patterns:
             match = re.match(pattern, self.url)
             if match:
-                return match.group(1)
+                # Add new video
+                new_video = Video.objects.create(title=self.title, youtube_id=match.group(1),
+                                                 section_id=self.section_id, link=self.url)
+                self.video_id = match.group(1)
+                new_video.save()
+                return self.video_id
 
         print("Error: Unable to extract video ID.")
         return None
+
 
     # Get raw transcript from YouTube
     def getRawTranscript(self):
         video_id = self.extractVideoId()
         if not video_id:
-            return None  # Exit if video ID could not be extracted
+            return None
         try:
-            # Fetch transcript
             transcript = YouTubeTranscriptApi.get_transcript(video_id)
             self.transcript = transcript
         except Exception as e:
             return None
+
 
     # Generate transcript segments
     def generate_transcript_segments(self):
