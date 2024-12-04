@@ -77,8 +77,6 @@ Some custom rules have been enforced, inspired by [Django's Style Guide](https:/
 
 ## Pull Request Process
 
-**All changes to the master branch must be made through pull requests only.**
-
 1. Ensure your code follows the coding standards and passes all linting and testing checks.
 2. Push your branch to your forked repository:
    ```sh
@@ -87,6 +85,14 @@ Some custom rules have been enforced, inspired by [Django's Style Guide](https:/
 3. Open a pull request against the `master` branch of the original repository.
 4. Use and promptly fill out the provided PR templates.
 5. Ensure your pull request passes all CI checks.
+
+**For Repository Collaborators**
+
+- All changes to the master branch must be made through pull requests only.
+- Create a branch from the `master` branch (eg. `add-gaze-tracking`).
+- Create a pull request with the `master` branch as the base branch.
+- Pull requests may only be merged after the designated code owners have reviewed and approved them.
+- After merging, delete the branch.
 
 > Note: Before opening a pull request, ensure your branch is up-to-date with the `master` branch of the original repository.
 
