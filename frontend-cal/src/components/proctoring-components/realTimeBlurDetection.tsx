@@ -4,13 +4,14 @@ import * as drawingUtils from "@mediapipe/drawing_utils";
 
 const RealTimeHandBlurDetection = () => {
   const videoRef = useRef(null);
-  const canvasRef = useRef(null);
   const infoRef = useRef(null);
 
   useEffect(() => {
     const videoElement = videoRef.current;
-    const canvasElement = canvasRef.current;
     const infoElement = infoRef.current;
+
+    // Create an offscreen canvas
+    const canvasElement = document.createElement("canvas");
     const canvasCtx = canvasElement.getContext("2d");
     let animationFrameId;
 
@@ -65,7 +66,7 @@ const RealTimeHandBlurDetection = () => {
      * @param {Object} results - The results from hand detection.
      */
     function onResults(results) {
-      // Draw the video frame
+      // Draw the video frame onto the offscreen canvas
       canvasCtx.save();
       canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
       canvasCtx.drawImage(
@@ -124,7 +125,7 @@ const RealTimeHandBlurDetection = () => {
       const width = Math.floor(image.width * scale);
       const height = Math.floor(image.height * scale);
 
-      // Create an offscreen canvas
+      // Create an offscreen canvas for processing
       const offscreenCanvas = document.createElement("canvas");
       offscreenCanvas.width = width;
       offscreenCanvas.height = height;
@@ -144,8 +145,6 @@ const RealTimeHandBlurDetection = () => {
       const variance = computeVariance(laplacian);
 
       // Threshold for blurriness (adjust as needed)
-      const threshold = 50; // Adjusted threshold
-
       const isBlurry = variance < 250;
 
       // Return both isBlurry and variance
@@ -236,14 +235,6 @@ const RealTimeHandBlurDetection = () => {
     <div>
       <div className="flex justify-center">
         <video ref={videoRef} style={{ display: "none" }} playsInline></video>
-
-        {/* Canvas for drawing annotations */}
-        <canvas
-          ref={canvasRef}
-          className="h-36 border-1 border-gray-600 "
-        ></canvas>
-
-        {/* Information display */}
       </div>
       <div ref={infoRef}></div>
     </div>
