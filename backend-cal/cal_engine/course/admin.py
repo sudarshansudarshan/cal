@@ -13,7 +13,7 @@ class ModuleAdmin(admin.ModelAdmin):
 
 
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('name', 'visibility', 'institution', 'created_at', 'updated_at')
+    list_display = ('name', 'visibility', 'image', 'institution', 'created_at', 'updated_at')
 
 
 admin.site.register(Course, CourseAdmin)

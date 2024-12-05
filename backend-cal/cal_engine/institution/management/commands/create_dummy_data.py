@@ -103,7 +103,10 @@ class Command(BaseCommand):
         assessment, created = Assessment.objects.get_or_create(
             title="Dummy Quiz",
             course=course,
-            defaults={"type": "normal", "deadline": None},
+            defaults={
+                "type": "normal",
+                "deadline": None,  # No deadline for dummy data
+            },
         )
         if created:
             self.stdout.write(self.style.SUCCESS(f"Assessment '{assessment.title}' created under Course '{course.name}'."))
