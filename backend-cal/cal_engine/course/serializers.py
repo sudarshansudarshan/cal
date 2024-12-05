@@ -66,7 +66,18 @@ class CourseSerializer(serializers.ModelSerializer):
     """
     modules = CourseModuleSummarySerializer(many=True, read_only=True)
     institution_details = CourseInstitutionSummarySerializer(source='institution', read_only=True)
+    enrolled = serializers.SerializerMethodField()
+
     class Meta:
         model = Course
-        fields = ('id', 'name', 'visibility', 'institution_details', 'description', 'modules')
+        fields = ('id', 'name', 'visibility', 'institution_details', 'description', 'modules', 'image', 'enrolled')
+
+    def get_enrolled(self, obj):
+        return getattr(obj, 'enrolled', False)
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if not representation.get('enrolled', False):
+            representation.pop('modules', None)
+        return representation
 

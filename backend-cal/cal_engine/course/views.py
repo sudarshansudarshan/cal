@@ -1,14 +1,30 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from .models import Course, Module, Section, SectionItem
-from .serializers import CourseSerializer, ModuleSerializer, SectionSerializer, SectionItemSerializer
+from .serializers import CourseSerializer, ModuleSerializer, SectionSerializer
+from ..user.models import UserCourse
+from ..user.serializers import UserCoursesSerializer
 from .permissions import IsStudentReadOnly
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Exists, OuterRef
 
 class CourseViewSet(viewsets.ModelViewSet):
-    queryset = Course.objects.all()
+    """
+    ViewSet for managing courses.
+    """
     serializer_class = CourseSerializer
-    permission_classes = [IsStudentReadOnly, IsAuthenticated]
+    permission_classes = [IsAuthenticated]
+
+    queryset = Course.objects.none()
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Course.objects.annotate(
+            enrolled=Exists(UserCourse.objects.filter(user=user, course_id=OuterRef('id')))
+        )
+        if user.role == 'Student':
+            queryset = queryset.filter(visibility=True)
+        return queryset
 
 
 class ModuleViewSet(viewsets.ModelViewSet):

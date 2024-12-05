@@ -11,6 +11,7 @@ class Course(models.Model):
         ('unlisted', 'Unlisted'),
     ]
     name = models.CharField(max_length=255, unique=True)
+    image = models.ImageField(upload_to='course_images/', null=True, blank=True)
     description = models.TextField()
     visibility = models.CharField(
         max_length=50,
@@ -77,4 +78,5 @@ class SectionItem(models.Model):
 
     def __str__(self):
         return f"{self.section} - Item Sequence {self.sequence}"
+
 
