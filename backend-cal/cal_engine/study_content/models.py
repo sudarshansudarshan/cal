@@ -41,6 +41,29 @@ class Article(SectionItem):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['video', 'sequence'], name='unique_sequence_per_video')
+        ]
     def __str__(self):
-        return self.title
+        return f"{self.video.title} - Segment: {self.title} (Sequence: {self.sequence})"
+
+# class Article(models.Model):
+#     CONTENT_TYPES = [
+#         ('markdown', 'Markdown'),
+#         ('pdf', 'PDF'),
+#         ('link', 'Link'),
+#     ]
+
+#     module = models.ForeignKey('course.Module', on_delete=models.CASCADE, related_name='articles')
+#     title = models.CharField(max_length=255)
+#     subtitle = models.CharField(max_length=255, null=True, blank=True)
+#     description = models.TextField()
+#     content_type = models.CharField(max_length=50, choices=CONTENT_TYPES)
+#     content = models.TextField(null=True, blank=True, help_text="Content for Markdown or link to PDF/URL")
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+
+#     def __str__(self):
+#         return self.title
 

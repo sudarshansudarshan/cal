@@ -10,6 +10,11 @@ class Course(models.Model):
         ('private', 'Private'),
         ('unlisted', 'Unlisted'),
     ]
+    VISIBILITY_CHOICES = [
+        ('public', 'Public'),
+        ('private', 'Private'),
+        ('unlisted', 'Unlisted'),
+    ]
     name = models.CharField(max_length=255, unique=True)
     image = models.ImageField(upload_to='course_images/', null=True, blank=True)
     description = models.TextField()
