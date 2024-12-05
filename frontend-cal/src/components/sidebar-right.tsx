@@ -64,7 +64,7 @@ export function SidebarRight({
         <SidebarMenu>
         <MultiPersonDetection/>
         <RealTimeHandBlurDetection/>
-        <VoiceActivityDetection/>
+        <VoiceActivityDetection/> 
           <SidebarMenuItem>
             <SidebarMenuButton>
               <Plus />
