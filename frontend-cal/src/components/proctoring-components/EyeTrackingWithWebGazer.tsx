@@ -1,169 +1,110 @@
 import React, { useEffect, useRef, useState } from "react";
 
-// Define the type for calibration positions
-interface CalibrationPosition {
-    x: number;
-    y: number;
-}
-
 const EyeTrackingWithWebGazer: React.FC = () => {
-    const [status, setStatus] = useState<string>("Initializing...");
-    const [lookingAtScreen, setLookingAtScreen] = useState<boolean>(true);
-    const [showMessage, setShowMessage] = useState<boolean>(true);
+  const [isGazeOnScreen, setIsGazeOnScreen] = useState<boolean>(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-    const calibrationCounterRef = useRef<number>(0);
-    const totalCalibrationPoints = 9;
-    const calibrationPositions: CalibrationPosition[] = [
-        { x: 0.1, y: 0.1 },
-        { x: 0.5, y: 0.1 },
-        { x: 0.9, y: 0.1 },
-        { x: 0.1, y: 0.5 },
-        { x: 0.5, y: 0.5 },
-        { x: 0.9, y: 0.5 },
-        { x: 0.1, y: 0.9 },
-        { x: 0.5, y: 0.9 },
-        { x: 0.9, y: 0.9 },
-    ];
+  useEffect(() => {
+    const videoElement = videoRef.current!;
+    const canvasElement = canvasRef.current!;
+    const canvasCtx = canvasElement.getContext("2d");
+    let animationFrameId: number;
 
-    const gazeXHistory: number[] = [];
-    const gazeYHistory: number[] = [];
-    const historySize = 20;
-
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
-
-    useEffect(() => {
-        const initializeWebGazer = async () => {
-            setStatus("WebGazer.js initialized. Starting calibration...");
-
-            if (typeof window.webgazer !== "undefined") {
-                window.webgazer
-                    .setRegression("ridge")
-                    .setTracker("clmtrackr")
-                    .setGazeListener((data, elapsedTime) => {
-                        if (!data) {
-                            setLookingAtScreen(false);
-                            return;
-                        }
-
-                        let smoothedX = smoothCoordinates(gazeXHistory, data.x, historySize);
-                        let smoothedY = smoothCoordinates(gazeYHistory, data.y, historySize);
-
-                        if (isOutOfBounds(smoothedX, smoothedY)) {
-                            setLookingAtScreen(false); // User is looking away
-                        } else {
-                            setLookingAtScreen(true); // User is looking at the screen
-                        }
-                    })
-                    .saveDataAcrossSessions(true)
-                    .begin();
-
-                window.webgazer.showVideoPreview(false);
-                window.webgazer.showPredictionPoints(false); // Hide the red dot
-            } else {
-                console.error("WebGazer is not loaded.");
-                setStatus("Error: WebGazer.js not found.");
-            }
+    // Set up the video stream
+    navigator.mediaDevices
+      .getUserMedia({ video: true })
+      .then((stream) => {
+        videoElement.srcObject = stream;
+        videoElement.onloadedmetadata = () => {
+          videoElement.play();
+          canvasElement.width = videoElement.videoWidth;
+          canvasElement.height = videoElement.videoHeight;
+          startProcessing();
         };
+      })
+      .catch((err) => {
+        console.error("Error accessing the camera: " + err);
+      });
 
-        initializeWebGazer();
-
-        return () => {
-            if (typeof window.webgazer !== "undefined") {
-                window.webgazer.end();
+    const startProcessing = () => {
+      if (typeof window.webgazer !== "undefined") {
+        window.webgazer
+          .setRegression("ridge")
+          .setGazeListener((data) => {
+            if (!data) {
+              setIsGazeOnScreen(false);
+              return;
             }
-        };
-    }, [screenWidth, screenHeight]);
 
-    const smoothCoordinates = (coordinates: number[], newValue: number, maxSize: number) => {
-        coordinates.push(newValue);
-        if (coordinates.length > maxSize) coordinates.shift();
-        return coordinates.reduce((a, b) => a + b, 0) / coordinates.length;
+            const x = data.x; // Gaze x-coordinate
+            const y = data.y; // Gaze y-coordinate
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+
+            // Check if gaze is within the screen bounds
+            setIsGazeOnScreen(x >= 0 && x <= screenWidth && y >= 0 && y <= screenHeight);
+          })
+          .begin()
+          .showVideo(false) // Disable default WebGazer video
+          .showFaceOverlay(false)
+          .showFaceFeedbackBox(false);
+
+        processVideoFrame();
+      } else {
+        console.error("WebGazer is not loaded.");
+      }
     };
 
-    const isOutOfBounds = (x: number, y: number) => {
-        return x < 0 || x > screenWidth || y < 0 || y > screenHeight;
+    const processVideoFrame = () => {
+      if (canvasCtx && videoElement) {
+        // Draw video feed to canvas
+        canvasCtx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+      }
+      animationFrameId = requestAnimationFrame(processVideoFrame);
     };
 
-    const startCalibration = () => {
-        setStatus("Calibration in progress...");
-        calibrationCounterRef.current = 0; // Reset counter
-        setTimeout(() => {
-            showCalibrationPoint();
-        }, 2000); // Adjust delay as needed to ensure camera starts
+    return () => {
+      if (typeof window.webgazer !== "undefined") {
+        window.webgazer.end();
+      }
+      cancelAnimationFrame(animationFrameId);
     };
+  }, []);
 
-    const showCalibrationPoint = () => {
-        if (calibrationCounterRef.current >= totalCalibrationPoints) {
-            setStatus("Calibration complete. Validating...");
-            validateCalibration();
-            return;
-        }
+  return (
+    <div>
+      {/* Video Feed */}
+      <div className="flex justify-center">
+        <video ref={videoRef} style={{ display: "none" }} playsInline></video>
+        <canvas
+          ref={canvasRef}
+          className="h-96 border-1 border-red-600"
+        ></canvas>
+      </div>
 
-        const position = calibrationPositions[calibrationCounterRef.current];
-        const x = position.x * screenWidth;
-        const y = position.y * screenHeight;
+      {/* Gaze Status */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: "20px",
+          right: "20px",
+          backgroundColor: "rgba(0, 0, 0, 0.7)",
+          color: "white",
+          padding: "10px 15px",
+          borderRadius: "8px",
+          fontSize: "14px",
+        }}
+      >
+        Gaze On Screen: {isGazeOnScreen ? "True" : "False"}
+      </div>
 
-        const calibrationDot = document.createElement("div");
-        calibrationDot.style.position = "absolute";
-        calibrationDot.style.width = "30px";
-        calibrationDot.style.height = "30px";
-        calibrationDot.style.backgroundColor = "green";
-        calibrationDot.style.borderRadius = "50%";
-        calibrationDot.style.left = `${x - 15}px`;
-        calibrationDot.style.top = `${y - 15}px`;
-        calibrationDot.style.zIndex = "1000";
-        calibrationDot.style.pointerEvents = "none";
-
-        document.body.appendChild(calibrationDot);
-
-        let dataPoints = 0;
-        const interval = setInterval(() => {
-            if (typeof window.webgazer !== "undefined") {
-                window.webgazer.recordScreenPosition(x, y, "click");
-                dataPoints++;
-            }
-        }, 200); // Collect data points every 200ms
-
-        setTimeout(() => {
-            clearInterval(interval); // Stop data collection
-            document.body.removeChild(calibrationDot);
-            calibrationCounterRef.current++;
-            showCalibrationPoint();
-        }, 2000); // Show each calibration point for 2 seconds
-    };
-
-    const validateCalibration = () => {
-        // Placeholder: Add your calibration validation logic here
-        setStatus("Calibration validated. Ready for gaze tracking.");
-    };
-
-    const handleAccept = () => {
-        setShowMessage(false);
-        startCalibration();
-    };
-
-    const handleRecalibrate = () => {
-        setShowMessage(true);
-        setStatus("Recalibrating...");
-    };
-
-    return (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            {showMessage ? (
-                <div>
-                    <p>Please look at the green dot for calibration.</p>
-                    <button onClick={handleAccept}>Accept</button>
-                </div>
-            ) : (
-                <div style={{ marginTop: '10px' }}>
-                    <p>Status: {status}</p>
-                    <p>Looking at Screen: {lookingAtScreen.toString()}</p>
-                    <button onClick={handleRecalibrate}>Recalibrate</button>
-                </div>
-            )}
-        </div>
-    );
+      
+    
+      {/* Hidden video element for capturing the stream */}
+      <video ref={videoRef} style={{ display: "none" }} />
+    </div>
+  );
 };
 
 export default EyeTrackingWithWebGazer;
