@@ -17,8 +17,11 @@ import {
 } from "@/components/ui/sidebar"
 import RealTimeHandBlurDetection from "./proctoring-components/realTimeBlurDetection"
 import MultiPersonDetection from "./proctoring-components/MultiPersonDetection"
+<<<<<<< HEAD
 import CameraAndMicCheck from "./proctoring-components/CameraAndMicCheck"
 import EyeTrackingWithWebGazer from "./proctoring-components/EyeTrackingWithWebGazer"
+=======
+>>>>>>> origin/master
 
 
 // This is sample data.
@@ -63,10 +66,16 @@ export function SidebarRight({
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
+<<<<<<< HEAD
         {/* <MultiPersonDetection/>
         <RealTimeHandBlurDetection/>
         <EyeTrackingWithWebGazer/>
         <CameraAndMicCheck/> */}
+=======
+        <MultiPersonDetection/>
+        <RealTimeHandBlurDetection/>
+        
+>>>>>>> origin/master
           <SidebarMenuItem>
             <SidebarMenuButton>
               <Plus />

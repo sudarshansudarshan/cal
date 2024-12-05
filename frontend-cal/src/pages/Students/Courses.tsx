@@ -93,6 +93,7 @@ const Courses: React.FC = () => {
       tag.src = "https://www.youtube.com/iframe_api";
       const firstScriptTag = document.getElementsByTagName("script")[0];
       firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
 
       window.onYouTubeIframeAPIReady = initPlayer;
     } else {
@@ -126,7 +127,34 @@ const Courses: React.FC = () => {
     };
   }, [isPlaying, player, timestamps]);
 
+  useEffect(() => {
+    let interval: NodeJS.Timeout | undefined;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        if (player) {
+          const current = player.getCurrentTime();
+          setCurrentTime(current);
+
+          const currentTimestamp = Math.floor(current);
+          if (
+            timestamps.includes(currentTimestamp) &&
+            !triggeredTimestamps.current.has(currentTimestamp)
+          ) {
+            triggeredTimestamps.current.add(currentTimestamp);
+            pauseVideoAndShowPopup(currentTimestamp);
+          }
+        }
+      }, 500);
+    } else {
+      if (interval) clearInterval(interval);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isPlaying, player, timestamps]);
+
   const initPlayer = () => {
+    const playerInstance = new window.YT.Player(videoPlayerRef.current!, {
     const playerInstance = new window.YT.Player(videoPlayerRef.current!, {
       videoId: "1z-E_KOC2L0",
       playerVars: {
@@ -263,12 +291,16 @@ const Courses: React.FC = () => {
   };
 
   const formatTime = (time: number) => {
+  const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
   return (
+    <div className="youtube-player h-full relative">
+      <RightClickDisabler />
+      <KeyboardLock />
     <div className="youtube-player h-full relative">
       <RightClickDisabler />
       <KeyboardLock />
