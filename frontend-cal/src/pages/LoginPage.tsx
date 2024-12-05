@@ -19,29 +19,22 @@ const LoginPage: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await login({ email: username, password }).unwrap();
+      const response = await login({ username, password }).unwrap();
       dispatch(setUser(response));
-
-      if (response.user.role === 'superadmin') {
-        console.log("Hello i am role ", response.user.role);
-        navigate('/superHome');
-      } else if (response.user.role === 'admin') {
-        navigate('/adminHome');
-      } else {
-        navigate('/');
-      }
+      navigate(response.role === "superadmin" ? "/superHome" : response.role === "admin" ? "/adminHome" : "/");
     } catch (err) {
-      console.error('Login failed:', err);
+      console.error("Login failed:", err);
     }
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await signup({ first_name, last_name, username, email, password, user_type: 'student' }).unwrap();
+      const response = await signup({ first_name, last_name, username, email, password }).unwrap();
       dispatch(setUser(response));
+      navigate("/");
     } catch (err) {
-      console.error('Signup failed:', err);
+      console.error("Signup failed:", err);
     }
   };
 
