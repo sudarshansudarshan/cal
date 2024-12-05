@@ -31,13 +31,15 @@ class ModuleSectionSummarySerializer(serializers.ModelSerializer):
 
 
 class ModuleSerializer(serializers.ModelSerializer):
-    sections = ModuleSectionSummarySerializer(many=True, read_only=True)
     """
     Serializer for the Module model.
     """
+
+    sections = ModuleSectionSummarySerializer(many=True, read_only=True)
+
     class Meta:
         model = Module
-        fields = ('id', 'title', 'description', 'sequence', 'sections')
+        fields = ('id','course', 'title', 'description', 'sequence', 'sections')
 
 
 class CourseModuleSummarySerializer(serializers.ModelSerializer):

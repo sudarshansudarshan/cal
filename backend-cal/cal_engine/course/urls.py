@@ -3,6 +3,6 @@ from .views import CourseViewSet, ModuleViewSet, SectionViewSet
 
 router = DefaultRouter()
 router.register(r'courses', CourseViewSet)
-router.register(r'modules', ModuleViewSet)
+router.register(r'modules', ModuleViewSet, basename='module')
 router.register(r'sections', SectionViewSet)
 urlpatterns = router.urls
