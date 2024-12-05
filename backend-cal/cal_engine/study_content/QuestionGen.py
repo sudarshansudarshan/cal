@@ -12,22 +12,20 @@ import time
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.formatters import TextFormatter
 from .models import Video, VideoSegment
+from assessment.models import Question, Assessment, ChoiceSolution
+from course.models import Section
 
 genai.configure(api_key="AIzaSyBOe0ZxXCHfjX2dzaVPkP67tqjCcspsvs0")
 
 class transcriptAndQueGen:
 
-    """
-    This class is used to generate questions from a given video transcript.
-    This takes title, section_id, url as mandatory fields
-    """
+    def __init__(self, url: str, section_id: int, sequence: int) -> None:
 
-    def __init__(self) -> None:
+        self.url = url
+        self.section_id = section_id
+        self.sequence = sequence
 
-        self.url = ""
-        self.section_id = None
         self.title = ""
-
         self.transcripts = []
         self.questions = []
         self.timestamps = []
@@ -47,6 +45,9 @@ class transcriptAndQueGen:
         time.sleep(10)
         return response.text
 
+    def hide_urls(text):
+        url_pattern = r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"  # Regex to match URLs
+        return re.sub(url_pattern, "<url-hidden>", text)
 
     # Get data from LLM and format it in favourable json format
     def parseLlamaJson(self, text):
@@ -79,33 +80,30 @@ class transcriptAndQueGen:
             3. Provide 4 answer options for each question, ensuring one is correct and the others are plausible but incorrect.
             4. Specify the index (0-based) of the correct answer for each question.
             5. Format your response as a JSON list where each entry follows the structure:
-            { "question": "<question_text>", "options": ["<option1>", "<option2>", "<option3>", "<option4>"], "correct_answer": <index_of_correct_option>, "hint": <hint> }
+            { "question": "<question_text>", "options": ["<option1>", "<option2>", "<option3>", "<option4>"], "correct_answer": <index_of_correct_option> }
 
             Example output:
             [
                 {
                     "question": "What is the capital of France?",
                     "options": ["Berlin", "Madrid", "Paris", "Rome"],
-                    "correct_answer": 2,
-                    "hint": "This city is famous for the Eiffel Tower."
+                    "correct_answer": 2
                 },
                 {
                     "question": "Which planet is known as the Red Planet?",
                     "options": ["Earth", "Mars", "Jupiter", "Venus"],
-                    "correct_answer": 1,
-                    "hint": "This planet is the closest to the sun."
+                    "correct_answer": 1
                 },
                 {
                     "question": "What is the chemical symbol for water?",
                     "options": ["H2O", "O2", "CO2", "NaCl"],
-                    "correct_answer": 0,
-                    "hint": "This molecule consists of two hydrogen atoms and one oxygen atom."
+                    "correct_answer": 0
                 }
             ]
             Your input will be a transcript, and you will generate 3 questions based on its content in this exact format.
         """
 
-        prompt = task_description + '\n Here is the transcript content: \n' + str(text) + 'Generate 3 questions as a JSON list, each question following the specified json format { "question": "<question_text>", "options": ["<option1>", "<option2>", "<option3>", "<option4>"], "correct_answer": <index_of_correct_option>, "hint": <hint> }.'
+        prompt = task_description + '\n Here is the transcript content: \n' + str(text) + 'Generate 3 questions as a JSON list, each question following the specified json format { "question": "<question_text>", "options": ["<option1>", "<option2>", "<option3>", "<option4>"], "correct_answer": <index_of_correct_option> }.'
 
         response = self.generateFromGemini(prompt)
 
@@ -115,6 +113,9 @@ class transcriptAndQueGen:
     # Extract video ID from the URL
     def extractVideoId(self):
         # Extract the video ID from the URL
+        yt = YouTube(self.url, on_progress_callback=on_progress)
+        self.title = self.hide_urls(yt.title)
+        self.description = self.hide_urls(yt.description)
         patterns = [
             r"(?:https?://)?(?:www\.)?youtu\.be/([^?&]+)",  # youtu.be short links
             r"(?:https?://)?(?:www\.)?youtube\.com/watch\?v=([^?&]+)",  # youtube.com/watch?v=
@@ -126,11 +127,15 @@ class transcriptAndQueGen:
         for pattern in patterns:
             match = re.match(pattern, self.url)
             if match:
-                # Add new video
-                new_video = Video.objects.create(title=self.title, youtube_id=match.group(1),
-                                                 section_id=self.section_id, link=self.url)
                 self.video_id = match.group(1)
-                new_video.save()
+                vid = Video.objects.create(
+                    url=self.url,
+                    section=self.section_id,
+                    title=self.title,
+                    description=self.description,
+                    youtube_id=self.video_id,
+                    sequence=self.sequence
+                    )
                 return self.video_id
 
         print("Error: Unable to extract video ID.")
@@ -238,38 +243,11 @@ class transcriptAndQueGen:
                         result = model.transcribe(segment_file)
                         self.transcripts.append(f"{result['text']}")
 
-                    segSerializer = SegmentSerializer(
-                        data = {
-                            'start_time': start_time,
-                            'end_time': end_time,
-                            'transcript': result['text'],
-                            'video_id': vid.id
-                        }
-                    )
-
-                    if segSerializer.is_valid():
-                        segSerializer.save()
-                    else:
-                        print(f"Error saving segment: {segSerializer.errors}")
-
                     # # Step 7: Generate questions from transcript
                     llama_output = self.parseLlamaJson(self.generateQuestionsFromPrompt(result['text']))
                     for ques in llama_output:
                         ques['segment'] = i
                         self.questions.append(ques)
-                        queSerializer = QuestionSerializer(
-                            data = {
-                                'question': ques['question'],
-                                'options': ques['options'],
-                                'correct_answer': ques['correct_answer'],
-                                'segment_id': segSerializer.data['id']
-                            }
-                        )
-                        if queSerializer.is_valid():
-                            print("Question Serializer is valid")
-                            queSerializer.save()
-                        else:
-                            print(f"Error saving question: {queSerializer.errors}")
                         print(f"Generated question: {ques}")
 
                     # Delete the segment file
@@ -283,23 +261,42 @@ class transcriptAndQueGen:
                 print(f"Error during transcription: {e}")
                 return None
         else:
-            for segment in segs:
+            sec = Section.objects.get(pk=self.section_id)
+            course = sec.module.course
+            for k, segment in enumerate(segs):
                 llama_output = self.parseLlamaJson(self.generateQuestionsFromPrompt(segment["text"]))
 
-                segSerializer = SegmentSerializer(
-                        data={
-                            'start_time': segment["start_time"],
-                            'end_time': segment["end_time"],
-                            'transcript': segment['text'],
-                            'video_id': vid.id,  # Pass the ID of the video instance
-                        }
-                    )
-                if segSerializer.is_valid():
-                    segSerializer.save()
-                else:
-                    print(f"Error saving segment: {segSerializer.errors}")
                 for i in range(len(llama_output)):
-                    llama_output[i]['segment'] = i
+                    llama_output[i]['segment'] = k
                     self.questions.append(llama_output[i])
+                
+                assess_title = f"{self.video_id}_{k}"
+                assessment = Assessment.objects.create(
+                    title = assess_title,
+                    course = course,
+                    type = 'video'
+                )
+                for question_data in llama_output:
+                    question = Question.objects.create(
+                        text=question_data["question"],
+                        type='MCQ',
+                        assessments=assessment,
+                    )
+                    for i, choice_data in enumerate(question_data["options"]): 
+                        ChoiceSolution.objects.create(
+                            question=question,
+                            format='text',
+                            value=choice_data,
+                            is_correct=i==question_data["correct_answer"],
+                        )
+                VideoSegment.objects.create(
+                    video=vid,
+                    title=assess_title,
+                    start_time=segment["start_time"],
+                    transcript=segment["text"],
+                    assessment=assessment
+                )
         
         return self.questions
+
+
