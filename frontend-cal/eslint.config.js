@@ -7,12 +7,14 @@ import tseslint from '@typescript-eslint/eslint-plugin'
 import jsxA11y from 'eslint-plugin-jsx-a11y'
 import tailwindcss from 'eslint-plugin-tailwindcss'
 import prettier from 'eslint-plugin-prettier'
+import tsParser from '@typescript-eslint/parser'
 
-export default tseslint.config(
+export default [
   { ignores: ['dist'] },
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
+      parser: tsParser,
       ecmaVersion: 2020,
       sourceType: 'module',
       globals: globals.browser,
@@ -46,4 +48,5 @@ export default tseslint.config(
         version: 'detect',
       },
     },
-  })
+  }
+]
