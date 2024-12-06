@@ -19,4 +19,6 @@ class ArticleAdmin(admin.ModelAdmin):
 
 admin.site.register(Video, VideoAdmin)
 admin.site.register(Article, ArticleAdmin)
+admin.site.register(VideoSegment)
+
 

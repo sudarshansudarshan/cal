@@ -4,7 +4,7 @@ from .models import Course, Module, Section, SectionItem
 from .serializers import CourseSerializer, ModuleSerializer, SectionSerializer
 from ..user.models import UserCourse
 from ..user.serializers import UserCoursesSerializer
-from .permissions import IsStudentReadOnly
+from ..permissions import IsStudentReadOnly
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Exists, OuterRef
 
@@ -59,7 +59,6 @@ class ModuleViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-
 
 
 class SectionViewSet(viewsets.ModelViewSet):
