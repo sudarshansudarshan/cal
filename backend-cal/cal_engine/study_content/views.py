@@ -1,28 +1,32 @@
 from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework import status
 from .models import Video, Article
 from .serializers import VideoSerializer, ArticleSerializer
+from .QuestionGen import transcriptAndQueGen
 
 class VideoViewSet(viewsets.ModelViewSet):
     queryset = Video.objects.all()
     serializer_class = VideoSerializer
 
-    # def create(self, request, *args, **kwargs):
-    #     """
-    #     Create a new video.
-        
-    #     Args:
-    #         request (Request): The HTTP request object containing data for the new video.
-    #         *args (tuple): Additional positional arguments passed to the method.
-    #         **kwargs (dict): Additional keyword arguments passed to the method.
-        
-    #     Returns:
-    #         Response: A DRF Response object containing the created video's data.
-    #     """
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     self.perform_create(serializer)
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    # Get request
+    def get_queryset(self):
+        queryset = Video.objects.all()
+        course_id = self.request.query_params.get('course', None)
+        if course_id:
+            queryset = queryset.filter(course_id=course_id)
+        return queryset
+    
+    # POST request
+    def create(self, request):
+        video = Video.objects.create(
+            title=request.data['title'],
+            url=request.data['url'],
+            course_id=request.data['course_id']
+        )
+        transcriptAndQueGen(video)
+        serializer = VideoSerializer(video)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class ArticleViewSet(viewsets.ModelViewSet):
     queryset = Article.objects.all()
