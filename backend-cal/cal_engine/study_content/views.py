@@ -1,36 +1,29 @@
 from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Video, Article, VideoSegment
-from .serializers import VideoSerializer, ArticleSerializer, VideoSegmentSerializer
-from .QuestionGen import transcriptAndQueGen
+from .models import Video, Article
+from .serializers import VideoSerializer, ArticleSerializer
 
-from rest_framework.permissions import BasePermission, IsAuthenticated
-from ..permissions import IsStudentReadOnly
-
-
-# ViewSets
 class VideoViewSet(viewsets.ModelViewSet):
-    """
-    A viewset for viewing and editing video instances.
-    """
-    serializer_class = VideoSerializer
     queryset = Video.objects.all()
-    permission_classes = [IsAuthenticated, IsStudentReadOnly]
+    serializer_class = VideoSerializer
 
-
-class VideoSegmentViewSet(viewsets.ModelViewSet):
-    """
-    A viewset for viewing and editing video segment instances.
-    """
-    serializer_class = VideoSegmentSerializer
-    queryset = VideoSegment.objects.all()
-
+    # def create(self, request, *args, **kwargs):
+    #     """
+    #     Create a new video.
+        
+    #     Args:
+    #         request (Request): The HTTP request object containing data for the new video.
+    #         *args (tuple): Additional positional arguments passed to the method.
+    #         **kwargs (dict): Additional keyword arguments passed to the method.
+        
+    #     Returns:
+    #         Response: A DRF Response object containing the created video's data.
+    #     """
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 class ArticleViewSet(viewsets.ModelViewSet):
-    """
-    A viewset for viewing and editing article instances.
-    """
-    serializer_class = ArticleSerializer
     queryset = Article.objects.all()
-    permission_classes = [IsAuthenticated, IsStudentReadOnly]
+    serializer_class = ArticleSerializer

@@ -1,24 +1,20 @@
 from django.contrib import admin
-from django.apps import apps
 from .models import Video, VideoSegment, Article
+from .forms import VideoForm
 
-
-class VideoSegmentInline(admin.TabularInline):
-    model = VideoSegment
-    fields = ('title', 'start_time', 'assessment', 'transcript', "video")
-    extra = 0
-
-
+# Register the models to make them accessible via Django admin
+@admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    list_display = ('title', 'section', 'description', 'created_at', 'updated_at', 'link', 'youtube_id')
-    inlines = [VideoSegmentInline]
+    form = VideoForm  # Use the custom form for video upload
+    list_display = ('title', 'youtube_id', 'link', 'section', 'sequence')
+    search_fields = ('title', 'youtube_id')
 
+@admin.register(VideoSegment)
+class VideoSegmentAdmin(admin.ModelAdmin):
+    list_display = ('video', 'title', 'start_time', 'created_at')
+    search_fields = ('title',)
+
+@admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('title', 'section', 'created_at', 'updated_at')
-
-
-admin.site.register(Video, VideoAdmin)
-admin.site.register(Article, ArticleAdmin)
-admin.site.register(VideoSegment)
-
-
+    list_display = ('title', 'content_type', 'created_at')
+    search_fields = ('title',)

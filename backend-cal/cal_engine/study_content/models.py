@@ -1,6 +1,9 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from cal_engine.course.models import SectionItem
+from .QuestionGen import transcriptAndQueGen
+from django.shortcuts import get_object_or_404
+from cal_engine.course.models import Section
 
 class Video(SectionItem):
     content_type = models.CharField(max_length=10, default="video")
@@ -8,6 +11,18 @@ class Video(SectionItem):
     description = models.TextField(null=True, blank=True)
     link = models.URLField()
     youtube_id = models.CharField(max_length=255)
+
+    def save(self, *args, **kwargs):
+        # Initialize the transcript and question generation object
+        tqg = transcriptAndQueGen(self.link, self.section.id, self.sequence)
+        self.youtube_id = tqg.extractVideoId()
+        
+        # If the YouTube ID is extracted successfully, populate the title and description
+        if tqg.video_id:
+            self.title = tqg.title
+            self.description = tqg.description
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
@@ -41,6 +56,29 @@ class Article(SectionItem):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['sequence'], name='unique_sequence_per_article')
+        ]
     def __str__(self):
-        return self.title
+        return f"{self.video.title} - Segment: {self.title} (Sequence: {self.sequence})"
+
+# class Article(models.Model):
+#     CONTENT_TYPES = [
+#         ('markdown', 'Markdown'),
+#         ('pdf', 'PDF'),
+#         ('link', 'Link'),
+#     ]
+
+#     module = models.ForeignKey('course.Module', on_delete=models.CASCADE, related_name='articles')
+#     title = models.CharField(max_length=255)
+#     subtitle = models.CharField(max_length=255, null=True, blank=True)
+#     description = models.TextField()
+#     content_type = models.CharField(max_length=50, choices=CONTENT_TYPES)
+#     content = models.TextField(null=True, blank=True, help_text="Content for Markdown or link to PDF/URL")
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+
+#     def __str__(self):
+#         return self.title
 
