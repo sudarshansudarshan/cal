@@ -7,16 +7,20 @@ const VoiceActivityDetection: React.FC = () => {
   const [audioClassifier, setAudioClassifier] = useState<AudioClassifier | null>(null);
   const [audioCtx, setAudioCtx] = useState<AudioContext | null>(null);
 
+  const MODEL_URL = "src/models/yamnet.tflite";
+  const CACHE_NAME = "tflite-model-cache";
+
   useEffect(() => {
     const createAudioClassifier = async () => {
       try {
+        const modelUrl = await cacheModel(MODEL_URL);
         const resolver = await FilesetResolver.forAudioTasks(
           "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-audio@0.10.0/wasm"
         );
 
         const classifier = await AudioClassifier.createFromOptions(resolver, {
           baseOptions: {
-            modelAssetPath: "src/models/yamnet.tflite",
+            modelAssetPath: modelUrl,
           },
         });
 
@@ -31,6 +35,31 @@ const VoiceActivityDetection: React.FC = () => {
 
     createAudioClassifier();
   }, []);
+
+  // Function to cache the model
+  const cacheModel = async (url: string): Promise<string> => {
+    // Open the cache storage
+    const cache = await caches.open(CACHE_NAME);
+
+    // Check if the model is already cached
+    const cachedResponse = await cache.match(url);
+
+    if (cachedResponse) {
+      console.log("Model loaded from cache:", url);
+      return url; // Use the cached version
+    }
+
+    console.log("Downloading model and caching it...");
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch model: ${response.statusText}`);
+    }
+
+    // Store the model in the cache
+    await cache.put(url, response);
+    console.log("Model cached successfully.");
+    return url; // Use the newly cached version
+  };
 
   const getOrCreateAudioContext = () => {
     if (!audioCtx) {
@@ -88,6 +117,8 @@ const VoiceActivityDetection: React.FC = () => {
       console.error("Error accessing microphone or processing audio:", error);
     }
   };
+
+  
 
   return (
     <div>
