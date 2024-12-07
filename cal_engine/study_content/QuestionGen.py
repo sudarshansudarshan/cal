@@ -14,6 +14,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.formatters import TextFormatter
 from cal_engine.assessment.models import Question, Assessment, ChoiceSolution
 from cal_engine.course.models import Section
+from django.shortcuts import get_object_or_404
 
 genai.configure(api_key="AIzaSyBOe0ZxXCHfjX2dzaVPkP67tqjCcspsvs0")
 
@@ -45,7 +46,7 @@ class transcriptAndQueGen:
         time.sleep(10)
         return response.text
 
-    def hide_urls(text):
+    def hide_urls(self, text):
         url_pattern = r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"  # Regex to match URLs
         return re.sub(url_pattern, "<url-hidden>", text)
 
@@ -117,6 +118,7 @@ class transcriptAndQueGen:
         yt = YouTube(self.url, on_progress_callback=on_progress)
         self.title = self.hide_urls(yt.title)
         self.description = self.hide_urls(yt.description)
+
         patterns = [
             r"(?:https?://)?(?:www\.)?youtu\.be/([^?&]+)",  # youtu.be short links
             r"(?:https?://)?(?:www\.)?youtube\.com/watch\?v=([^?&]+)",  # youtube.com/watch?v=
@@ -129,19 +131,33 @@ class transcriptAndQueGen:
             match = re.match(pattern, self.url)
             if match:
                 self.video_id = match.group(1)
-                vid = Video.objects.create(
-                    url=self.url,
-                    section=self.section_id,
-                    title=self.title,
-                    description=self.description,
-                    youtube_id=self.video_id,
-                    sequence=self.sequence
-                    )
+                # section_instance = get_object_or_404(Section, pk=self.section_id)
+                # vid = Video.objects.create(
+                #     link=self.url,
+                #     section=section_instance,
+                #     title=self.title,
+                #     description=self.description,
+                #     youtube_id=self.video_id,
+                #     sequence=self.sequence
+                #     )
                 return self.video_id
 
         print("Error: Unable to extract video ID.")
         return None
 
+    def create_video(url, section_id, sequence):
+        from .models import Video, VideoSegment
+        tqg = transcriptAndQueGen(url, section_id, sequence)
+        video_id = tqg.extractVideoId()
+        section_instance = get_object_or_404(Section, pk=section_id)
+        Video.objects.create(
+            link=url,
+            section=section_instance,
+            title=tqg.title,
+            description=tqg.description,
+            youtube_id=video_id,
+            sequence=sequence
+        )
 
     # Get raw transcript from YouTube
     def getRawTranscript(self):

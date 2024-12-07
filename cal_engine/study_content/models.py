@@ -1,7 +1,9 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from cal_engine.course.models import SectionItem
-from .QuestionGen import transcriptAndQueGen as tqg
+from .QuestionGen import transcriptAndQueGen
+from django.shortcuts import get_object_or_404
+from cal_engine.course.models import Section
 
 class Video(SectionItem):
     content_type = models.CharField(max_length=10, default="video")
@@ -11,8 +13,15 @@ class Video(SectionItem):
     youtube_id = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
-        if not self.youtube_id:
-            self.youtube_id = tqg.extractVideoId(self.url)
+        # Initialize the transcript and question generation object
+        tqg = transcriptAndQueGen(self.link, self.section.id, self.sequence)
+        self.youtube_id = tqg.extractVideoId()
+        
+        # If the YouTube ID is extracted successfully, populate the title and description
+        if tqg.video_id:
+            self.title = tqg.title
+            self.description = tqg.description
+
         super().save(*args, **kwargs)
 
     def __str__(self):
