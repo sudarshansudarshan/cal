@@ -223,10 +223,10 @@ class transcriptAndQueGen:
         from .models import Video, VideoSegment
 
         # segs = []
-        vid = Video.objects.filter(video_id=self.video_id).first()
+        vid = Video.objects.filter(youtube_id=self.video_id).first()
 
         if segs == []:
-            vid = Video.objects.filter(video_id=self.video_id).first()
+            vid = Video.objects.filter(youtube_id=self.video_id).first()
             print(vid.id)
             try:
                 # Step 1: Download audio from YouTube
@@ -303,9 +303,9 @@ class transcriptAndQueGen:
                 for question_data in llama_output:
                     question = Question.objects.create(
                         text=question_data["question"],
-                        type='MCQ',
-                        assessments=assessment,
+                        type='MCQ'
                     )
+                    question.assessments.add(assessment)
                     for i, choice_data in enumerate(question_data["options"]): 
                         ChoiceSolution.objects.create(
                             question=question,
