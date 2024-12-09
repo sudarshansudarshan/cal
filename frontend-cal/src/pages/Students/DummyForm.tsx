@@ -1,77 +1,58 @@
-import React, { useState } from "react";
-import { useCreateVideoDetailsMutation } from "../../store/apiService"; // Adjust import path
+import React from 'react';
+import { useFetchCoursesWithAuthQuery } from '../../store/apiService';
 
 const DummyForm = () => {
-  const [videoData, setvideoData] = useState({
-    title: "",
-    description: "",
-    youtubeUrl: "",
-  });
+  // Fetch courses using the custom hook
+  const { data, error, isLoading } = useFetchCoursesWithAuthQuery();
 
-  const [createVideoDetails, { isLoading, isSuccess, isError, error }] =
-    useCreateVideoDetailsMutation();
+  if (isLoading) {
+    return <p>Loading courses...</p>;
+  }
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setvideoData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await createVideoDetails(videoData).unwrap(); // Wait for the mutation to complete
-      console.log("Response from API:", response);
-      alert("Video details submitted successfully!");
-    } catch (err) {
-      console.error("Error submitting form:", err);
-      alert("Failed to submit video details. Please try again.");
-    }
-  };
+  if (error) {
+    return <p>Error loading courses: {error.message}</p>;
+  }
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="title">Title:</label>
-        <input
-          type="text"
-          id="title"
-          name="title"
-          value={videoData.title}
-          onChange={handleChange}
-          required
-        />
-        <label htmlFor="description">Description:</label>
-        <input
-          type="text"
-          id="description"
-          name="description"
-          value={videoData.description}
-          onChange={handleChange}
-          required
-        />
-        <label htmlFor="youtubeUrl">YouTube URL:</label>
-        <input
-          type="url"
-          id="youtubeUrl"
-          name="youtubeUrl"
-          value={videoData.youtubeUrl}
-          onChange={handleChange}
-          required
-        />
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Submitting..." : "Submit"}
-        </button>
-      </form>
-
-      {/* Conditional rendering for success or error messages */}
-      {isSuccess && <p>Form submitted successfully!</p>}
-      {isError && <p>Error: {error?.data?.message || "Something went wrong!"}</p>}
+      <h1>Courses</h1>
+      <ul>
+        {data?.map((course) => (
+          <li key={course.id}>
+            <h3>{course.name}</h3>
+            <p><strong>Description:</strong> {course.description}</p>
+            <p><strong>Visibility:</strong> {course.visibility}</p>
+            <p>
+              <strong>Institution:</strong> {course.institution_details.name} -{' '}
+              {course.institution_details.description}
+            </p>
+            {course.image ? (
+              <img src={course.image} alt={`${course.name} thumbnail`} />
+            ) : (
+              <p>No image available</p>
+            )}
+            <p>
+              <strong>Enrolled:</strong> {course.enrolled ? 'Yes' : 'No'}
+            </p>
+            {course.modules && course.modules.length > 0 && (
+              <div>
+                <h4>Modules:</h4>
+                <ul>
+                  {course.modules.map((module) => (
+                    <li key={module.id}>
+                      <p><strong>Title:</strong> {module.title}</p>
+                      <p><strong>Description:</strong> {module.description}</p>
+                      <p><strong>Sequence:</strong> {module.sequence}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
-  );
-};
+  )
+}
 
-export default DummyForm;
+export default DummyForm

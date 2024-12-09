@@ -15,9 +15,12 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
-import RealTimeHandBlurDetection from "./proctoring-components/realTimeBlurDetection"
 import MultiPersonDetection from "./proctoring-components/MultiPersonDetection"
 import VoiceActivityDetection from "./proctoring-components/VoiceActivityDetection"
+import CameraAndMicCheck from "./proctoring-components/CameraAndMicCheck"
+import RealTimeHandBlurDetection from "./proctoring-components/RealTimeBlurDetection"
+import FacePoseDetection from "./proctoring-components/FacePoseDetector"
+
 
 
 // This is sample data.
@@ -29,16 +32,16 @@ const data = {
   },
   calendars: [
     {
-      name: "My Calendars",
-      items: ["Personal", "Work", "Family"],
+      name: "My Schedules",
+      items: [],
     },
     {
-      name: "Favorites",
-      items: ["Holidays", "Birthdays"],
+      name: "Announcements",
+      items: [],
     },
     {
-      name: "Other",
-      items: ["Travel", "Reminders", "Deadlines"],
+      name: "Updates",
+      items: [],
     },
   ],
 }
@@ -65,10 +68,12 @@ export function SidebarRight({
         <MultiPersonDetection/>
         <RealTimeHandBlurDetection/>
         <VoiceActivityDetection/> 
+        <FacePoseDetection/>
+        <CameraAndMicCheck/>
           <SidebarMenuItem>
             <SidebarMenuButton>
               <Plus />
-              <span>New Calendar</span>
+              <span>New Schedule</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
