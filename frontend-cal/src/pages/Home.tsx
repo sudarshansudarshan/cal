@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Outlet } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { PanelLeft, PanelRight } from 'lucide-react';
+import { PanelRight } from 'lucide-react';
 import { ModeToggle } from '@/components/mode-toggle';
 
 const Home = () => {
