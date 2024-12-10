@@ -7,9 +7,6 @@
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
 		"ghcr.io/devcontainers/features/git:1": {},
-		"ghcr.io/devcontainers/features/python:1": {
-			"version": "3.9"
-		},
 		"ghcr.io/devcontainers/features/node:1": {
 			"version": "18"
 		}
