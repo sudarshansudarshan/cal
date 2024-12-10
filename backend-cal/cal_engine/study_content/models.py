@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from cal_engine.course.models import SectionItem
-from .QuestionGen import transcriptAndQueGen
+from .QuestionGen import TranscriptAndQueGen
 from django.shortcuts import get_object_or_404
 from cal_engine.course.models import Section
 
@@ -18,8 +18,8 @@ class Video(SectionItem):
         b = self.section.id
         c = self.sequence
         # Initialize the transcript and question generation object
-        tqg = transcriptAndQueGen(a, b, c)
-        self.youtube_id = tqg.extractVideoId()
+        tqg = TranscriptAndQueGen(a, b, c)
+        self.youtube_id = tqg.extract_video_id()
         
         # If the YouTube ID is extracted successfully, populate the title and description
         if tqg.video_id:
@@ -78,5 +78,5 @@ def process_video(sender, instance, created, **kwargs):
         sequence = instance.sequence
 
         # Automatically generate video segments and questions
-        tqg = transcriptAndQueGen(link, section_id, sequence)
-        tqg.generateQuestions()
+        tqg = TranscriptAndQueGen(link, section_id, sequence)
+        tqg.generate_questions()

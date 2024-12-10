@@ -11,14 +11,13 @@ import os
 import uuid
 import time
 from youtube_transcript_api import YouTubeTranscriptApi
-from youtube_transcript_api.formatters import TextFormatter
 from cal_engine.assessment.models import Question, Assessment, ChoiceSolution
 from cal_engine.course.models import Section
 from django.shortcuts import get_object_or_404
 
 genai.configure(api_key="AIzaSyBOe0ZxXCHfjX2dzaVPkP67tqjCcspsvs0")
 
-class transcriptAndQueGen:
+class TranscriptAndQueGen:
 
     def __init__(self, url: str, section_id: int, sequence: int) -> None:
 
@@ -31,16 +30,16 @@ class transcriptAndQueGen:
         self.questions = []
         self.timestamps = []
         self.answers = []
-        self.transcript = ""
+        self.transcript = None
         self.description = ""
         self.duration = ""
         self.model = 'llama3.2'
-        self.segmentsCount = 4
+        self.segments_count = 4
         self.video_id = None
 
 
     # Calling on Gemini API
-    def generateFromGemini(self, prompt):
+    def generate_from_gemini(self, prompt):
         model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content(prompt)
         time.sleep(10)
@@ -51,7 +50,7 @@ class transcriptAndQueGen:
         return re.sub(url_pattern, "<url-hidden>", text)
 
     # Get data from LLM and format it in favourable json format
-    def parseLlamaJson(self, text):
+    def parse_llama_json(self, text):
         # Extract JSON part from the generated text
         start_idx = text.find('[')
         end_idx = text.rfind(']') + 1
@@ -71,7 +70,7 @@ class transcriptAndQueGen:
     
 
     # Format the prompt
-    def generateQuestionsFromPrompt(self, text):
+    def generate_questions_from_prompt(self, text):
         
         task_description = """
             You are an AI tasked with generating multiple-choice questions (MCQs) from a given transcript. 
@@ -106,17 +105,16 @@ class transcriptAndQueGen:
 
         prompt = task_description + '\n Here is the transcript content: \n' + str(text) + 'Generate 3 questions as a JSON list, each question following the specified json format { "question": "<question_text>", "options": ["<option1>", "<option2>", "<option3>", "<option4>"], "correct_answer": <index_of_correct_option> }.'
 
-        response = self.generateFromGemini(prompt)
+        response = self.generate_from_gemini(prompt)
 
         return response
     
 
     # Extract video ID from the URL
-    def extractVideoId(self):
+    def extract_video_id(self):
         # Extract the video ID from the URL
-        from .models import Video, VideoSegment
         yt = YouTube(self.url, on_progress_callback=on_progress)
-        self.title = self.hide_urls(yt.title)
+        self.title = yt.title
         self.description = self.hide_urls(yt.description)
 
         patterns = [
@@ -131,37 +129,14 @@ class transcriptAndQueGen:
             match = re.match(pattern, self.url)
             if match:
                 self.video_id = match.group(1)
-                # section_instance = get_object_or_404(Section, pk=self.section_id)
-                # vid = Video.objects.create(
-                #     link=self.url,
-                #     section=section_instance,
-                #     title=self.title,
-                #     description=self.description,
-                #     youtube_id=self.video_id,
-                #     sequence=self.sequence
-                #     )
                 return self.video_id
 
         print("Error: Unable to extract video ID.")
         return None
 
-    def create_video(url, section_id, sequence):
-        from .models import Video, VideoSegment
-        tqg = transcriptAndQueGen(url, section_id, sequence)
-        video_id = tqg.extractVideoId()
-        section_instance = get_object_or_404(Section, pk=section_id)
-        Video.objects.create(
-            link=url,
-            section=section_instance,
-            title=tqg.title,
-            description=tqg.description,
-            youtube_id=video_id,
-            sequence=sequence
-        )
-
     # Get raw transcript from YouTube
-    def getRawTranscript(self):
-        video_id = self.extractVideoId()
+    def get_raw_transcript(self):
+        video_id = self.extract_video_id()
         if not video_id:
             return None
         try:
@@ -173,13 +148,14 @@ class transcriptAndQueGen:
 
     # Generate transcript segments
     def generate_transcript_segments(self):
-        self.getRawTranscript()
+        self.get_raw_transcript()
         raw_transcript = self.transcript
-
+        if self.transcript is None:
+            return None
         if self.timestamps == []:
             # Get video duration
             duration = max(item['start'] + item['duration'] for item in raw_transcript)
-            self.timestamps = [i * (duration // self.segmentsCount) for i in range(0, self.segmentsCount)]
+            self.timestamps = [i * (duration // self.segments_count) for i in range(0, self.segments_count)]
 
         # Ensure timestamps are sorted
         self.timestamps = sorted(self.timestamps)
@@ -215,25 +191,24 @@ class transcriptAndQueGen:
                 for segment, (start, end) in zip(segments, time_ranges)]
 
     # Generate questions from the video
-    def generateQuestions(self):
+    def generate_questions(self):
         unique_id = str(uuid.uuid4())[:8]  # Shorten UUID for brevity
         m4a_file = f"{unique_id}"
         wav_file = f"{unique_id}.wav"
         segs = self.generate_transcript_segments()
         from .models import Video, VideoSegment
 
-        # segs = []
         vid = Video.objects.filter(youtube_id=self.video_id).first()
 
-        if segs == []:
-            vid = Video.objects.filter(youtube_id=self.video_id).first()
-            print(vid.id)
+        if segs is None:
             try:
                 # Step 1: Download audio from YouTube
                 yt = YouTube(self.url, on_progress_callback=on_progress)
                 print(f"Downloading audio for video: {yt.title}")
                 ys = yt.streams.get_audio_only()
+                print('before download')
                 ys.download(filename=m4a_file)
+                print('after download')
 
                 # Step 2: Convert .m4a to .wav
                 ffmpeg.input(m4a_file).output(wav_file).run(overwrite_output=True)
@@ -244,43 +219,86 @@ class transcriptAndQueGen:
                     # Get the duration of the audio in seconds
                     probe = ffmpeg.probe(wav_file)
                     duration_seconds = float(probe['format']['duration'])
-                    duration_ms = int(duration_seconds * 1000)
 
-                    # Generate timestamps at 5-minute intervals
-                    segment_duration = 5
-                    segment_ms = segment_duration * 60 * 1000  # Convert minutes to milliseconds
-                    timestamps = [i * segment_ms for i in range(duration_ms // segment_ms + 1)]  # Divide into 4 equal parts, convert to secs
+                    self.timestamps = [i * (duration_seconds // self.segments_count) for i in range(0, self.segments_count)]
+                    self.timestamps = sorted(self.timestamps)
+                    last_time = duration_seconds
+                    self.timestamps.append(last_time + 1)
+
 
                     transcripts = []
-                     # Load Whisper model once
+                    segments = []
+
+                    # Load Whisper model once
                     model = whisper.load_model("base")
 
                     # Save the segment to a temporary file
-                    for i in range(len(timestamps) - 1):  # Ensure no out-of-range error
-                        start_time = timestamps[i] / 1000  # Convert to seconds for FFmpeg
-                        end_time = timestamps[i + 1] / 1000  # Convert to seconds for FFmpeg
+                    for i in range(len(self.timestamps) - 1):  # Ensure no out-of-range error
+                        start_time = self.timestamps[i] 
+                        end_time = self.timestamps[i + 1]
 
                         segment_file = f"{unique_id}_segment_{i}.wav"
 
-                    ffmpeg.input(wav_file, ss=start_time, to=end_time).output(segment_file).run(overwrite_output=True)
-                    print(f"Segment {i + 1} saved: {segment_file}")
+                        ffmpeg.input(wav_file, ss=start_time, to=end_time).output(segment_file).run(overwrite_output=True)
+                        print(f"Segment {i + 1} saved: {segment_file}")
 
-                    # Transcribe the segment using Whisper model
-                    result = model.transcribe(segment_file)
-                    segment_transcript = result['text']
+                        # Transcribe the segment using Whisper model
+                        result = model.transcribe(segment_file)
+                        segment_transcript = result['text']
 
-                    # Apply URL hiding to transcript
-                    segment_transcript = self.hide_urls(segment_transcript)
+                        # Append the segment transcript
+                        segments.append({
+                            "text": segment_transcript,
+                            "start_time": self.timestamps[i],
+                            "end_time": self.timestamps[i + 1]
+                        })
 
-                    transcripts.append(f"---Segment {i + 1} Transcript:\n{segment_transcript}\n")
+                        transcripts.append(f"Segment {i + 1} Transcript:\n{segment_transcript}\n")
 
-                    # Delete the segment file after transcription
-                    os.remove(segment_file)
+                        # Delete the segment file after transcription
+                        os.remove(segment_file)
 
                 # Step 6: Clean up temporary files
-                os.remove(f"{m4a_file}.m4a")
+                os.remove(m4a_file)
                 os.remove(wav_file)
                 print(f"Temporary files deleted: {m4a_file}.m4a, {wav_file}")
+
+                sec = Section.objects.get(pk=self.section_id)
+                course = sec.module.course
+                for k, segment in enumerate(segments):
+                    llama_output = self.parse_llama_json(self.generate_questions_from_prompt(segment["text"]))
+
+                    for i in range(len(llama_output)):
+                        llama_output[i]['segment'] = k
+                        self.questions.append(llama_output[i])
+                    
+                    assess_title = f"{self.video_id}_{k}"
+                    assessment = Assessment.objects.create(
+                        title = assess_title,
+                        course = course,
+                        type = 'video'
+                    )
+                    for question_data in llama_output:
+                        question = Question.objects.create(
+                            text=question_data["question"],
+                            type='MCQ'
+                        )
+                        question.assessments.add(assessment)
+                        for i, choice_data in enumerate(question_data["options"]): 
+                            ChoiceSolution.objects.create(
+                                question=question,
+                                format='text',
+                                value=choice_data,
+                                is_correct=i==question_data["correct_answer"],
+                            )
+                    VideoSegment.objects.create(
+                        video=vid,
+                        title=assess_title,
+                        start_time=segment["start_time"],
+                        transcript=segment["text"],
+                        assessment=assessment
+                    )
+
             except Exception as e:
                 print(f"Error during transcription: {e}")
                 return None
@@ -288,7 +306,7 @@ class transcriptAndQueGen:
             sec = Section.objects.get(pk=self.section_id)
             course = sec.module.course
             for k, segment in enumerate(segs):
-                llama_output = self.parseLlamaJson(self.generateQuestionsFromPrompt(segment["text"]))
+                llama_output = self.parse_llama_json(self.generate_questions_from_prompt(segment["text"]))
 
                 for i in range(len(llama_output)):
                     llama_output[i]['segment'] = k
