@@ -19,6 +19,7 @@ import { Sidebar, SidebarContent, SidebarHeader, SidebarMenuButton, useSidebar }
 import { TeamSwitcher } from "@/components/team-switcher";
 import { CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Separator } from "./ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Sample data with subparts and sub-subparts
 const data = {
@@ -79,11 +80,12 @@ const data = {
       icon: Inbox,
       badge: "10",
       subparts: [
-        { title: "General Updates", 
+        {
+          title: "General Updates",
           url: "#updates",
           subsubparts: []
         },
-        { 
+        {
           title: "New Policies",
           url: "#policies",
           subsubparts: []
@@ -108,6 +110,7 @@ export function SidebarLeft({ ...props }: React.ComponentProps<typeof Sidebar>) 
   const [selectedSubpart, setSelectedSubpart] = React.useState<Subpart | null>(null);
   const { setOpen } = useSidebar(); // Access setOpen to control the sidebar state
   console.log("props")
+  console.log("setOpen",setOpen)
 
   interface NavItem {
     title: string;
@@ -156,13 +159,22 @@ export function SidebarLeft({ ...props }: React.ComponentProps<typeof Sidebar>) 
           <nav className="space-y-1">
             {data.navMain.map((item) => (
               <div key={item.title}>
-                <SidebarMenuButton
-                  className={`flex items-center text-left w-56 pl-2 pr-4 py-2 text-sm rounded-md`}
-                  onClick={() => handleNavClick(item)}
-                >
-                  <item.icon className="w-5 h-5 mr-3" />
-                  <span className="flex-1">{item.title}</span>
-                </SidebarMenuButton>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <SidebarMenuButton
+                        className={`flex items-center text-left w-56 pl-2 pr-4 py-2 text-sm rounded-md`}
+                        onClick={() => handleNavClick(item)}
+                      >
+                        <item.icon className="w-5 h-5 mr-3" />
+                        <span className="flex-1">{item.title}</span>
+                      </SidebarMenuButton>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{item.title}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 {selectedNav?.title === item.title && item.subparts.length > 0 && (
                   <div className="pl-8 space-y-1">
                     {item.subparts.map((subpart) => (
@@ -208,12 +220,12 @@ export function SidebarLeft({ ...props }: React.ComponentProps<typeof Sidebar>) 
                 {selectedSubpart.subsubparts.map((subsubpart) => (
                   <li key={subsubpart.title}>
                     <SidebarMenuButton>
-                    <a
-                      href={subsubpart.url}
-                      className=""
-                    >
-                      {subsubpart.title}
-                    </a>
+                      <a
+                        href={subsubpart.url}
+                        className=""
+                      >
+                        {subsubpart.title}
+                      </a>
                     </SidebarMenuButton>
                     <Separator />
 
