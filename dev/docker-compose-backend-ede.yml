@@ -1,9 +1,32 @@
+version: '3.9'
+
 services:
   backend-ede:
     build:
       context: ..
       dockerfile: dev/Dockerfile-backend-ede
+    command: npm run dev # Use `npm start` for production
     volumes:
       - ..:/app
     ports:
       - "9000:9000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/ede_db
+      - NODE_ENV=development
+      - PORT=9000
+
+  db:
+    image: postgres:17
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=ede_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+volumes:
+  postgres_data:
