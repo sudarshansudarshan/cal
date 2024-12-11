@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // or any other database provider
+  url      = env("DATABASE_URL")
+}
+
+model StudentCourseProgress {
+  student_id        String
+  course_instance_id String
+  Progress            CourseProgressEnum
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@id([student_id, course_instance_id])
+}
+
+model StudentModuleProgress {
+  student_id        String
+  module_id         String
+  course_instance_id String
+  Progress            Float
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@id([student_id, module_id])
+}
+
+model StudentSectionProgress {
+  student_id        String
+  section_id        String
+  course_instance_id String
+  Progress            Float
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@id([student_id, section_id, course_instance_id])
+}
+
+model StudentAssessmentProgress {
+  id                Int      @id @default(autoincrement())
+  student_id        String
+  assessment_id     String
+  course_instance_id String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model StudentVideoMetrics {
+  course_instance_id String
+  student_id        String
+  video_id          String
+  replays           Int
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@id([student_id, video_id, course_instance_id])
+}
+
+model StudentViolationMetrics {
+  id                Int     @id @default(autoincrement())
+  student_id        String
+  content_type      ContentTypeEnum
+  content_type_id   String
+  ViolationMetrics_type    String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+
+model StudentNATAnswer {
+  id                 Int     @id @default(autoincrement())
+  question_id        String
+  student_id         String
+  course_instance_id String
+  value              String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model StudentDescriptiveAnswer {
+  id                 Int     @id @default(autoincrement())
+  question_id        String
+  student_id         String
+  course_instance_id String
+  answer_text        String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model StudentMCQAnswer {
+  id                 Int     @id @default(autoincrement())
+  question_id        String
+  student_id         String
+  course_instance_id String
+  choice_id          String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model StudentMSQAnswer {
+  id                 Int     @id @default(autoincrement())
+  question_id        String
+  student_id         String
+  course_instance_id String
+  choice_id          String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+// Enums
+enum CourseProgressEnum {
+  enrolled
+  dropped
+  completed
+}
+
+enum ContentTypeEnum {
+  video
+  article
+  assessment
+}
