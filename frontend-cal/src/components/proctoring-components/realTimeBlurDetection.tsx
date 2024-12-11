@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import  { useRef, useEffect } from "react";
 import { Hands, HAND_CONNECTIONS } from "@mediapipe/hands";
 import * as drawingUtils from "@mediapipe/drawing_utils";
 
@@ -112,6 +112,7 @@ const RealTimeHandBlurDetection = () => {
       } | Variance: ${blurResult.variance.toFixed(2)}`;
 
       canvasCtx.restore();
+      console.log(numHands)
     }
 
     /**
