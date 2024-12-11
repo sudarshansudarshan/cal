@@ -1,0 +1,11 @@
+fastapi==0.100.0
+uvicorn==0.23.1
+pydantic==2.0.3
+pytubefix
+google-generativeai
+openai-whisper
+youtube-transcript-api
+soundfile
+moviepy
+audioread
+ffmpeg-python
