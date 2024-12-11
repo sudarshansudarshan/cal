@@ -3,6 +3,7 @@ import { Hands, HAND_CONNECTIONS } from "@mediapipe/hands";
 import * as drawingUtils from "@mediapipe/drawing_utils";
 
 const RealTimeHandBlurDetection = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef(null);
   const infoRef = useRef(null);
 
@@ -66,6 +67,7 @@ const RealTimeHandBlurDetection = () => {
      * @param {Object} results - The results from hand detection.
      */
     function onResults(results) {
+      console.log("results");
       // Draw the video frame onto the offscreen canvas
       canvasCtx.save();
       canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -146,7 +148,6 @@ const RealTimeHandBlurDetection = () => {
 
       // Threshold for blurriness (adjust as needed)
       const isBlurry = variance < 250;
-      console.log("Hello",isBlurry)
 
       // Return both isBlurry and variance
       return {
@@ -234,8 +235,8 @@ const RealTimeHandBlurDetection = () => {
 
   return (
     <div>
-      <div className="flex justify-center">
-        <video ref={videoRef} style={{ display: "none" }} playsInline></video>
+      <div className="flex justify-center items-center">
+        <video ref={videoRef} autoPlay muted playsInline style={{ width: '80%', height: '60%' }}></video>
       </div>
       <div ref={infoRef}></div>
     </div>

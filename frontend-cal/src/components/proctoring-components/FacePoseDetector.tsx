@@ -124,7 +124,7 @@ const FacePoseDetection = () => {
           margin: '0 auto',
         }}
       >
-        <video
+        {/* <video
           ref={videoRef}
           autoPlay
           muted
@@ -134,7 +134,7 @@ const FacePoseDetection = () => {
         <canvas
           ref={canvasRef}
           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-        />
+        /> */}
       </div>
 
       {/* Text Output Section */}
