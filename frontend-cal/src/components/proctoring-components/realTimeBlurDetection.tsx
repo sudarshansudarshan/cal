@@ -146,6 +146,7 @@ const RealTimeHandBlurDetection = () => {
 
       // Threshold for blurriness (adjust as needed)
       const isBlurry = variance < 250;
+      console.log("Hello",isBlurry)
 
       // Return both isBlurry and variance
       return {
