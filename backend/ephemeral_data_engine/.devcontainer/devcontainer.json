@@ -23,6 +23,5 @@
 				"ms-python.vscode-pylance"
 			]
 		}
-	},
-	"postCreateCommand": "npm install && pip install -r /app/backend/requirements.txt"
+	}
 }
