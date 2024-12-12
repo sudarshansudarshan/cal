@@ -1,31 +1,34 @@
 from django.db import models
 
-from enum import Enum
+from ..constants import COURSE_NAME_MAX_LEN, COURSE_DESCRIPTION_MAX_LEN
 
-class VisibilityChoices(Enum):
-    PUBLIC = 'public'
-    PRIVATE = 'private'
-    UNLISTED = 'unlisted'
+
+class VisibilityChoices(models.TextChoices):
+    PUBLIC = 'public', 'Public'
+    PRIVATE = 'private', 'Private'
+    UNLISTED = 'unlisted', 'Unlisted'
+
+class PersonnelAllowedRoles(models.TextChoices):
+    MODERATOR = 'moderator', 'Moderator'
+    STAFF = 'staff', 'Staff'
+    ADMIN = 'admin', 'Admin'
 
     @classmethod
-    def choices(cls):
-        return [(key.value, key.name.title()) for key in cls]
-
-PERSONNEL_ALLOWED_ROLES = ['moderator', 'staff', 'admin']
+    def choices_to_string(cls):
+        return ', '.join([choice[1] for choice in cls.choices])
 
 
 class Course(models.Model):
-    name = models.CharField(max_length=255)
-    description = models.TextField()
+    name = models.CharField(max_length=COURSE_NAME_MAX_LEN)
+    description = models.TextField(max_length=COURSE_DESCRIPTION_MAX_LEN)
     visibility = models.CharField(
-        max_length=50,
-        choices=VisibilityChoices.choices(),
+        choices=VisibilityChoices.choices,
         default=VisibilityChoices.PUBLIC.value,
         help_text="Set the visibility of the course."
     )
-    institutions = models.ManyToManyField('institution.Institution')
-    instructors = models.ManyToManyField('user.User', through='CourseInstructor', related_name='instructors')
-    personnel = models.ManyToManyField('user.User', through='CoursePersonnel', related_name='personnel')
+    institutions = models.ManyToManyField('institution.Institution', related_name='courses')
+    instructors = models.ManyToManyField('user.User', through='CourseInstructor', related_name='instructor_courses')
+    personnel = models.ManyToManyField('user.User', through='CoursePersonnel', related_name='personnel_courses')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -38,12 +41,13 @@ class CourseInstructor(models.Model):
     instructor = models.ForeignKey('user.User', on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('course', 'instructor')
+        constraints = [
+            models.UniqueConstraint(fields=['course', 'instructor'], name='unique_course_instructor')
+        ]
 
     def save(self, *args, **kwargs):
-        # Ensure only users with the 'instructor' role can be added
-        if self.instructor.role not in PERSONNEL_ALLOWED_ROLES:
-            raise ValueError(f"Only users with one of {', '.join([x for x in PERSONNEL_ALLOWED_ROLES])} role can be added to the instructors.")
+        if self.instructor.role != 'instructor':
+            raise ValueError("Only users with the 'instructor' role can be added to the instructors.")
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -55,12 +59,13 @@ class CoursePersonnel(models.Model):
     personnel = models.ForeignKey('user.User', on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('course', 'personnel')
+        constraints = [
+            models.UniqueConstraint(fields=['course', 'personnel'], name='unique_course_personnel')
+        ]
 
     def save(self, *args, **kwargs):
-        # Ensure only users with the 'instructor' role can be added
-        if self.personnel.role != 'instructor':
-            raise ValueError("Only users with the 'instructor' role can be added to the instructors.")
+        if self.personnel.role not in PersonnelAllowedRoles.choices:
+            raise ValueError(f"Only users with one of {PersonnelAllowedRoles.choices_to_string()} role can be added to the instructors.")
         super().save(*args, **kwargs)
 
     def __str__(self):

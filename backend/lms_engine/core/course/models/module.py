@@ -1,11 +1,12 @@
 from django.db import models
-from . import Course
 
+from . import Course
+from ..constants import MODULE_TITLE_MAX_LEN, MODULE_DESCRIPTION_MAX_LEN
 
 class Module(models.Model):  # Higher-level grouping, replaces Week
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='modules')
-    title = models.CharField(max_length=255)
-    description = models.TextField()
+    title = models.CharField(max_length=MODULE_TITLE_MAX_LEN)
+    description = models.TextField(max_length=MODULE_DESCRIPTION_MAX_LEN)
     sequence = models.PositiveIntegerField(help_text="The order of this module in the course.")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -1,27 +1,22 @@
 from django.db import models
 
-from enum import Enum
-
 from . import Section
 
 
-class ItemTypeChoices(Enum):
-    ARTICLE = 'article'
-    ASSESSMENT = 'assessment'
-    VIDEO = 'video'
+class ItemTypeChoices(models.TextChoices):
+    ARTICLE = 'article', 'Article'
+    ASSESSMENT = 'assessment', 'Assessment'
+    VIDEO = 'video', 'Video'
 
-    @classmethod
-    def choices(cls):
-        return [(key.value, key.name.title()) for key in cls]
 
 class SectionItem(models.Model):
     section = models.ForeignKey(
         Section,
         on_delete=models.CASCADE,
-        related_name="%(class)s_items",  # Dynamically generate related_name
+        related_name="%(class)s",  # Dynamically generate related_name
         help_text="The section this item belongs to."
     )
-    item_type = models.CharField(choices=ItemTypeChoices.choices(), max_length=10)
+    item_type = models.CharField(choices=ItemTypeChoices.choices)
     sequence = models.PositiveIntegerField(help_text="The order of this item within the section.")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
