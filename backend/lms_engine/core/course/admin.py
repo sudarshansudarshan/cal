@@ -1,7 +1,8 @@
 from django.contrib import admin
-from django.apps import apps
 from django.contrib import admin
-from .models import Course, Module, Section, SectionItem
+
+from ..user.models import User
+from .models import Course, Module, Section, CourseInstructor, CoursePersonnel
 
 
 class SectionAdmin(admin.ModelAdmin):
@@ -12,8 +13,22 @@ class ModuleAdmin(admin.ModelAdmin):
     list_display = ('title', 'course', 'sequence', 'created_at', 'updated_at')
 
 
+class CourseInstructorInline(admin.TabularInline):
+    model = CourseInstructor
+    extra = 1  # Number of empty rows to show for new entries
+    autocomplete_fields = ['instructor']  # Use if the field is large
+
+
+class CoursePersonnelInline(admin.TabularInline):
+    model = CoursePersonnel
+    extra = 1
+    autocomplete_fields = ['personnel']  # Use if the field is large
+
+
 class CourseAdmin(admin.ModelAdmin):
     list_display = ('name', 'visibility', 'get_institutions', 'get_instructors', 'created_at', 'updated_at')
+
+    inlines = [CourseInstructorInline, CoursePersonnelInline]
 
     def get_institutions(self, obj):
         return ", ".join([institution.name for institution in obj.institutions.all()])

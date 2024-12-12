@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 from ..constants import COURSE_NAME_MAX_LEN, COURSE_DESCRIPTION_MAX_LEN
 
@@ -45,10 +46,10 @@ class CourseInstructor(models.Model):
             models.UniqueConstraint(fields=['course', 'instructor'], name='unique_course_instructor')
         ]
 
-    def save(self, *args, **kwargs):
+    def clean(self, *args, **kwargs):
         if self.instructor.role != 'instructor':
-            raise ValueError("Only users with the 'instructor' role can be added to the instructors.")
-        super().save(*args, **kwargs)
+            raise ValidationError("Only users with the 'instructor' role can be added to the instructors.")
+        super().clean(*args, **kwargs)
 
     def __str__(self):
         return f"{self.instructor} - {self.course}"
@@ -65,7 +66,7 @@ class CoursePersonnel(models.Model):
 
     def save(self, *args, **kwargs):
         if self.personnel.role not in PersonnelAllowedRoles.choices:
-            raise ValueError(f"Only users with one of {PersonnelAllowedRoles.choices_to_string()} role can be added to the instructors.")
+            raise ValidationError(f"Only users with one of {PersonnelAllowedRoles.choices_to_string()} role can be added to the instructors.")
         super().save(*args, **kwargs)
 
     def __str__(self):
