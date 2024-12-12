@@ -1,62 +1,30 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import '@tensorflow/tfjs';
+import { useWebcam } from './WebcamProvider';
 
 const MultiPersonDetection = () => {
-    const videoRef = useRef(null);
-    const canvasRef = useRef(null);
+    const videoRef = useRef<HTMLVideoElement>(null);
     const [peopleCount, setPeopleCount] = useState(0);
     const alertTriggered = useRef(false); // Track if the alert was triggered
+    const webcamStream = useWebcam(); // Access the webcam feed from context
 
-    
     useEffect(() => {
-        // Set up webcam feed
-        const setupCamera = async () => {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            videoRef.current.srcObject = stream;
-            await new Promise((resolve) => {
-                videoRef.current.onloadedmetadata = () => {
-                    resolve();
-                };
-            });
-            videoRef.current.play();
-        };
-
-        // Load YOLO model (COCO-SSD in this case)
         const loadModelAndDetect = async () => {
             const model = await cocoSsd.load(); // Load the COCO-SSD model
 
-            // Perform detection every 200ms
             const detectPeople = () => {
-                if (videoRef.current && canvasRef.current) {
-                    const canvas = canvasRef.current;
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = videoRef.current.videoWidth;
-                    canvas.height = videoRef.current.videoHeight;
-
+                if (
+                    videoRef.current &&
+                    videoRef.current.readyState >= 2 && // Ensure video is ready
+                    videoRef.current.videoWidth > 0 &&
+                    videoRef.current.videoHeight > 0
+                ) {
                     model.detect(videoRef.current).then((predictions) => {
-                        // Clear the canvas
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-
-                        // Draw bounding boxes and count people
-                        let count = 0;
-                        predictions.forEach((prediction) => {
-                            if (prediction.class === 'person' && prediction.score > 0.6) {
-                                count++;
-                                const [x, y, width, height] = prediction.bbox;
-                                ctx.strokeStyle = 'red';
-                                ctx.lineWidth = 2;
-                                ctx.strokeRect(x, y, width, height);
-                                ctx.fillStyle = 'red';
-                                ctx.font = '16px Arial';
-                                ctx.fillText(
-                                    `${prediction.class} (${Math.round(prediction.score * 100)}%)`,
-                                    x,
-                                    y > 10 ? y - 5 : y + 15
-                                );
-                            }
-                        });
+                        // Count the number of people in the frame
+                        const count = predictions.filter(
+                            (prediction) => prediction.class === 'person' && prediction.score > 0.6
+                        ).length;
 
                         setPeopleCount(count); // Update the people count
 
@@ -74,24 +42,32 @@ const MultiPersonDetection = () => {
                 }
             };
 
-            setInterval(detectPeople, 200); // Detect every 200ms
+            // Run detection every 200ms after video has loaded metadata
+            if (videoRef.current) {
+                videoRef.current.onloadedmetadata = () => {
+                    setInterval(detectPeople, 200); // Detect every 200ms
+                };
+            }
         };
 
-        setupCamera().then(loadModelAndDetect);
+        if (webcamStream && videoRef.current) {
+            videoRef.current.srcObject = webcamStream;
+            videoRef.current.play();
+            loadModelAndDetect();
+        }
 
         return () => {
-            // Cleanup: stop video feed
+            // Stop video tracks on cleanup
             if (videoRef.current && videoRef.current.srcObject) {
-                const tracks = videoRef.current.srcObject.getTracks();
+                const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
                 tracks.forEach((track) => track.stop());
             }
         };
-    }, []);
+    }, [webcamStream]);
 
     return (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
             <video ref={videoRef} style={{ display: 'none' }} />
-            <canvas ref={canvasRef} style={{ border: '1px solid black', maxWidth: '80%', display: 'none' }}></canvas>
             <div style={{ marginTop: '10px' }}>
                 People Count: {peopleCount}
             </div>

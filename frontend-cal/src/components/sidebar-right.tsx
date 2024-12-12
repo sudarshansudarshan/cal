@@ -21,6 +21,7 @@ import RealTimeHandBlurDetection from "./proctoring-components/RealTimeBlurDetec
 import FacePoseDetection from "./proctoring-components/FacePoseDetector"
 import VoiceActivityDetection from "./proctoring-components/VoiceActivityDetection"
 import { ModeToggle } from "./mode-toggle"
+import { WebcamProvider } from "./proctoring-components/WebcamProvider"
 
 
 // This is sample data.
@@ -65,8 +66,12 @@ export function SidebarRight({
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-        <MultiPersonDetection/>
-        <RealTimeHandBlurDetection/>
+          
+        <WebcamProvider>
+          <MultiPersonDetection/>
+        </WebcamProvider>
+        
+        <RealTimeHandBlurDetection />
         <VoiceActivityDetection/>
         <FacePoseDetection/>
         <CameraAndMicCheck/>
