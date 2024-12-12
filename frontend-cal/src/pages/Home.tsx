@@ -19,7 +19,7 @@ import { PanelRight } from 'lucide-react';
 import { ModeToggle } from '@/components/mode-toggle';
 
 const Home = () => {
-  const [isRightSidebarVisible, setIsRightSidebarVisible] = useState(true);
+  const [isRightSidebarVisible, setIsRightSidebarVisible] = useState(false);
 
   const toggleRightSidebar = () => {
     setIsRightSidebarVisible(!isRightSidebarVisible);
