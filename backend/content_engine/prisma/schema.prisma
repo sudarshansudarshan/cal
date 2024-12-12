@@ -27,13 +27,13 @@ model StudentAssessmentProgress {
   updatedAt        DateTime             @updatedAt
 }
 
-model StudentAssessmentAccessHistory {
-  accessId           Int                        @id @default(autoincrement())
+model StudentAssessmentAttemptHistory {
+  attemptId           Int                        @id @default(autoincrement())
   studentId          String
   assessmentId       String
   courseInstanceId   String
-  isSubmitted        Boolean                    @default(false)
-  accesstime         DateTime
+  status             AssessmentAttemptStatusEnum                    @default(IN_PROGRESS)
+  attemptTime         DateTime
   submissionTime     DateTime?
   natAnswers         StudentNATAnswer[]
   descriptiveAnswers StudentDescriptiveAnswer[]
@@ -43,12 +43,12 @@ model StudentAssessmentAccessHistory {
   updatedAt          DateTime                   @updatedAt
 }
 
-model StudentAssessmentAccessSummary {
+model StudentAssessmentAttemptSummary {
   studentId        String   @map("studentId")
   assessmentId     String   @map("assessmentId")
   courseInstanceId String   @map("courseInstanceId")
-  latestAccessId   Int      @map("latestAccessId")
-  accessCount      Int      @map("accessCount")
+  latestAttemptId   Int      @map("latestAttemptId")
+  attemptCount      Int      @map("attemptCount")
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -85,8 +85,8 @@ model StudentNATAnswer {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  assessmentAccessId             Int                            @map("assessmentAccessId")
-  StudentAssessmentAccessHistory StudentAssessmentAccessHistory @relation(fields: [assessmentAccessId], references: [accessId])
+  assessmentAttemptId             Int                            @map("assessmentAttemptId")
+  StudentAssessmentAttemptHistory StudentAssessmentAttemptHistory @relation(fields: [assessmentAttemptId], references: [attemptId])
 }
 
 model StudentDescriptiveAnswer {
@@ -98,8 +98,8 @@ model StudentDescriptiveAnswer {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  assessmentAccessId             Int
-  StudentAssessmentAccessHistory StudentAssessmentAccessHistory @relation(fields: [assessmentAccessId], references: [accessId])
+  assessmentAttemptId             Int
+  StudentAssessmentAttemptHistory StudentAssessmentAttemptHistory @relation(fields: [assessmentAttemptId], references: [attemptId])
 }
 
 model StudentMCQAnswer {
@@ -111,8 +111,8 @@ model StudentMCQAnswer {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  assessmentAccessId             Int
-  StudentAssessmentAccessHistory StudentAssessmentAccessHistory @relation(fields: [assessmentAccessId], references: [accessId])
+  assessmentAttemptId             Int
+  StudentAssessmentAttemptHistory StudentAssessmentAttemptHistory @relation(fields: [assessmentAttemptId], references: [attemptId])
 }
 
 model StudentMSQAnswer {
@@ -124,8 +124,8 @@ model StudentMSQAnswer {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  assessmentAccessId             Int
-  StudentAssessmentAccessHistory StudentAssessmentAccessHistory @relation(fields: [assessmentAccessId], references: [accessId])
+  assessmentAttemptId             Int
+  StudentAssessmentAttemptHistory StudentAssessmentAttemptHistory @relation(fields: [assessmentAttemptId], references: [attemptId])
 }
 
 // Enums
@@ -156,4 +156,9 @@ enum AssessmentStatusEnum {
   GRADED
   FAILED
   PASSED
+}
+
+enum AssessmentAttemptStatusEnum {
+  IN_PROGRESS
+  SUBMITTED
 }
