@@ -6,6 +6,10 @@ COPY backend/activity_engine/package*.json /app/backend/activity_engine
 
 RUN npm install
 RUN npm install nodemon -g
+RUN npm install -g ts-node
+RUN npm install
+
+
 
 EXPOSE 9000
 
