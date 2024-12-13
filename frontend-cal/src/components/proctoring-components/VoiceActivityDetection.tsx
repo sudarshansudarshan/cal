@@ -3,9 +3,10 @@ import audio from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-audio@0.10.0";
 
 const { AudioClassifier, FilesetResolver } = audio;
 
-const VoiceActivityDetection: React.FC = () => {
+const VoiceActivityDetection: React.FC = ({filesetResolver}) => {
   const [audioClassifier, setAudioClassifier] = useState<AudioClassifier | null>(null);
   const [audioCtx, setAudioCtx] = useState<AudioContext | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState("No");
 
   const MODEL_URL = "src/models/yamnet.tflite";
   const CACHE_NAME = "tflite-model-cache";
@@ -14,11 +15,11 @@ const VoiceActivityDetection: React.FC = () => {
     const createAudioClassifier = async () => {
       try {
         const modelUrl = await cacheModel(MODEL_URL);
-        const resolver = await FilesetResolver.forAudioTasks(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-audio@0.10.0/wasm"
-        );
+        // const resolver = await FilesetResolver.forAudioTasks(
+        //   "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-audio@0.10.0/wasm"
+        // );
 
-        const classifier = await AudioClassifier.createFromOptions(resolver, {
+        const classifier = await AudioClassifier.createFromOptions(filesetResolver, {
           baseOptions: {
             modelAssetPath: modelUrl,
           },
@@ -98,7 +99,9 @@ const VoiceActivityDetection: React.FC = () => {
               const categories = results[0]?.classifications[0]?.categories;
 
               if (categories && categories[0]?.categoryName === "Speech" && parseFloat(categories[0]?.score.toFixed(3)) > 0.5) {
-                console.log("Speaking detected:", categories[0]?.score.toFixed(3));
+                setIsSpeaking("Yes")
+              } else {
+                setIsSpeaking("No")
               }
             } else {
               console.warn("No classifications found in results.");
@@ -122,8 +125,7 @@ const VoiceActivityDetection: React.FC = () => {
 
   return (
     <div>
-      <h1>Voice Activity Detection</h1>
-      <p>Listening for voice activity...</p>
+      <h4>Speaking: {isSpeaking}</h4>
     </div>
   );
 };
