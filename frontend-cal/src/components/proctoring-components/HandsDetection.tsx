@@ -11,7 +11,8 @@ const HandLandmarkerComponent = ({filesetResolver}) => {
 
             handLandmarkerRef.current = await HandLandmarker.createFromOptions(filesetResolver, {
                 baseOptions: {
-                    modelAssetPath: "src/models/hand_landmarker.task"
+                    modelAssetPath: "src/models/hand_landmarker.task", 
+                    delegate: "GPU"
                 },
                 runningMode: "VIDEO",
                 numHands: 3
@@ -48,6 +49,9 @@ const HandLandmarkerComponent = ({filesetResolver}) => {
 
                 if (results && results.landmarks) {
                     setHandCount(results.landmarks.length);
+                    if(handCount>2){
+                        console.log(handCount, " hands are present in the feed.")
+                    }
                 } else {
                     setHandCount(0);
                 }

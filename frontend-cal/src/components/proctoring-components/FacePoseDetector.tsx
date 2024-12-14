@@ -53,6 +53,9 @@ const PoseLandmarkerComponent = ({filesetResolver}) => {
 
                 if (landmarks && landmarks.landmarks[0]) {
                     setNumPeople(landmarks.landmarks.length);
+                    if(numPeople>1){
+                        console.log(numPeople, " people are present in the feed.")
+                    }
                   
                   // checking if the person's face is in the middle of the fame
                   const nose = landmarks.landmarks[0][0]
