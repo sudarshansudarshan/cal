@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Card } from "@/components/ui/card";
 
 
 
@@ -307,14 +308,14 @@ const Courses: React.FC = () => {
       <RightClickDisabler />
       <KeyboardLock />
       <div className="youtube-player h-4/5">
-        <div className="video-container h-full p-3 mx-20">
+        <div className="video-container h-full p-3 mx-20 relative youtube-player h-4/5 before:absolute before:inset-0 before:rounded-full before:bg-white before:blur-3xl before:animate-pulse before:scale-150 before:-z-10">
           <div
             ref={videoPlayerRef}
             className="w-full h-full no-interaction"
           ></div>
         </div>
         <div className="flex justify-center">
-          <div className="controls-container">
+          <Card className="controls-container w-full mx-20 mt-4 p-4">
             <div className="mt-2 mb-4">
               <Slider
                 defaultValue={[currentTime]}
@@ -387,7 +388,7 @@ const Courses: React.FC = () => {
                 </Button>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
       {showPopup && (
