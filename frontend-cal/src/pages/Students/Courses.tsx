@@ -11,6 +11,20 @@ import RightClickDisabler from "@/components/proctoring-components/RightClickDis
 import { FaPlay, FaPause, FaExpand } from "react-icons/fa";
 import { Fullscreen, Pause, Play } from "lucide-react";
 import { Slider } from "@/components/ui/slider"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 
 
 interface Question {
@@ -34,6 +48,7 @@ const Courses: React.FC = () => {
   const [selectedAnswer, setSelectedAnswer] = useState<string>("");
   const [timestamps, setTimestamps] = useState<number[]>([]);
   const [questions, setQuestions] = useState<any[]>([]);
+  const [showVideoForwardAlert, setShowVideoForwardAlert] = useState<boolean>(false);
   const [data] = useState([
     {
       video: "1z-E_KOC2L0",
@@ -218,6 +233,19 @@ const Courses: React.FC = () => {
     }
   };
 
+  const pauseVideo = () => {
+    if (player) {
+      player.pauseVideo();
+      setIsPlaying(false);
+    };
+  };
+  const playVideo = () => {
+    if (player) {
+      player.playVideo();
+      setIsPlaying(true);
+    }
+  };
+
   const togglePlayPause = () => {
     if (player && !showPopup) {
       if (isPlaying) {
@@ -236,7 +264,9 @@ const Courses: React.FC = () => {
       player.seekTo(newTime, true);
       setCurrentTime(newTime);
     } else {
-      alert("Skipping forward is not allowed.");
+      // alert("Skipping forward is not allowed.");
+      setShowVideoForwardAlert(true);
+      pauseVideo();
     }
   };
 
@@ -245,7 +275,8 @@ const Courses: React.FC = () => {
     player?.setVolume(newVolume);
   };
 
-  const changePlaybackSpeed = (speed: number) => {
+  const changePlaybackSpeed = (newSpeed: string) => {
+    let speed = Number(newSpeed);
     player?.setPlaybackRate(speed);
     setPlaybackSpeed(speed);
   };
@@ -276,42 +307,60 @@ const Courses: React.FC = () => {
       <RightClickDisabler />
       <KeyboardLock />
       <div className="youtube-player h-4/5">
-        <div className="video-container h-full bg-gray-400 p-3 mx-20">
+        <div className="video-container h-full p-3 mx-20">
           <div
             ref={videoPlayerRef}
             className="w-full h-full no-interaction"
           ></div>
         </div>
         <div className="flex justify-center">
-          <div className="controls-container w-full mx-20 mt-4 p-4 rounded-lg shadow border border-white">
+          <div className="controls-container">
             <div className="mt-2 mb-4">
               <Slider
-              defaultValue={[currentTime]}
-              max={totalDuration}
-              step={1}
-              value={[currentTime]}
-              onValueChange={(value) => seekVideo(value[0])}
+                defaultValue={[currentTime]}
+                max={totalDuration}
+                step={1}
+                value={[currentTime]}
+                onValueChange={(value) => seekVideo(value[0])}
               />
+              <AlertDialog open={showVideoForwardAlert} onOpenChange={setShowVideoForwardAlert}>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Skipping Not Allowed</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      You cannot skip forward in this video.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogAction onClick={() => {
+                      setShowVideoForwardAlert(false)
+                      playVideo()
+                    }}>
+                      OK
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
             <div className="flex justify-between">
               <div className="flex items-center">
-                <button
+                <Button
+                  variant='secondary'
                   onClick={togglePlayPause}
-                  className="text-2xl p-2 rounded-full"
                 >
                   {isPlaying ? <Pause /> : <Play />}
-                </button>
+                </Button>
                 <div className="ml-6 flex items-center">
                   <label htmlFor="volume" className="mr-2 text-sm font-medium">
-                  Volume:
+                    Volume:
                   </label>
                   <Slider
-                  defaultValue={[volume]}
-                  max={100}
-                  step={1}
-                  value={[volume]}
-                  onValueChange={(value) => changeVolume(value[0])}
-                  className="w-24"
+                    defaultValue={[volume]}
+                    max={100}
+                    step={1}
+                    value={[volume]}
+                    onValueChange={(value) => changeVolume(value[0])}
+                    className="w-24"
                   />
                 </div>
               </div>
@@ -320,28 +369,22 @@ const Courses: React.FC = () => {
                   {formatTime(currentTime)} / {formatTime(totalDuration)}
                 </div>
               </div>
-              <div className="flex items-center">
-                {[0.5, 1, 1.5, 2].map((speed) => (
-                  <button
-                    key={speed}
-                    onClick={() => changePlaybackSpeed(speed)}
-                    className={`mx-1 px-3 py-1 text-sm rounded-full ${
-                      playbackSpeed === speed
-                        ? "bg-gray-500"
-                        : ""
-                    }`}
-                  >
-                    {speed}x
-                  </button>
-                ))}
-              </div>
+              <ToggleGroup className="speed-controls" type="single" value={playbackSpeed.toString()} onValueChange={changePlaybackSpeed}>
+                {
+                  [0.5, 1, 1.5, 2].map((speed) => (
+                    <ToggleGroupItem key={speed} value={speed.toString()}>
+                      {speed}x
+                    </ToggleGroupItem>
+                  ))
+                }
+              </ToggleGroup>
               <div>
-                <button
+                <Button
+                  variant='secondary'
                   onClick={toggleFullscreen}
-                  className="text-xl p-2 rounded-full"
                 >
                   <Fullscreen />
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -378,11 +421,10 @@ const Courses: React.FC = () => {
             <button
               onClick={goToNextQuestion}
               disabled={!selectedAnswer}
-              className={`mt-4 px-4 py-2 h-10 rounded ${
-                selectedAnswer
+              className={`mt-4 px-4 py-2 h-10 rounded ${selectedAnswer
                   ? "bg-blue-500 text-white hover:bg-blue-600"
                   : "bg-gray-300 text-gray-600 cursor-not-allowed"
-              }`}
+                }`}
             >
               {currentQuestionIndex < questions.length - 1 ? "Next" : "Submit"}
             </button>

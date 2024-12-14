@@ -1,0 +1,12 @@
+After an assessment is accessed an entry into the table(StudentAssessmentAccessHistory) 
+with the following fields 
+asseessment id
+access_time, 
+course_instance_id, 
+student_id
+
+is made.
+the frontend recieves back the access_id,
+
+-> if the student submits, the is_submitted is made true, and the submission_time is updated,
+and the student is immediately graded.
