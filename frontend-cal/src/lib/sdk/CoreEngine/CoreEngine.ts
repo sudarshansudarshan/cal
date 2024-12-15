@@ -58,8 +58,9 @@ export class CoreEngine {
    * @param courseId - ID of the course.
    * @returns A list of modules.
    */
-  public async getModules(courseId: number): Promise<Module[]> {
-    const endpoint = provideParams(CORE_API_CONFIG.ENDPOINTS.MODULES, { courseId });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async getModules(courseId?: number): Promise<Module[]> {
+    const endpoint = provideParams(CORE_API_CONFIG.ENDPOINTS.MODULES);
     const response = await this.engine.get<Module[]>(endpoint);
     return response.data;
   }
@@ -69,8 +70,9 @@ export class CoreEngine {
    * @param moduleId - ID of the module.
    * @returns A list of sections.
    */
-  public async getSections(moduleId: number): Promise<Section[]> {
-    const endpoint = provideParams(CORE_API_CONFIG.ENDPOINTS.SECTIONS, { moduleId });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async getSections(moduleId?: number): Promise<Section[]> {
+    const endpoint = provideParams(CORE_API_CONFIG.ENDPOINTS.SECTIONS);
     const response = await this.engine.get<Section[]>(endpoint);
     return response.data;
   }

@@ -18,7 +18,7 @@ describe('CAL SDK', () => {
         mock.reset();
     });
 
-    it('CoreEngine: Fetch user courses successfully', async () => {
+    it('CoreEngine: Fetch user courses', async () => {
         const mockResponse = [
             {
                 id: 1,
@@ -51,7 +51,7 @@ describe('CAL SDK', () => {
         expect(courses.length).toBe(2);
     });
 
-    it('CoreEngine: Fetch course instance details successfully', async () => {
+    it('CoreEngine: Fetch course instance details', async () => {
         const mockResponse = {
             id: 101,
             name: "Machine Learning - Batch 1",
@@ -68,5 +68,59 @@ describe('CAL SDK', () => {
 
         // Assertions
         expect(courseInstance).toEqual(mockResponse);
+    });
+    
+    it('CoreEngine: Fetch modules for a course', async () => {
+        const mockResponse = [
+            {
+              id: 201,
+              title: "Week 1: Introduction to ML",
+              description: "Basic concepts and terminology.",
+              sequence: 1
+            },
+            {
+              id: 202,
+              title: "Week 2: Supervised Learning",
+              description: "Understanding supervised models.",
+              sequence: 2
+            }
+          ];
+
+        // Mock the API response
+        mock.onGet(`${CORE_API_CONFIG.BASE_URL}${CORE_API_CONFIG.ENDPOINTS.MODULES}`).reply(200, mockResponse);
+
+        // Call the SDK method
+        const modules = await coreEngine.getModules();
+
+        // Assertions
+        expect(modules).toEqual(mockResponse);
+        expect(modules.length).toBe(2);
+    });
+
+    it('CoreEngine: Fetch sections for a module', async () => {
+        const mockResponse = [
+            {
+              id: 301,
+              title: "Basics of Machine Learning",
+              sequence: 1,
+              section_items: 3
+            },
+            {
+              id: 302,
+              title: "Understanding Linear Regression",
+              sequence: 2,
+              section_items_count: 2
+            }
+          ];
+
+        // Mock the API response
+        mock.onGet(`${CORE_API_CONFIG.BASE_URL}${CORE_API_CONFIG.ENDPOINTS.SECTIONS}`).reply(200, mockResponse);
+
+        // Call the SDK method
+        const sections = await coreEngine.getSections();
+
+        // Assertions
+        expect(sections).toEqual(mockResponse);
+        expect(sections.length).toBe(2);
     });
 });
