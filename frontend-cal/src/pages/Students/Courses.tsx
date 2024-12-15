@@ -346,7 +346,7 @@ const Courses: React.FC = () => {
             <div className="flex justify-between">
               <div className="flex items-center">
                 <Button
-                  variant='secondary'
+                  variant='outline'
                   onClick={togglePlayPause}
                 >
                   {isPlaying ? <Pause /> : <Play />}
@@ -373,7 +373,7 @@ const Courses: React.FC = () => {
               <ToggleGroup className="speed-controls" type="single" value={playbackSpeed.toString()} onValueChange={changePlaybackSpeed}>
                 {
                   [0.5, 1, 1.5, 2].map((speed) => (
-                    <ToggleGroupItem key={speed} value={speed.toString()}>
+                    <ToggleGroupItem key={speed} value={speed.toString()} variant='outline'>
                       {speed}x
                     </ToggleGroupItem>
                   ))
@@ -381,7 +381,7 @@ const Courses: React.FC = () => {
               </ToggleGroup>
               <div>
                 <Button
-                  variant='secondary'
+                  variant='outline'
                   onClick={toggleFullscreen}
                 >
                   <Fullscreen />

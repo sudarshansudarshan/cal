@@ -65,11 +65,11 @@ export function SidebarRight({
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-        <MultiPersonDetection/>
+        {/* <MultiPersonDetection/>
         <RealTimeHandBlurDetection/>
         <VoiceActivityDetection/>
         <FacePoseDetection/>
-        <CameraAndMicCheck/>
+        <CameraAndMicCheck/> */}
           <SidebarMenuItem>
             <SidebarMenuButton>
               <Plus />

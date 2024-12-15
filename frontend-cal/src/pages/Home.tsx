@@ -59,7 +59,7 @@ const Home = () => {
           <Outlet />
         </div>
       </SidebarInset>
-      <div
+      {/* <div
         className={`transition-all duration-300 ease-in-out ${
           isRightSidebarVisible ? 'w-64 opacity-100' : 'w-0 opacity-0'
         }`}
@@ -68,7 +68,7 @@ const Home = () => {
         }}
       >
         <SidebarRight />
-      </div>
+      </div> */}
     </SidebarProvider>
   );
 };
