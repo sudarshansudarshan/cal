@@ -1,6 +1,6 @@
 
 import axios, { AxiosInstance } from 'axios';
-import { CORE_API_CONFIG } from '../config';
+import { CORE_API_CONFIG } from './config';
 import { provideParams } from '../utils/provideParams';
 import {
   EnrolledCourse,
@@ -11,7 +11,7 @@ import {
   Video,
   Article,
   Assessment,
-} from '../types/coreEngine';
+} from './types/coreEngine';
 
 /**
  * CoreEngine: A class to handle all API requests to the Core Engine.

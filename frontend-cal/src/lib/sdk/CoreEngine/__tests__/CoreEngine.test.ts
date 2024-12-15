@@ -1,7 +1,7 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { CoreEngine } from '../CoreEngine';
-import { CORE_API_CONFIG } from '../../config';
+import { CORE_API_CONFIG } from '../config';
 
 describe('CAL SDK', () => {
     let mock: MockAdapter;
