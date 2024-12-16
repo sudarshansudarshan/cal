@@ -93,8 +93,9 @@ export class CoreEngine {
    * @param videoId - ID of the video.
    * @returns The video details.
    */
-  public async getVideo(videoId: number): Promise<Video> {
-    const endpoint = provideParams(CORE_API_CONFIG.ENDPOINTS.VIDEOS, { videoId });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async getVideo(videoId?: number): Promise<Video> {
+    const endpoint = provideParams(CORE_API_CONFIG.ENDPOINTS.VIDEOS);
     const response = await this.engine.get<Video>(endpoint);
     return response.data;
   }

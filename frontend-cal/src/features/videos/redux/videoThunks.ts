@@ -11,6 +11,7 @@ export const fetchVideoDetails =
     dispatch(startLoading());
     try {
       const video = await fetchVideo(videoId);
+      console.log("Video fetched:", video);
       dispatch(setVideo(video));
     } catch {
       dispatch(setError("Failed to fetch video details."));
