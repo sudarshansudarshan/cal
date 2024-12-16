@@ -5,3 +5,7 @@ djangorestframework
 djangorestframework-simplejwt
 django-cors-headers
 Pillow
+
+# dev_dependencies
+django-extensions
+pydotplus
