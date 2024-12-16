@@ -1,5 +1,5 @@
 export const CORE_API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_CORE_API_BASE_URL || 'https://run.mocky.io/v3/',
+  BASE_URL: 'https://run.mocky.io/v3/',
   ENDPOINTS: {
     USER_COURSES: '9cc16836-dcef-41f4-8419-6aef58f26753', // /users/{userId}/courses
     COURSE_INSTANCE: 'dff75402-9d93-4dce-b14e-3baeb018b88f', // /course-instances/{instanceId}
@@ -13,7 +13,7 @@ export const CORE_API_CONFIG = {
 };
 
 export const ACTIVITY_API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_ACTIVITY_API_BASE_URL || 'https://mock-api.mocky.io/v3',
+  BASE_URL: 'https://mock-api.mocky.io/v3',
   ENDPOINTS: {
     // Add endpoints for the Activity Engine here when needed
   },
