@@ -1,9 +1,19 @@
-from django.urls import path
-from .views import CourseListView, CourseDetailView, ModuleListView, ModuleDetailView
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
+from ..assessment.views import AssessmentViewSet
+from .views import *
+
+router = DefaultRouter()
+router.register(r'courses', CourseViewSet, basename='course')
+router.register(r'modules', ModuleViewSet, basename='module')
+router.register(r'sections', SectionViewSet, basename='section')
+router.register(r'items/videos', VideoViewSet, basename='video')
+router.register(r'items/articles', ArticleViewSet, basename='article')
+router.register(r'items/assessments', AssessmentViewSet, basename='assessment')
+
 
 urlpatterns = [
-    path('courses/', CourseListView.as_view(), name='course_list'),
-    path('courses/<int:id>/', CourseDetailView.as_view(), name='course_detail'),
-    path('courses/<int:course_id>/modules/', ModuleListView.as_view(), name='module_list'),
-    path('courses/<int:course_id>/modules/<int:id>/', ModuleDetailView.as_view(), name='module_detail'),
+    path('', include(router.urls)),
+    path('items/', SectionItemListView.as_view(), name='section-item-list'),
 ]

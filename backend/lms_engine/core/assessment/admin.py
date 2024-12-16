@@ -1,6 +1,6 @@
 from django.contrib import admin
-from django.forms import ValidationError
-from .models import Assessment, DescriptiveSolution, NATSolution, Question
+
+from .models import Assessment, DescriptiveSolution, NATSolution, Question, MCQSolution, MSQSolution, QuestionOption
 
 class NATSolutionInline(admin.StackedInline):
     model = NATSolution
@@ -18,6 +18,22 @@ class DescriptiveSolutionInline(admin.StackedInline):
     verbose_name = "Descriptive Solution"
     verbose_name_plural = "Descriptive Solutions"
 
+class MCQSolutionInline(admin.StackedInline):
+    model = MCQSolution
+    extra = 0  # No extra empty forms
+    fields = ('choice',)
+    can_delete = False
+    verbose_name = "MCQ Solution"
+    verbose_name_plural = "MCQ Solutions"
+
+class MSQSolutionInline(admin.StackedInline):
+    model = MSQSolution
+    extra = 0  # No extra empty forms
+    fields = ('choice',)
+    can_delete = False
+    verbose_name = "MSQ Solution"
+    verbose_name_plural = "MSQ Solutions"
+
 class QuestionAdmin(admin.ModelAdmin):
     list_display = ('text', 'type', 'marks', 'created_at', 'updated_at')
     search_fields = ('text', 'tags')
@@ -29,8 +45,10 @@ class QuestionAdmin(admin.ModelAdmin):
         """Dynamically determine inlines based on question type."""
         if obj and obj.type == 'NAT':
             return [NATSolutionInline]
-        elif obj and obj.type in ['MCQ', 'MSQ']:
-            return []
+        elif obj and obj.type == 'MCQ':
+            return [MCQSolutionInline]
+        elif obj and obj.type == 'MSQ':
+            return [MSQSolutionInline]
         elif obj and obj.type == 'DESC':
             return [DescriptiveSolutionInline]
         return []
@@ -44,4 +62,4 @@ class AssessmentAdmin(admin.ModelAdmin):
 
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Assessment, AssessmentAdmin)
-
+admin.site.register(QuestionOption)

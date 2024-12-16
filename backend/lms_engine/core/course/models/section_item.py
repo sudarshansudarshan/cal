@@ -13,7 +13,7 @@ class SectionItem(models.Model):
     section = models.ForeignKey(
         Section,
         on_delete=models.CASCADE,
-        related_name="%(class)s",  # Dynamically generate related_name
+        related_name="%(class)ss",  # Dynamically generate related_name
         help_text="The section this item belongs to."
     )
     item_type = models.CharField(choices=ItemTypeChoices.choices)

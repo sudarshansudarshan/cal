@@ -1,8 +1,7 @@
 from django.contrib import admin
 from django.contrib import admin
 
-from ..user.models import User
-from .models import Course, Module, Section, CourseInstructor, CoursePersonnel
+from .models import Course, Module, Section, CourseInstructor, CoursePersonnel, Video, Article, Source
 
 
 class SectionAdmin(admin.ModelAdmin):
@@ -42,4 +41,6 @@ class CourseAdmin(admin.ModelAdmin):
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Module, ModuleAdmin)
 admin.site.register(Section, SectionAdmin)
-
+admin.site.register(Video)
+admin.site.register(Source)
+admin.site.register(Article)

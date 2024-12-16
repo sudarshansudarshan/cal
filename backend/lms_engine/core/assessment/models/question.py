@@ -12,6 +12,7 @@ class QuestionType(models.TextChoices):
 
 
 class Question(models.Model):
+    assessment = models.ForeignKey('Assessment', on_delete=models.CASCADE, related_name='questions')
     text = models.TextField(max_length=QUESTION_TEXT_MAX_LEN)
     hint = models.TextField(null=True, blank=True, max_length=QUESTION_HINT_MAX_LEN)
     type = models.CharField(choices=QuestionType.choices)
