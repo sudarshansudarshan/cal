@@ -1,4 +1,4 @@
-import { CoreEngine } from './CoreEngine/CoreEngine';
+import { CoreEngine } from './coreEngine';
 
 /**
  * Unified SDK instance exposing CoreEngine functionality.

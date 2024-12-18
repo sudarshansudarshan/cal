@@ -1,3 +1,5 @@
+import { ArticleManager, AssessmentManager, VideoManager } from "../managers/section_items";
+
 // User's Enrolled Courses
 export interface EnrolledCourse {
   id: number;
@@ -65,4 +67,10 @@ export interface Assessment {
   title: string;
   time_limit: number;
   sequence: number;
+}
+
+export interface SectionItemManager {
+  videoManager: VideoManager;
+  articleManager: ArticleManager;
+  assessmentManager: AssessmentManager;
 }
