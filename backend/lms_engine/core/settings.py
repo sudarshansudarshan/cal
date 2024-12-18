@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'core.institution',
     'core.course',
     'core.assessment',
-    'core.log',
 ]
 
 MIDDLEWARE = [
