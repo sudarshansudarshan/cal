@@ -42,10 +42,10 @@ INSTALLED_APPS = [
 
     #3rd Party
     'rest_framework',
-    'rest_framework_simplejwt',
     'django_extensions',
+    'oauth2_provider',
 
-    'core.authentication',
+    'core.auth',
     'core.user',
     'core.institution',
     'core.course',
