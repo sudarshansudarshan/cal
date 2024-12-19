@@ -37,7 +37,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     first_name = models.CharField(max_length=USER_FNAME_MAX_LEN)
     last_name = models.CharField(max_length=USER_LNAME_MAX_LEN)
-    username = models.CharField(max_length=USERNAME_MAX_LEN, unique=True)
     email = models.EmailField(max_length=USER_EMAIL_MAX_LEN, unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)  # Required for Django Admin
@@ -50,8 +49,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    USERNAME_FIELD = 'username'  # Use 'username' for authentication
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
+    USERNAME_FIELD = 'email'
 
     def __str__(self):
-        return self.username
+        return f'{self.first_name} {self.last_name} <{self.email}>'
