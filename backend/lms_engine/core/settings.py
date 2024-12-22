@@ -72,6 +72,9 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_SIGNUP_REDIRECT_URL = '/dashboard/'  # Redirect after signup
@@ -91,6 +94,7 @@ OAUTH2_PROVIDER = {
     'ACCESS_TOKEN_EXPIRE_SECONDS': 3600,  # Tokens expire in 1 hour
     'REFRESH_TOKEN_EXPIRE_SECONDS': 86400,  # Refresh tokens expire in 1 day
     'ROTATE_REFRESH_TOKEN': True,  # New refresh token on use
+    'PKCE_REQUIRED': False,
 }
 
 ROOT_URLCONF = 'core.urls'
