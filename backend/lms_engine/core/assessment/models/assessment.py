@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-from core.course.models import SectionItem
+from ...course.models import SectionItem
 from ..constants import *
 
 class Assessment(SectionItem):
