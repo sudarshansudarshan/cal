@@ -55,6 +55,10 @@ def login(request):
             {"error": "Invalid client_id"}, status=status.HTTP_400_BAD_REQUEST
         )
 
+    # Revoke existing tokens for the user
+    AccessToken.objects.filter(user=user).delete()
+    RefreshToken.objects.filter(user=user).delete()
+
     # Generate an authorization code
     authorization_code = secrets.token_urlsafe(32)
     grant = Grant.objects.create(
