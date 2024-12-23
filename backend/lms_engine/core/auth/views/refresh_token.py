@@ -15,6 +15,12 @@ def refresh_token(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    if refresh_token.user != request.user:
+        return Response(
+            {"error": "Token does not belong to the authenticated user."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
     token_request_data = {
         "grant_type": "refresh_token",
         "refresh_token": refresh_token,

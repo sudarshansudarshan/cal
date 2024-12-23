@@ -15,10 +15,11 @@ def logout(request):
         return Response(
             {"error": "Token is required."}, status=status.HTTP_400_BAD_REQUEST
         )
-    
-    if token != AccessToken.objects.get(user=request.user).token:
+
+    if token.user != request.user:
         return Response(
-            {"error": "Token does not belong to the authenticated user."}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "Token does not belong to the authenticated user."},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     try:
