@@ -48,7 +48,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)  # Required for Django Admin
     courses = models.ManyToManyField(
-        "course.Course", related_name="%(class)ss", through="UserCourse"
+        "course.CourseInstance", related_name="%(class)ss", through="UserCourseInstance"
     )
     institutions = models.ManyToManyField(
         "institution.Institution", related_name="%(class)ss", through="UserInstitution"

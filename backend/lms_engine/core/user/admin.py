@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
-from .models import User, UserCourse
+from .models import User, UserCourseInstance
 
 class UserAdmin(BaseUserAdmin):
     list_display = ('email', 'name', 'role', 'is_active', 'is_staff')
@@ -28,10 +28,9 @@ class UserAdmin(BaseUserAdmin):
     def name(self, obj):
         return f'{obj.first_name} {obj.last_name}'
 
-@admin.register(UserCourse)
+@admin.register(UserCourseInstance)
 class UserCoursesAdmin(admin.ModelAdmin):
-    list_display = ('user', 'course','start_date', 'end_date')
-    list_filter = ('start_date', 'end_date')
+    list_display = ('user', 'course')
     search_fields = ('course__title',)
 
 # Unregister the default Group model (optional)

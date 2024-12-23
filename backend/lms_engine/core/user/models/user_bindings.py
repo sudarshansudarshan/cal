@@ -14,14 +14,12 @@ class UserInstitution(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.user.username} - {self.institution.name}"
+        return f"{self.user.first_name} - {self.institution.name}"
 
 
-class UserCourse(models.Model):
+class UserCourseInstance(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    course = models.ForeignKey('course.Course', on_delete=models.CASCADE)
-    start_date = models.DateField(null=True, blank=True)
-    end_date = models.DateField(null=True, blank=True)
+    course = models.ForeignKey('course.CourseInstance', on_delete=models.CASCADE)
 
     class Meta:
         constraints = [
@@ -29,4 +27,4 @@ class UserCourse(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.user.username} - {self.course.name}"
+        return f"{self.user.first_name} - {self.course.name}"
