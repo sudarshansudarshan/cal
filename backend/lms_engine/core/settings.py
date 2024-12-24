@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     #3rd Party
     'rest_framework',
     'django_extensions',
+    'drf_spectacular',
 
     'oauth2_provider',
     'allauth',
@@ -53,6 +54,7 @@ INSTALLED_APPS = [
     'core.institution',
     'core.course',
     'core.assessment',
+    'core.docs',
 ]
 
 MIDDLEWARE = [
@@ -192,7 +194,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 100
+    'PAGE_SIZE': 100,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 AUTH_USER_MODEL = 'user.User'
