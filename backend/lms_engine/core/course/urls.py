@@ -5,6 +5,7 @@ from ..assessment.views import AssessmentViewSet
 from .views import *
 
 router = DefaultRouter()
+router.register(r'course-instances', CourseInstanceViewSet, basename='course_instances')
 router.register(r'courses', CourseViewSet, basename='course')
 router.register(r'modules', ModuleViewSet, basename='module')
 router.register(r'sections', SectionViewSet, basename='section')

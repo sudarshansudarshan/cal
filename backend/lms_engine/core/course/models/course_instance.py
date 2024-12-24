@@ -1,5 +1,54 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.db.models import Q
+
+from core.user.models.user import User
+
+from ..models import VisibilityChoices
+from ...user.models import User, Roles
+
+
+class CourseInstanceManager(models.Manager):
+    def accessible_by(self, user: User):
+        if user.role == Roles.SUPERADMIN:
+            return self.all()
+
+        elif user.role == Roles.ADMIN:
+            return self.filter(
+                course_institution_id__in=user.institutions.values_list("id", flat=True)
+            )
+
+        elif user.role == Roles.MODERATOR:
+            return self.filter(
+                course_institution_id__in=user.institutions.values_list("id", flat=True)
+            )
+
+        elif user.role == Roles.INSTRUCTOR:
+            user_institutions = user.institutions.values_list("id", flat=True)
+
+            return self.filter(
+                Q(course_visibility=VisibilityChoices.PUBLIC)
+                | Q(
+                    course_institutions__id__in=user_institutions,
+                    course_visibility=VisibilityChoices.PRIVATE,
+                )
+                | Q(course_instructors__contains=user)
+            )
+
+        elif user.role == Roles.STAFF:
+            user_institutions = user.institutions.values_list("id", flat=True)
+
+            return self.filter(
+                Q(course_visibility=VisibilityChoices.PUBLIC)
+                | Q(
+                    course_institutions__id__in=user_institutions,
+                    course_visibility=VisibilityChoices.PRIVATE,
+                )
+                | Q(course_personnel__contains=user)
+            )
+
+        elif user.role == Roles.STUDENT:
+            return user.courses.all()
 
 
 class CourseInstance(models.Model):
@@ -13,6 +62,8 @@ class CourseInstance(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects: CourseInstanceManager = CourseInstanceManager()
 
     class Meta:
         constraints = [
