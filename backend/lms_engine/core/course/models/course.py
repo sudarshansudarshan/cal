@@ -2,6 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 
+from ...utils.models import TimestampMixin
 from ...user.models import User, Roles
 from ..constants import COURSE_NAME_MAX_LEN, COURSE_DESCRIPTION_MAX_LEN
 
@@ -44,7 +45,7 @@ class CourseManager(models.Manager):
             return user.courses.all()
 
 
-class Course(models.Model):
+class Course(TimestampMixin,models.Model):
     name = models.CharField(max_length=COURSE_NAME_MAX_LEN)
     description = models.TextField(max_length=COURSE_DESCRIPTION_MAX_LEN)
     visibility = models.CharField(
@@ -54,8 +55,6 @@ class Course(models.Model):
     )
     institutions = models.ManyToManyField('institution.Institution', related_name='courses')
     instructors = models.ManyToManyField('user.User', through='CourseInstructor', related_name='instructor_courses')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     objects: CourseManager = CourseManager()
 

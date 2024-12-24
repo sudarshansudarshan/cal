@@ -5,6 +5,7 @@ from django.contrib.auth.models import (
 )
 from django.db import models
 
+from ...utils.models import TimestampMixin
 from ..constants import *
 
 
@@ -39,7 +40,7 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin, TimestampMixin):
     """Custom User model."""
 
     first_name = models.CharField(max_length=USER_FNAME_MAX_LEN)
@@ -54,8 +55,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         "institution.Institution", related_name="%(class)ss", through="UserInstitution"
     )
     role = models.CharField(choices=Roles.choices)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     last_login = models.DateTimeField(null=True, blank=True)
 
     objects = UserManager()

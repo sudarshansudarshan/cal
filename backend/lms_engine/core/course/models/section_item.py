@@ -1,5 +1,6 @@
 from django.db import models
 
+from ...utils.models import TimestampMixin
 from . import Section
 
 
@@ -9,7 +10,7 @@ class ItemTypeChoices(models.TextChoices):
     VIDEO = 'video', 'Video'
 
 
-class SectionItem(models.Model):
+class SectionItem(TimestampMixin, models.Model):
     section = models.ForeignKey(
         Section,
         on_delete=models.CASCADE,
@@ -18,8 +19,6 @@ class SectionItem(models.Model):
     )
     item_type = models.CharField(choices=ItemTypeChoices.choices)
     sequence = models.PositiveIntegerField(help_text="The order of this item within the section.")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [

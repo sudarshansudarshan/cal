@@ -2,9 +2,8 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 
-from core.user.models.user import User
-
-from ..models import VisibilityChoices
+from ...utils.models import TimestampMixin
+from . import VisibilityChoices
 from ...user.models import User, Roles
 
 
@@ -51,7 +50,7 @@ class CourseInstanceManager(models.Manager):
             return user.courses.all()
 
 
-class CourseInstance(models.Model):
+class CourseInstance(TimestampMixin ,models.Model):
     course = models.ForeignKey(
         "Course", on_delete=models.CASCADE, related_name="instances"
     )
@@ -60,8 +59,6 @@ class CourseInstance(models.Model):
     personnel = models.ManyToManyField(
         "user.User", through="CoursePersonnel", related_name="personnel_courses"
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     objects: CourseInstanceManager = CourseInstanceManager()
 
