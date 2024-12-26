@@ -243,8 +243,8 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
             setCurrentQuestionIndex(currentQuestionIndex + 1);
             setSelectedAnswer(""); // Reset selected answer for the new question
         } else {
-            closePopup(); // Reset state when all questions are answered
             handleFrameScrollUp(); // Scroll the frame up when both answers are correct
+            closePopup(); // Reset state when all questions are answered
         }
     };
 
@@ -253,10 +253,6 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
         setCurrentQuestionIndex(0); // Reset question index
         setSelectedAnswer(""); // Clear selected answer
         setQuestions([]); // Clear the current questions
-        if (player) {
-            player.playVideo();
-            setIsPlaying(true);
-        }
     };
 
     const onPlayerStateChange = (event: YT.OnStateChangeEvent) => {
@@ -277,16 +273,18 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
             (window as any).player.pauseVideo();
         } else {
             (window as any).player.playVideo();
+            // Ensure the video seeks to the current timestamp before playing
+            (window as any).player.seekTo(currentTime, true);
         }
         setIsPlaying(!isPlaying);
     };
 
     const seekVideo = (newTime: number) => {
-        if ((window as any).player && newTime <= currentTime) {
-            (window as any).player.seekTo(newTime, true);
+        if ((window as any).player && newTime <= totalDuration) {
+            (window as any).player.seekTo(newTime, true);  // Seek to the current time
             setCurrentTime(newTime);
         } else {
-            alert("Skipping forward is not allowed.");
+            console.log("Attempting to seek to an invalid time.");
         }
     };
 
@@ -332,6 +330,7 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
                 setCurrentPart(1); // Reset part to the last part
                 return prevFrame > 0 ? prevFrame - 1 : (frames.length / 2) - 1; // Decrement frame or loop back
             }
+            seekVideo(currentTime);
         });
     };
 
@@ -340,6 +339,7 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
         setCurrentFrame((prevFrame) =>
             prevFrame < frames.length / 2 - 1 ? prevFrame + 1 : 0
         );
+        seekVideo(currentTime);
         console.log("current Frame",currentFrame)
     };
 
