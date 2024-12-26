@@ -11,7 +11,7 @@ declare global {
 import KeyboardLock from "@/components/proctoring-components/KeyboardLock";
 import RightClickDisabler from "@/components/proctoring-components/RightClickDisable";
 import { FaPlay, FaPause, FaExpand } from "react-icons/fa";
-import { Fullscreen, Pause, Play } from "lucide-react";
+import { Fullscreen, Key, Pause, Play } from "lucide-react";
 import { Slider } from "@/components/ui/slider"
 
 
@@ -47,6 +47,12 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
     const [selectedAnswer, setSelectedAnswer] = useState<string>("");
     const [timestamps, setTimestamps] = useState<number[]>([]);
     const [questions, setQuestions] = useState<any[]>([]);
+    const [currentFrame, setCurrentFrame] = useState(0);
+    const [currentPart, setCurrentPart] = useState(0);
+
+    useEffect(() => {
+        setCurrentPart(0);
+    }, [currentFrame]);
     const [data] = useState([
         {
             video: "1z-E_KOC2L0",
@@ -105,50 +111,73 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
     }, [data]);
 
     useEffect(() => {
-        // Load the IFrame Player API code asynchronously.
-        const tag = document.createElement('script');
-        tag.src = 'https://www.youtube.com/iframe_api';
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag?.parentNode?.insertBefore(tag, firstScriptTag);
-    
-        // Create a new YT.Player when the API is ready.
-        window.onYouTubeIframeAPIReady = () => {
-          (window as any).player = new (window as any).YT.Player('player', {
+    // Function to clean up the existing player
+    function cleanupPlayer() {
+        if (window.player && window.player.destroy) {
+            window.player.destroy();
+        }
+    }
+
+    // Load the IFrame Player API code asynchronously, if not already loaded
+    const setupYouTubeScript = () => {
+        if (window.YT && window.YT.Player) {
+            createPlayer();
+        } else {
+            const tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+            window.onYouTubeIframeAPIReady = createPlayer;
+        }
+    };
+
+    // Create a new YT.Player when the API is ready
+    const createPlayer = () => {
+        cleanupPlayer(); // Clean up any existing player instance
+        window.player = new YT.Player(`player-${currentFrame}`, {
+            videoId: data.video, // Ensure this matches the updated data source
             events: {
-              onReady: onPlayerReady,
+                onReady: onPlayerReady,
             },
             playerVars: {
-              rel: 0, // Disable related videos
-              controls: 0,
-              modestbranding: 1,
-              showinfo: 0,
-              fs: 1,
-              iv_load_policy: 3,
-              cc_load_policy: 1,
-              autohide: 1,
+                rel: 0,
+                controls: 0,
+                modestbranding: 1,
+                showinfo: 0,
+                fs: 1,
+                iv_load_policy: 3,
+                cc_load_policy: 1,
+                autohide: 1,
             },
-          });
-        };
-      }, []);
+        });
+    };
+
+    setupYouTubeScript();
+
+    return () => {
+        cleanupPlayer(); // Clean up on component unmount or before re-running this effect
+    };
+}, [currentFrame]); // Re-run this effect when `currentFrame` changes
 
     useEffect(() => {
         let interval: NodeJS.Timeout | undefined;
-        console.log("is playing",isPlaying)
+        console.log("is playing", isPlaying)
         if (isPlaying) {
             interval = setInterval(() => {
                 if ((window as any).player) {
                     const current = (window as any).player.getCurrentTime();
                     setCurrentTime(current);
-                    console.log("current",current);
+                    console.log("current", current);
 
                     const currentTimestamp = Math.floor(current);
-                    console.log("currentTimestamp",currentTimestamp);
+                    console.log("currentTimestamp", currentTimestamp);
                     if (
                         timestamps.includes(currentTimestamp) &&
                         !triggeredTimestamps.current.has(currentTimestamp)
                     ) {
                         triggeredTimestamps.current.add(currentTimestamp);
-                        console.log("triggeredTimestamps",triggeredTimestamps.current);
+                        console.log("triggeredTimestamps", triggeredTimestamps.current);
                         pauseVideoAndShowPopup(currentTimestamp);
                     }
                 }
@@ -181,6 +210,8 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
         setCurrentPart((prevPart) => (prevPart < 1 ? prevPart + 1 : 0));
     };
 
+    console.log("bukla",(window as any).player)
+
     const handleIncorrectAnswer: () => void = () => {
         if (currentTimestamp !== null) {
             const lastTimestamp = [...triggeredTimestamps.current]
@@ -199,7 +230,7 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
         alert("Wrong answer. Try again!");
         handlePartScrollDown(); // Scroll the part down when the answer is incorrect
     };
-    
+
     const goToNextQuestion = () => {
         const currentQuestion = questions[currentQuestionIndex];
         if (selectedAnswer !== currentQuestion.correctAnswer) {
@@ -207,7 +238,7 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
             setSelectedAnswer(""); // Clear the selection for the current question
             return;
         }
-    
+
         if (currentQuestionIndex < questions.length - 1) {
             setCurrentQuestionIndex(currentQuestionIndex + 1);
             setSelectedAnswer(""); // Reset selected answer for the new question
@@ -235,7 +266,7 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
             setIsPlaying(false);
         }
     };
-    
+
 
     const handleAnswerSelection = (answer: string) => {
         setSelectedAnswer(answer);
@@ -244,10 +275,10 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
     const togglePlayPause = () => {
         if (isPlaying) {
             (window as any).player.pauseVideo();
-          } else {
+        } else {
             (window as any).player.playVideo();
-          }
-          setIsPlaying(!isPlaying);
+        }
+        setIsPlaying(!isPlaying);
     };
 
     const seekVideo = (newTime: number) => {
@@ -290,16 +321,47 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
         return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
     };
 
+    const handleFrameScrollUp = () => {
+        setCurrentFrame((prevFrame) => {
+            if (currentPart > 0) {
+                // Ensure part transitions within the same frame
+                setCurrentPart(currentPart - 1);
+                return prevFrame + 1;
+            } else {
+                // Move to the previous frame when all parts are completed
+                setCurrentPart(1); // Reset part to the last part
+                return prevFrame > 0 ? prevFrame - 1 : (frames.length / 2) - 1; // Decrement frame or loop back
+            }
+        });
+    };
+
+
+    const handleFrameScrollDown = () => {
+        setCurrentFrame((prevFrame) =>
+            prevFrame < frames.length / 2 - 1 ? prevFrame + 1 : 0
+        );
+        console.log("current Frame",currentFrame)
+    };
+
+    const handlePartScrollUp = () => {
+        setCurrentPart((prevPart) => (prevPart > 0 ? prevPart - 1 : 1));
+    };
+
+    const handlePartScrollDown = () => {
+        setCurrentPart((prevPart) => (prevPart < 1 ? prevPart + 1 : 0));
+    };
+
     const frames = data
         .flatMap((frameData, frameIndex) => {
             const videoUrl = `https://www.youtube.com/embed/${frameData.video}?enablejsapi=1&controls=0&rel=0&modestbranding=1&showinfo=0&fs=1&iv_load_policy=3&cc_load_policy=1&autohide=1`;
+            console.log("lulululluulooo", frameIndex)
             return Object.keys(frameData.timestamps).map((timeKey, partIndex) => [
                 <div
                     key={`video-${frameIndex}-${partIndex}`}
                     className="h-screen bg-blue-500 text-white flex justify-center items-center"
                 >
                     <iframe
-                        id="player"
+                        id={`player-${partIndex}`}
                         width="100%"
                         height="100%"
                         src={videoUrl}
@@ -347,41 +409,9 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
         })
         .flat();
 
-    const [currentFrame, setCurrentFrame] = useState(0);
-    const [currentPart, setCurrentPart] = useState(0);
 
-    useEffect(() => {
-        setCurrentPart(0);
-    }, [currentFrame]);
-
-    const handleFrameScrollUp = () => {
-    setCurrentFrame((prevFrame) => {
-        if (currentPart > 0) {
-            // Ensure part transitions within the same frame
-            setCurrentPart(currentPart - 1);
-            return prevFrame + 1;
-        } else {
-            // Move to the previous frame when all parts are completed
-            setCurrentPart(1); // Reset part to the last part
-            return prevFrame > 0 ? prevFrame - 1 : (frames.length / 2) - 1; // Decrement frame or loop back
-        }
-    });
-};
-
-
-    const handleFrameScrollDown = () => {
-        setCurrentFrame((prevFrame) =>
-            prevFrame < frames.length / 2 - 1 ? prevFrame + 1 : 0
-        );
-    };
-
-    const handlePartScrollUp = () => {
-        setCurrentPart((prevPart) => (prevPart > 0 ? prevPart - 1 : 1));
-    };
-
-    const handlePartScrollDown = () => {
-        setCurrentPart((prevPart) => (prevPart < 1 ? prevPart + 1 : 0));
-    };
+    
+    
 
     return (
         <ResizablePanelGroup direction="vertical">
