@@ -33,29 +33,34 @@ const FaceRecognition = () => {
   const loadUserDescription = useCallback(async () => {
     if (!modelLoaded) return;
 
-    const userImage = document.getElementById("user-image");
-    if (userImage) {
+    const userImages = ["/image/photo1.jpeg", "/image/photo2.jpeg"];
+    const descriptors = [];
+    for (let imagePath of userImages) {
       try {
-        const detections = await faceapi
-          .detectSingleFace(userImage, new faceapi.TinyFaceDetectorOptions())
+        const img = await faceapi.fetchImage(imagePath);
+        const detection = await faceapi
+          .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
           .withFaceLandmarks()
           .withFaceDescriptor();
 
-        if (detections) {
-          const labeledDescriptor = new faceapi.LabeledFaceDescriptors("User", [
-            detections.descriptor,
-          ]);
-          setUserDescription(labeledDescriptor);
-          setUserDescriptionLoaded(true);
-          console.log("User descriptor loaded");
-        } else {
-          console.log("No face detected in user image");
+        if (detection) {
+          descriptors.push(detection.descriptor);
         }
       } catch (error) {
-        console.error("Error detecting user face:", error);
+        console.error(`Error processing image ${imagePath}:`, error);
       }
+    }
+
+    if (descriptors.length) {
+      const labeledDescriptor = new faceapi.LabeledFaceDescriptors(
+        "User",
+        descriptors
+      );
+      setUserDescription(labeledDescriptor);
+      setUserDescriptionLoaded(true);
+      console.log("User descriptors loaded with multiple images");
     } else {
-      console.log("User image not found or is not a valid image element");
+      console.log("No faces detected in user images");
     }
   }, [modelLoaded]);
 
@@ -83,14 +88,22 @@ const FaceRecognition = () => {
 
         // Perform face detection
         const detections = await faceapi
-          .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+          .detectAllFaces(
+            video,
+            new faceapi.TinyFaceDetectorOptions({
+              inputSize: 224, //increased the size for accuracy
+              scoreThreshold: 0.5,
+            })
+          )
           .withFaceLandmarks()
           .withFaceDescriptors();
 
         const context = canvasRef.current.getContext("2d");
         if (context) {
           context.clearRect(0, 0, videoWidth, videoHeight);
-          faceapi.draw.drawDetections(canvasRef.current, detections);
+          detections.forEach((detection) => {
+            faceapi.draw.drawDetections(canvasRef.current, [detection]);
+          });
           //multiple faces
           if (detections.length > 1) {
             setMultipleFace(true);
@@ -99,7 +112,7 @@ const FaceRecognition = () => {
           }
           // Comparison
           if (detections.length > 0) {
-            const matcher = new faceapi.FaceMatcher(userDescription, 0.6);
+            const matcher = new faceapi.FaceMatcher(userDescription, 0.6); //making model strict
             const result = detections.map((detection) =>
               matcher.findBestMatch(detection.descriptor)
             );
@@ -130,7 +143,7 @@ const FaceRecognition = () => {
     if (modelLoaded && userDescriptionLoaded) {
       const interval = setInterval(() => {
         recognizeFace();
-      }, 500); // Check every 500ms
+      }, 500); // Check every 5s
 
       return () => clearInterval(interval);
     }
@@ -155,7 +168,6 @@ const FaceRecognition = () => {
       )}
       <img
         id="user-image"
-        src="/image/photo1.jpeg"
         alt="User"
         className="hidden"
         style={{ display: "none" }}
