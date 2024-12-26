@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Question Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+    }
+    .segments-container {
+      margin-top: 20px;
+    }
+    .segment-block {
+      display: inline-block;
+      margin: 5px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      text-align: center;
+      background-color: #f9f9f9;
+    }
+    .segment-block:hover {
+      background-color: #ddd;
+    }
+    #details-form {
+      display: none;
+      margin-top: 20px;
+    }
+    #generating-sign {
+      display: none;
+      text-align: center;
+      margin: 20px 0;
+      font-size: 18px;
+      font-weight: bold;
+      color: #555;
+    }
+    .dots {
+      display: inline-block;
+      margin-left: 5px;
+    }
+    .dots span {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      margin-right: 3px;
+      background-color: #555;
+      border-radius: 50%;
+      animation: blink 1.5s infinite;
+    }
+    .dots span:nth-child(2) {
+      animation-delay: 0.3s;
+    }
+    .dots span:nth-child(3) {
+      animation-delay: 0.6s;
+    }
+
+    @keyframes blink {
+      0%, 100% {
+        opacity: 0.2;
+      }
+      50% {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Video Question Generator</h1>
+    <form id="video-form">
+      <label for="video-url">Video URL</label>
+      <input type="url" id="video-url" placeholder="Enter video URL" required />
+
+      <label for="user-api-key">API Key</label>
+      <input type="text" id="user-api-key" placeholder="Enter your API key" required />
+
+      <label for="num-segments">Number of Segments</label>
+      <input type="number" id="num-segments" min="1" placeholder="Enter number of segments" />
+
+      <div id="segments-container" class="segments-container"></div>
+
+      <div id="details-form">
+        <h3 id="form-title">Segment Details</h3>
+        <label for="timestamp">Timestamp (seconds)</label>
+        <input type="number" id="timestamp" placeholder="Enter timestamp" disabled />
+
+        <label for="questions">Number of Questions</label>
+        <input type="number" id="questions" placeholder="Enter number of questions" />
+
+        <label for="type">Type of Questions</label>
+        <select id="type">
+          <option value="">Select type</option>
+          <option value="analytical">Analytical</option>
+          <option value="case-study">Case Study</option>
+        </select>
+      </div>
+
+      <button type="submit">Upload</button>
+    </form>
+
+    <div id="generating-sign">Generating<span class="dots"><span></span><span></span><span></span></span></div>
+
+    <h3>Generated Output:</h3>
+    <div id="output"></div>
+    <button id="confirm-btn" style="display:none;">Confirm & Download</button>
+  </div>
+
+  <script>
+    const numSegmentsInput = document.getElementById('num-segments');
+    const segmentsContainer = document.getElementById('segments-container');
+    const detailsForm = document.getElementById('details-form');
+    const formTitle = document.getElementById('form-title');
+    const generatingSign = document.getElementById('generating-sign');
+    const outputDiv = document.getElementById('output');
+    const confirmButton = document.getElementById('confirm-btn');
+
+    const timestampInput = document.getElementById('timestamp');
+    const questionsInput = document.getElementById('questions');
+    const typeInput = document.getElementById('type');
+
+    const segmentData = {};
+    let currentSegment = null;
+    let responseData = {}; // To store the API response data
+
+    numSegmentsInput.addEventListener('input', () => {
+      const numSegments = parseInt(numSegmentsInput.value) || 0;
+      segmentsContainer.innerHTML = '';
+
+      for (let i = 1; i <= numSegments; i++) {
+        const segmentBlock = document.createElement('div');
+        segmentBlock.className = 'segment-block';
+        segmentBlock.textContent = `Segment ${i}`;
+        segmentBlock.addEventListener('click', () => openSegmentForm(i));
+        segmentsContainer.appendChild(segmentBlock);
+
+        // Initialize segment data if not already present
+        if (!segmentData[i]) {
+          segmentData[i] = { timestamp: i === 1 ? 0 : null, questions: null, type: null };
+        }
+      }
+    });
+
+    function openSegmentForm(segmentNumber) {
+      currentSegment = segmentNumber;
+      const data = segmentData[segmentNumber];
+      formTitle.textContent = `Segment ${segmentNumber} Details`;
+      timestampInput.value = data.timestamp || '';
+      timestampInput.disabled = segmentNumber === 1; // Disable timestamp for the first segment
+      questionsInput.value = data.questions || '';
+      typeInput.value = data.type || '';
+      detailsForm.style.display = 'block';
+
+      questionsInput.addEventListener('input', saveSegmentData);
+      typeInput.addEventListener('change', saveSegmentData);
+    }
+
+    function saveSegmentData() {
+      if (currentSegment !== null) {
+        segmentData[currentSegment] = {
+          timestamp: currentSegment === 1 ? 0 : parseInt(timestampInput.value) || null,
+          questions: parseInt(questionsInput.value) || null,
+          type: typeInput.value || null,
+        };
+      }
+    }
+
+    document.getElementById('video-form').addEventListener('submit', (event) => {
+      event.preventDefault(); // Prevent actual form submission
+
+      const videoURL = document.getElementById('video-url').value;
+      const userApiKey = document.getElementById('user-api-key').value;
+
+      const timestamps = [];
+      const segmentWiseQNo = [];
+      const segmentWiseQModel = [];
+
+      Object.values(segmentData).forEach(data => {
+        if (data.timestamp !== null) timestamps.push(data.timestamp);
+        if (data.questions !== null) segmentWiseQNo.push(data.questions);
+        if (data.type !== null) segmentWiseQModel.push(data.type);
+      });
+
+      const payload = {
+        url: videoURL,
+        user_api_key: userApiKey,
+        timestamps,
+        segment_wise_q_no: segmentWiseQNo,
+        segment_wise_q_model: segmentWiseQModel,
+      };
+
+      // Show generating sign
+      generatingSign.style.display = 'block';
+      outputDiv.textContent = '';
+
+      fetch('/questions/process_video', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+        .then(response => response.json())
+        .then(data => {
+          responseData = data; // Store response data
+          generatingSign.style.display = 'none';
+          outputDiv.innerHTML = parseJsonToEditableFields(data);
+          confirmButton.style.display = 'inline-block';
+        })
+        .catch(error => {
+          generatingSign.style.display = 'none';
+          outputDiv.textContent = `Error: ${error.message}`;
+        });
+    });
+
+    // Parse JSON response into editable fields
+    function parseJsonToEditableFields(data) {
+      let htmlContent = `
+        <h4>Video Information</h4>
+        <label for="video-id">Video ID</label><input type="text" id="video-id" value="${data.video_id}" />
+
+        <label for="title">Title</label><input type="text" id="title" value="${data.title}" />
+
+        <label for="description">Description</label><input type="text" id="description" value="${data.description}" />
+        
+        <h4>Segments</h4>
+      `;
+      data.segments.forEach((segment, index) => {
+        htmlContent += `
+          <div class="segment">
+            <h5>Segment ${index + 1}</h5>
+            <label for="segment-text-${index}">Text</label>
+            <input type="text" id="segment-text-${index}" value="${segment.text}" />
+
+            <label for="start-time-${index}">Start Time</label>
+            <input type="number" id="start-time-${index}" value="${segment.start_time}" />
+
+            <label for="end-time-${index}">End Time</label>
+            <input type="number" id="end-time-${index}" value="${segment.end_time}" />
+          </div>
+        `;
+      });
+
+      htmlContent += `<h4>Questions</h4>`;
+      data.questions.forEach((question, index) => {
+        htmlContent += `
+          <div class="question">
+            <h5>Question ${index + 1}</h5>
+            <label for="question-${index}">Question Text</label>
+            <textarea id="question-${index}">${question.question}</textarea>
+            
+            <h5>Options</h5>
+            ${question.options.map((opt, i) => `
+              <label for="option-${index}-${i}">Option ${i + 1}</label>
+              <input type="text" id="option-${index}-${i}" value="${opt}" />
+            `).join('')}
+
+            <label for="correct-answer-${index}">Correct Answer</label>
+            <input type="number" id="correct-answer-${index}" value="${question.correct_answer}" />
+
+            <label for="segment-index-${index}">Segment</label>
+            <input type="number" id="segment-index-${index}" value="${question.segment}" disabled />
+          </div>
+        `;
+      });
+
+      return htmlContent;
+    }
+
+    // Download the modified JSON file
+    confirmButton.addEventListener('click', () => {
+      const modifiedData = {
+        video_id: document.getElementById('video-id').value,
+        title: document.getElementById('title').value,
+        description: document.getElementById('description').value,
+        segments: [],
+        questions: []
+      };
+
+      // Gather segments
+      responseData.segments.forEach((segment, index) => {
+        modifiedData.segments.push({
+          text: document.getElementById(`segment-text-${index}`).value,
+          start_time: parseFloat(document.getElementById(`start-time-${index}`).value),
+          end_time: parseFloat(document.getElementById(`end-time-${index}`).value)
+        });
+      });
+
+      // Gather questions
+      responseData.questions.forEach((question, index) => {
+        const options = [];
+        question.options.forEach((_, i) => {
+          options.push(document.getElementById(`option-${index}-${i}`).value);
+        });
+
+        modifiedData.questions.push({
+          question: document.getElementById(`question-${index}`).value,
+          options,
+          correct_answer: parseInt(document.getElementById(`correct-answer-${index}`).value),
+          segment: parseInt(document.getElementById(`segment-index-${index}`).value)
+        });
+      });
+
+      const blob = new Blob([JSON.stringify(modifiedData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'modified_video_data.json';
+      a.click();
+    });
+  </script>
+</body>
+</html>
