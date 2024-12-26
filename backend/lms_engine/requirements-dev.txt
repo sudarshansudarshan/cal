@@ -9,3 +9,4 @@ Pillow
 # dev_dependencies
 django-extensions
 pydotplus
+drf-spectacular
