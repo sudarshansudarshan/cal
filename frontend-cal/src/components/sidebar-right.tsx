@@ -64,10 +64,10 @@ export function SidebarRight({
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-        <MultiPersonDetection/>
+        {/* <MultiPersonDetection/>
         <FacePoseDetection/>
         <CameraAndMicCheck/>
-        <RealTimeHandBlurDetection/>
+        <RealTimeHandBlurDetection/> */}
           <SidebarMenuItem>
             <SidebarMenuButton>
               <Plus />
