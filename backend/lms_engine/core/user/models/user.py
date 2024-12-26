@@ -6,7 +6,7 @@ from django.contrib.auth.models import (
 from django.db import models
 
 from ...utils.models import TimestampMixin
-from ..constants import *
+from .. import constants as ct
 
 
 class Roles(models.TextChoices):
@@ -36,16 +36,16 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-        extra_fields.setdefault("role", Roles.SUPERADMIN)  # Superuser is always superadmin
+        extra_fields.setdefault("role", Roles.SUPERADMIN)
         return self.create_user(email, password, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin, TimestampMixin):
     """Custom User model."""
 
-    first_name = models.CharField(max_length=USER_FNAME_MAX_LEN)
-    last_name = models.CharField(max_length=USER_LNAME_MAX_LEN)
-    email = models.EmailField(max_length=USER_EMAIL_MAX_LEN, unique=True)
+    first_name = models.CharField(max_length=ct.USER_FNAME_MAX_LEN)
+    last_name = models.CharField(max_length=ct.USER_LNAME_MAX_LEN)
+    email = models.EmailField(max_length=ct.USER_EMAIL_MAX_LEN, unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)  # Required for Django Admin
     courses = models.ManyToManyField(
