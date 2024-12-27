@@ -1,8 +1,8 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+from ...auth.permissions import ModelPermissionsMixin
 from ...utils.models import TimestampMixin
-
 from .. import constants as ct
 
 
@@ -13,7 +13,7 @@ class QuestionType(models.TextChoices):
     DESC = "DESC", "Descriptive Question"
 
 
-class Question(TimestampMixin, models.Model):
+class Question(TimestampMixin, models.Model, ModelPermissionsMixin):
     assessment = models.ForeignKey(
         "Assessment", on_delete=models.CASCADE, related_name="questions"
     )
@@ -27,3 +27,13 @@ class Question(TimestampMixin, models.Model):
             MaxValueValidator(ct.QUESTION_MARKS_MAX_VAL),
         ]
     )
+
+    def __getattr__(self, name):
+        """
+        Delegate permission checks to the related assessment object.
+        """
+        if name.endswith("_has_access"):
+            return getattr(self.assessment, name)
+        raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'"
+        )

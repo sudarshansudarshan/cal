@@ -5,6 +5,7 @@ from django.contrib.auth.models import (
 )
 from django.db import models
 
+from ...auth.permissions import ModelPermissionsMixin
 from ...utils.models import TimestampMixin
 from .. import constants as ct
 
@@ -40,7 +41,7 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-class User(AbstractBaseUser, PermissionsMixin, TimestampMixin):
+class User(AbstractBaseUser, PermissionsMixin, TimestampMixin, ModelPermissionsMixin):
     """Custom User model."""
 
     first_name = models.CharField(max_length=ct.USER_FNAME_MAX_LEN)
@@ -63,3 +64,21 @@ class User(AbstractBaseUser, PermissionsMixin, TimestampMixin):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} <{self.email}>"
+
+    def student_has_access(self, user: "User"):
+        return (self == user, False, False)
+
+    def instructor_has_access(self, user: "User"):
+        has_access = self == user
+        return (has_access, has_access, False)
+
+    def staff_has_access(self, user: "User"):
+        return (self == user, False, False)
+
+    def moderator_has_access(self, user: "User"):
+        has_access = self.institutions.intersection(user.institutions).exists()
+
+        return (has_access, has_access, False)
+
+    def admin_has_access(self, user: "User"):
+        return (True, True, False)
