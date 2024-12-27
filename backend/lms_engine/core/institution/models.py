@@ -6,7 +6,7 @@ from ..user.models import User
 from . import constants as ct
 
 
-class Institution(TimestampMixin, models.Model, ModelPermissionsMixin):
+class Institution(TimestampMixin, ModelPermissionsMixin, models.Model):
     name = models.CharField(max_length=ct.INSTITUTION_NAME_MAX_LEN, unique=True)
     description = models.TextField(
         null=True, blank=True, max_length=ct.INSTITUTION_DESCRIPTION_MAX_LEN

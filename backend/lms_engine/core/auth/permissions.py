@@ -1,30 +1,38 @@
+from django.db import models
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
-from ..user.models import User, Roles
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..user.models import User
 
 
-class ModelPermissionsMixin:
-    def student_has_access(self, user: User):
+class ModelPermissionsMixin(models.Model):
+    def student_has_access(self, user: "User"):
         return (False, False, False)
 
-    def instructor_has_access(self, user: User):
+    def instructor_has_access(self, user: "User"):
         raise NotImplementedError
 
-    def staff_has_access(self, user: User):
+    def staff_has_access(self, user: "User"):
         raise NotImplementedError
 
-    def moderator_has_access(self, user: User):
+    def moderator_has_access(self, user: "User"):
         raise NotImplementedError
 
-    def admin_has_access(self, user: User):
+    def admin_has_access(self, user: "User"):
         raise NotImplementedError
 
-    def superadmin_has_access(self, user: User):
+    def superadmin_has_access(self, user: "User"):
         return (True, True, True)
+
+    class Meta:
+        abstract = True
 
 
 class RoleBasedPermission(BasePermission):
     def has_permission(self, request, view):
+        from ..user.models import Roles
+
         if request.user.role == Roles.STUDENT:
             return request.method in SAFE_METHODS
 
@@ -32,6 +40,8 @@ class RoleBasedPermission(BasePermission):
         return True
 
     def has_object_permission(self, request, view, obj: ModelPermissionsMixin):
+        from ..user.models import Roles
+
         role: Roles = request.user.role
 
         is_read = request.method in SAFE_METHODS

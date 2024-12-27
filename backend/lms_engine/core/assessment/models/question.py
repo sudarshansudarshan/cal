@@ -13,7 +13,7 @@ class QuestionType(models.TextChoices):
     DESC = "DESC", "Descriptive Question"
 
 
-class Question(TimestampMixin, models.Model, ModelPermissionsMixin):
+class Question(TimestampMixin, ModelPermissionsMixin, models.Model):
     assessment = models.ForeignKey(
         "Assessment", on_delete=models.CASCADE, related_name="questions"
     )

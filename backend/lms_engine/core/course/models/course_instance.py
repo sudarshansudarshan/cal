@@ -15,7 +15,9 @@ class CourseInstanceManager(models.Manager):
 
         elif user.role == Roles.MODERATOR:
             return self.filter(
-                course_institutions_id__in=user.institutions.values_list("id", flat=True)
+                course_institutions_id__in=user.institutions.values_list(
+                    "id", flat=True
+                )
             )
 
         elif user.role == Roles.INSTRUCTOR:
@@ -46,7 +48,7 @@ class CourseInstanceManager(models.Manager):
             return user.courses.all()
 
 
-class CourseInstance(TimestampMixin, models.Model, ModelPermissionsMixin):
+class CourseInstance(TimestampMixin, ModelPermissionsMixin, models.Model):
     course = models.ForeignKey(
         "Course", on_delete=models.CASCADE, related_name="instances"
     )

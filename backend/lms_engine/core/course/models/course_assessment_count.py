@@ -3,7 +3,7 @@ from django.db import models
 from ...auth.permissions import ModelPermissionsMixin
 
 
-class CourseAssessmentCount(models.Model, ModelPermissionsMixin):
+class CourseAssessmentCount(ModelPermissionsMixin, models.Model):
     course = models.OneToOneField(
         "course.Course", on_delete=models.CASCADE, related_name="assessment_count"
     )

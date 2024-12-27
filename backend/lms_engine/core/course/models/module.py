@@ -11,7 +11,7 @@ class ModuleManager(models.Manager):
         return self.filter(course__in=Course.objects.accessible_by(user))
 
 
-class Module(TimestampMixin, models.Model, ModelPermissionsMixin):
+class Module(TimestampMixin, ModelPermissionsMixin, models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="modules")
     title = models.CharField(max_length=MODULE_TITLE_MAX_LEN)
     description = models.TextField(max_length=MODULE_DESCRIPTION_MAX_LEN)

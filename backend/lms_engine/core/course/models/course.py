@@ -61,7 +61,7 @@ class CourseManager(models.Manager):
             ).union(user.courses.all())
 
 
-class Course(TimestampMixin, models.Model, ModelPermissionsMixin):
+class Course(TimestampMixin, ModelPermissionsMixin, models.Model):
     name = models.CharField(max_length=COURSE_NAME_MAX_LEN)
     description = models.TextField(max_length=COURSE_DESCRIPTION_MAX_LEN)
     visibility = models.CharField(

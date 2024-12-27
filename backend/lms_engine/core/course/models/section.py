@@ -11,7 +11,7 @@ class SectionManager(models.Manager):
         return self.filter(module__in=Module.objects.accessible_by(user))
 
 
-class Section(TimestampMixin, models.Model, ModelPermissionsMixin):
+class Section(TimestampMixin, ModelPermissionsMixin, models.Model):
     module = models.ForeignKey(
         Module, on_delete=models.CASCADE, related_name="sections"
     )

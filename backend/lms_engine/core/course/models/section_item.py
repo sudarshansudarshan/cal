@@ -11,7 +11,7 @@ class ItemTypeChoices(models.TextChoices):
     VIDEO = "video", "Video"
 
 
-class SectionItem(TimestampMixin, models.Model, ModelPermissionsMixin):
+class SectionItem(TimestampMixin, ModelPermissionsMixin, models.Model):
     section = models.ForeignKey(
         Section,
         on_delete=models.CASCADE,
