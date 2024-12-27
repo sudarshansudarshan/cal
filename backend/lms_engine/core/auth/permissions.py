@@ -24,10 +24,6 @@ class ModelPermissionsMixin:
 
 
 class RoleBasedPermission(BasePermission):
-    """
-    Allows access based on user roles defined in `allowed_roles`.
-    """
-
     def has_permission(self, request, view):
         if request.user.role == Roles.STUDENT:
             return request.method in SAFE_METHODS
