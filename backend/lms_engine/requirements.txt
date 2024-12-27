@@ -1,8 +1,7 @@
 Django>=4.2,<5.0
-psycopg2-binary>=2.9
-gunicorn>=20.1.0
-djangorestframework
-django-allauth
-django-oauth-toolkit
-django-cors-headers
-Pillow
+psycopg2-binary>=2.9,<3.0
+gunicorn>=20.1,<21.0
+djangorestframework>=3.15,<4.0
+django-allauth>=65.3,<66.0
+django-oauth-toolkit>=3.0,<4.0
+django-cors-headers>=4.6,<5.0
