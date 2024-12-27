@@ -10,8 +10,7 @@ declare global {
 }
 import KeyboardLock from "@/components/proctoring-components/KeyboardLock";
 import RightClickDisabler from "@/components/proctoring-components/RightClickDisable";
-import { FaPlay, FaPause, FaExpand } from "react-icons/fa";
-import { Fullscreen, Key, Pause, Play } from "lucide-react";
+import { Fullscreen, Pause, Play } from "lucide-react";
 import { Slider } from "@/components/ui/slider"
 
 
@@ -102,6 +101,8 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
             },
         },
     ]);
+    
+    console.log("current Part",currentPart)
 
     useEffect(() => {
         const videoData = data[0]; // Assuming single video data
@@ -461,12 +462,17 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
                         >
                             ↓ Part
                         </button>
+                        {currentPart !== 1 && (
                         <div className='controls-container w-full h-1/6 flex justify-center'>
                             <div className="w-1/2 mx-auto p-4 rounded-lg shadow border border-white bg-white absolute bottom-0 left-0 right-0 h-1/6">
                                 <div className="mt-2">
                                     <Slider
                                         defaultValue={[currentTime]}
-                                        max={totalDuration}
+                                        min={currentTimestamp ?? 0}
+                                        max={
+                                            timestamps.find((timestamp) => timestamp > (currentTimestamp ?? 0)) ??
+                                            totalDuration
+                                        }
                                         step={1}
                                         value={[currentTime]}
                                         onValueChange={(value) => seekVideo(value[0])}
@@ -495,11 +501,6 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
                                         </div>
                                     </div>
                                     <div className="flex items-center">
-                                        <div className="text-sm font-medium">
-                                            {formatTime(currentTime)} / {formatTime(totalDuration)}
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center">
                                         {[0.5, 1, 1.5, 2].map((speed) => (
                                             <button
                                                 key={speed}
@@ -522,6 +523,7 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
                                 </div>
                             </div>
                         </div>
+                        )}
                     </div>
                 </div>
             </ResizablePanel>
