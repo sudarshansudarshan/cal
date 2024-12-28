@@ -17,6 +17,7 @@ import { Outlet } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { PanelRight } from 'lucide-react';
 import { ModeToggle } from '@/components/mode-toggle';
+import { Toaster } from '@/components/ui/sonner';
 
 const Home = () => {
   const [isRightSidebarVisible, setIsRightSidebarVisible] = useState(false);
@@ -27,6 +28,7 @@ const Home = () => {
 
   return (
     <SidebarProvider>
+      <Toaster/>
       <SidebarLeft />
       <SidebarInset>
         <header className="sticky top-0 flex h-14 shrink-0 items-center gap-2 bg-background">

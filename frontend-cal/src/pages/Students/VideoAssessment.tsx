@@ -11,6 +11,7 @@ declare global {
 import KeyboardLock from "@/components/proctoring-components/KeyboardLock";
 import RightClickDisabler from "@/components/proctoring-components/RightClickDisable";
 import { Fullscreen, Pause, Play } from "lucide-react";
+import { toast } from "sonner"
 import { Slider } from "@/components/ui/slider"
 
 
@@ -228,9 +229,10 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
             triggeredTimestamps.current.delete(currentTimestamp);
             setShowPopup(false); // Close the popup
         }
-        alert("Wrong answer. Try again!");
+        toast("Wrong answer. Try again!");
         handlePartScrollDown(); // Scroll the part down when the answer is incorrect
     };
+    
 
     const goToNextQuestion = () => {
         const currentQuestion = questions[currentQuestionIndex];

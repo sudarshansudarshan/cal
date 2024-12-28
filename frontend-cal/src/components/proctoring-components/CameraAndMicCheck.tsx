@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 const CameraAndMicCheck = () => {
     const [cameraAvailable, setCameraAvailable] = useState(false);
@@ -13,10 +14,10 @@ const CameraAndMicCheck = () => {
             setMicAvailable(audioInput);
 
             if (!videoInput) {
-                alert('Camera not found');
+                toast('Camera not found');
             }
             if (!audioInput) {
-                alert('Microphone not found');
+                toast('Microphone not found');
             }
         });
     }, []);
