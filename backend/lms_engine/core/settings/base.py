@@ -1,11 +1,9 @@
 import os
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+from typing import Any
 
-SECRET_KEY = os.getenv(
-    "SECRET_KEY", "django-insecure-a315e&x&14d_34iz$7608d81v3y)0fov--goz$j@#&w*vjib%8"
-)
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 INSTALLED_APPS = [
     # Django Core
@@ -84,7 +82,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "core.wsgi.application"
 
-DATABASES = {
+DATABASES: dict[str, dict[str, Any]] = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.environ.get("POSTGRES_DB", "postgres"),
