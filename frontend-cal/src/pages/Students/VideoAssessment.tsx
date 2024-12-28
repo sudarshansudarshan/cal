@@ -189,7 +189,7 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
         return () => {
             if (interval) clearInterval(interval);
         };
-    }, [isPlaying, player, timestamps]);
+    }, [isPlaying, player, timestamps]);//H
 
 
     const onPlayerReady = (event: YT.PlayerEvent) => {
