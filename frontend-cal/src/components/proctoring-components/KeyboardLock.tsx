@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 const KeyboardLock = () => {
-    const [isLocked, setIsLocked] = useState(true); // Set initial state to truee
+    const [isLocked, setIsLocked] = useState(true); // Set initial state to true
 
     useEffect(() => {
         const disableKeyboard = (event: KeyboardEvent): void => {
