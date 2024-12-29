@@ -1,0 +1,19 @@
+name: Deploy to Staging
+
+on:
+  workflow_call:
+
+jobs:
+  deploy-core-engine-staging:
+    name: Deploy to Staging (Core Engine)
+    runs-on: ubuntu-latest
+
+    environment: "Core Engine Staging"
+
+    steps:
+    - name: Deploy to Google Cloud Run
+      run: |
+        gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+        gcloud run deploy django-backend-prod \
+          --image ${{ secrets.DOCKER_USERNAME }}/django-backend:${{ github.ref_name }} \
+          --platform managed --region $GCP_REGION --allow-unauthenticated
