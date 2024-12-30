@@ -1,0 +1,15 @@
+{
+  "name": "sdk",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "description": "CAL TypeScript Library compatible with modern JavaScript runtimes",
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}
