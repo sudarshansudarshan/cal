@@ -8,6 +8,7 @@ const LoginPage: React.FC = () => {
 
   const toggleCover = () => {
     setCoverLeft(!coverLeft); // Toggle between covering left and right
+    console.log("Toggle coverleft",coverLeft)
   };
 
   return (

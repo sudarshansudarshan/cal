@@ -54,7 +54,10 @@ export function SignUpForm({
             </div>
             <div className="text-center text-sm">
                 Already have an account?{" "}
-                <button onClick={toggleCover} className="underline underline-offset-4">
+                <button onClick={(e) => {
+                    e.preventDefault();
+                    toggleCover();
+                }} className="underline underline-offset-4">
                     Login
                 </button>
             </div>

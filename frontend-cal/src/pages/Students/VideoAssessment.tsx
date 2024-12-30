@@ -1,6 +1,7 @@
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Sidebar, useSidebar } from '@/components/ui/sidebar';
 import React, { useEffect, useRef, useState } from "react";
+import '../../frame.css';
 
 declare global {
     interface Window {
@@ -49,6 +50,8 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
     const [questions, setQuestions] = useState<any[]>([]);
     const [currentFrame, setCurrentFrame] = useState(0);
     const [currentPart, setCurrentPart] = useState(0);
+    const [showThumbnail, setShowThumbnail] = useState(true); // State to show/hide the thumbnail
+    const thumbnailUrl = 'https://i.pinimg.com/originals/24/12/bc/2412bc5c012e7360f602c13a92901055.jpg';
 
     useEffect(() => {
         setCurrentPart(0);
@@ -102,8 +105,8 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
             },
         },
     ]);
-    
-    console.log("current Part",currentPart)
+
+    console.log("current Part", currentPart)
 
     useEffect(() => {
         const videoData = data[0]; // Assuming single video data
@@ -113,54 +116,57 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
     }, [data]);
 
     useEffect(() => {
-    // Function to clean up the existing player
-    function cleanupPlayer() {
-        if (window.player && window.player.destroy) {
-            window.player.destroy();
+        // Function to clean up the existing player
+        function cleanupPlayer() {
+            if (window.player && window.player.destroy) {
+                window.player.destroy();
+            }
         }
-    }
 
-    // Load the IFrame Player API code asynchronously, if not already loaded
-    const setupYouTubeScript = () => {
-        if (window.YT && window.YT.Player) {
-            createPlayer();
-        } else {
-            const tag = document.createElement('script');
-            tag.src = 'https://www.youtube.com/iframe_api';
-            const firstScriptTag = document.getElementsByTagName('script')[0];
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        // Load the IFrame Player API code asynchronously, if not already loaded
+        const setupYouTubeScript = () => {
+            if (window.YT && window.YT.Player) {
+                createPlayer();
+                console.log("chchchchhchchchaaaaaaaa")
+            } else {
+                const tag = document.createElement('script');
+                tag.src = 'https://www.youtube.com/iframe_api';
+                const firstScriptTag = document.getElementsByTagName('script')[0];
+                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-            window.onYouTubeIframeAPIReady = createPlayer;
-        }
-    };
+                window.onYouTubeIframeAPIReady = createPlayer;
+            }
+        };
 
-    // Create a new YT.Player when the API is ready
-    const createPlayer = () => {
-        cleanupPlayer(); // Clean up any existing player instance
-        window.player = new YT.Player(`player-${currentFrame}`, {
-            videoId: data.video, // Ensure this matches the updated data source
-            events: {
-                onReady: onPlayerReady,
-            },
-            playerVars: {
-                rel: 0,
-                controls: 0,
-                modestbranding: 1,
-                showinfo: 0,
-                fs: 1,
-                iv_load_policy: 3,
-                cc_load_policy: 1,
-                autohide: 1,
-            },
-        });
-    };
+        // Create a new YT.Player when the API is ready
+        const createPlayer = () => {
+            cleanupPlayer(); // Clean up any existing player instance
+            window.player = new YT.Player(`player-${currentFrame}`, {
+                videoId: data.video, // Ensure this matches the updated data source
+                events: {
+                    onReady: onPlayerReady,
+                    onStateChange: onPlayerStateChange,
+                },
+                playerVars: {
+                    rel: 0, // Disable related videos
+                    controls: 0,
+                    modestbranding: 1,
+                    showinfo: 0,
+                    fs: 1,
+                    iv_load_policy: 3,
+                    cc_load_policy: 1,
+                    autohide: 1,
+                },
+            });
+            console.log("chchchchhchchchaaaaaaaa", window.player)
+        };
 
-    setupYouTubeScript();
+        setupYouTubeScript();
 
-    return () => {
-        cleanupPlayer(); // Clean up on component unmount or before re-running this effect
-    };
-}, [currentFrame]); // Re-run this effect when `currentFrame` changes
+        return () => {
+            cleanupPlayer(); // Clean up on component unmount or before re-running this effect
+        };
+    }, [currentFrame]); // Re-run this effect when `currentFrame` changes
 
     useEffect(() => {
         let interval: NodeJS.Timeout | undefined;
@@ -212,7 +218,7 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
         setCurrentPart((prevPart) => (prevPart < 1 ? prevPart + 1 : 0));
     };
 
-    console.log("bukla",(window as any).player)
+    console.log("bukla", (window as any).player)
 
     const handleIncorrectAnswer: () => void = () => {
         if (currentTimestamp !== null) {
@@ -232,7 +238,7 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
         toast("Wrong answer. Try again!");
         handlePartScrollDown(); // Scroll the part down when the answer is incorrect
     };
-    
+
 
     const goToNextQuestion = () => {
         const currentQuestion = questions[currentQuestionIndex];
@@ -278,6 +284,7 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
             (window as any).player.playVideo();
             // Ensure the video seeks to the current timestamp before playing
             (window as any).player.seekTo(currentTime, true);
+            setShowThumbnail(false);
         }
         setIsPlaying(!isPlaying);
     };
@@ -335,6 +342,7 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
             }
             seekVideo(currentTime);
         });
+        setShowThumbnail(true);
     };
 
 
@@ -343,15 +351,18 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
             prevFrame < frames.length / 2 - 1 ? prevFrame + 1 : 0
         );
         seekVideo(currentTime);
-        console.log("current Frame",currentFrame)
+        setShowThumbnail(true);
+        console.log("current Frame", currentFrame)
     };
 
     const handlePartScrollUp = () => {
         setCurrentPart((prevPart) => (prevPart > 0 ? prevPart - 1 : 1));
+        setShowThumbnail(true);
     };
 
     const handlePartScrollDown = () => {
         setCurrentPart((prevPart) => (prevPart < 1 ? prevPart + 1 : 0));
+        setShowThumbnail(true);
     };
 
     const frames = data
@@ -373,6 +384,20 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                     ></iframe>
+                    {showThumbnail && (
+                        <img
+                            src={thumbnailUrl}
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                cursor: 'pointer'
+                            }}
+                            alt="Video Thumbnail"
+                        />
+                    )}
                 </div>,
                 <div
                     key={`assessment-${frameIndex}-${partIndex}`}
@@ -413,12 +438,12 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
         .flat();
 
 
-    
-    
+
+
 
     return (
-        <ResizablePanelGroup direction="vertical">
-            <ResizablePanel defaultSize={80}>
+        <ResizablePanelGroup direction="vertical" className='bg-gray-200 p-2'>
+            <ResizablePanel defaultSize={75}>
                 <div className="flex flex-col h-full">
                     {/* 80% VerticalScrollFrames Section */}
                     <div className="w-full h-[100%] overflow-hidden relative">
@@ -464,11 +489,24 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
                         >
                             ↓ Part
                         </button>
-                        {currentPart !== 1 && (
-                        <div className='controls-container w-full h-1/6 flex justify-center'>
-                            <div className="w-1/2 mx-auto p-4 rounded-lg shadow border border-white bg-white absolute bottom-0 left-0 right-0 h-1/6">
-                                <div className="mt-2">
-                                    <Slider
+
+                    </div>
+                </div>
+            </ResizablePanel>
+            <ResizableHandle className='p-1' />
+            <ResizablePanel defaultSize={5} className=''>
+                {currentPart == 0 ? (
+                    <div className='controls-container w-full flex justify-center'>
+                        <div className="shadow border border-white bg-white w-full">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center w-1/2 justify-between">
+                                    <button
+                                        onClick={togglePlayPause}
+                                        className="text-2xl p-2 rounded-full"
+                                    >
+                                        {isPlaying ? <Pause /> : <Play />}
+                                    </button>
+                                    <Slider className='w-full'
                                         defaultValue={[currentTime]}
                                         min={currentTimestamp ?? 0}
                                         max={
@@ -479,62 +517,51 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
                                         value={[currentTime]}
                                         onValueChange={(value) => seekVideo(value[0])}
                                     />
+                                    <div className="ml-6 flex items-center">
+                                        <label htmlFor="volume" className="mr-2 text-sm font-medium">
+                                            Volume:
+                                        </label>
+                                        <Slider
+                                            defaultValue={[volume]}
+                                            max={100}
+                                            step={1}
+                                            value={[volume]}
+                                            onValueChange={(value) => changeVolume(value[0])}
+                                            className="w-24"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="flex justify-between items-center">
-                                    <div className="flex items-center">
+                                <div className="flex items-center">
+                                    {[0.5, 1, 1.5, 2].map((speed) => (
                                         <button
-                                            onClick={togglePlayPause}
-                                            className="text-2xl p-2 rounded-full"
+                                            key={speed}
+                                            onClick={() => changePlaybackSpeed(speed)}
+                                            className={`mx-1 px-3 py-1 text-sm rounded-full ${playbackSpeed === speed ? "bg-gray-500" : ""
+                                                }`}
                                         >
-                                            {isPlaying ? <Pause /> : <Play />}
+                                            {speed}x
                                         </button>
-                                        <div className="ml-6 flex items-center">
-                                            <label htmlFor="volume" className="mr-2 text-sm font-medium">
-                                                Volume:
-                                            </label>
-                                            <Slider
-                                                defaultValue={[volume]}
-                                                max={100}
-                                                step={1}
-                                                value={[volume]}
-                                                onValueChange={(value) => changeVolume(value[0])}
-                                                className="w-24"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center">
-                                        {[0.5, 1, 1.5, 2].map((speed) => (
-                                            <button
-                                                key={speed}
-                                                onClick={() => changePlaybackSpeed(speed)}
-                                                className={`mx-1 px-3 py-1 text-sm rounded-full ${playbackSpeed === speed ? "bg-gray-500" : ""
-                                                    }`}
-                                            >
-                                                {speed}x
-                                            </button>
-                                        ))}
-                                    </div>
-                                    <div>
-                                        <button
-                                            onClick={toggleFullscreen}
-                                            className="text-xl p-2 rounded-full"
-                                        >
-                                            <Fullscreen />
-                                        </button>
-                                    </div>
+                                    ))}
+                                </div>
+                                <div>
+                                    <button
+                                        onClick={toggleFullscreen}
+                                        className="text-xl p-2 rounded-full"
+                                    >
+                                        <Fullscreen />
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                        )}
                     </div>
-                </div>
+                ) : ""}
             </ResizablePanel>
-            <ResizableHandle />
+            <ResizableHandle className='p-1' />
             <ResizablePanel defaultSize={20}>
                 <ResizablePanelGroup direction="horizontal">
-                    <ResizablePanel defaultSize={80}>Transcript</ResizablePanel>
-                    <ResizableHandle />
-                    <ResizablePanel defaultSize={20}>FaceCam</ResizablePanel>
+                    <ResizablePanel defaultSize={85} className='bg-black'>Transcript</ResizablePanel>
+                    <ResizableHandle className='p-1' />
+                    <ResizablePanel defaultSize={15} className='bg-black'>FaceCam</ResizablePanel>
                 </ResizablePanelGroup>
             </ResizablePanel>
         </ResizablePanelGroup>
