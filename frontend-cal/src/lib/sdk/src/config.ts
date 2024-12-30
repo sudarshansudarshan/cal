@@ -1,14 +1,15 @@
 export const CORE_API_CONFIG = {
-  BASE_URL: 'http://localhost:8000',
+  BASE_URL: 'http://localhost:8000/api/v1/',
   ENDPOINTS: {
-    USER_COURSES: '/course/courses/',
-    COURSE_INSTANCE: 'dff75402-9d93-4dce-b14e-3baeb018b88f', // /course-instances/{instanceId}
+    USER_COURSES: 'course/courses/',
+    COURSE_INSTANCE: 'course-instances/',
     MODULES: '/course/modules/',
-    SECTIONS: 'adf196fa-5df4-45db-be77-311186b7df78', // /modules/{moduleId}/sections
-    SECTION_ITEMS: '3676b8b6-5dea-4fbf-aaac-314bfa64a290', // sections/{sectionId}/items
-    VIDEOS: '6fffe2fb-11e9-4a7b-a344-c13efa6e0b54', // /videos/{videoId}
-    ARTICLES: '/articles/{articleId}', // /articles/{articleId}
-    ASSESSMENTS: '/assessments/{assessmentId}', // /assessments/{assessmentId}
+    SECTIONS: 'course/sections/',
+    VIDEOS: 'course/items/videos/',
+    ARTICLES: 'course/items/articles/',
+    ASSESSMENTS: 'course/items/assessments/',
+
+    AUTH: 'auth/',
   },
 };
 
