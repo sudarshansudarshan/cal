@@ -10,11 +10,74 @@ datasource db {
 model StudentCourseProgress {
   studentId        String
   courseInstanceId String
-  progress         CourseProgressEnum
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
+  progress         ProgressEnum
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
   @@id([studentId, courseInstanceId])
+}
+
+model StudentModuleProgress {
+  studentId        String
+  moduleId         String
+  courseInstanceId String
+  progress         ProgressEnum
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@id([studentId, moduleId, courseInstanceId])
+}
+
+model StudentSectionProgress {
+  studentId        String
+  sectionId        String
+  courseInstanceId String
+  progress         ProgressEnum
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@id([studentId, sectionId, courseInstanceId])
+}
+
+model StudentSectionItemProgress {
+  studentId        String
+  sectionItemId    String
+  courseInstanceId String
+  progress         ProgressEnum
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@id([studentId, sectionItemId, courseInstanceId])
+}
+
+model ModuleSequence {
+  courseInstanceId String
+  moduleId         String
+  sequence         Int
+  createdAt        DateTime @default(now())
+
+  @@id([courseInstanceId, sequence])
+}
+
+model SectionSequence {
+  courseInstanceId String
+  moduleId         String
+  sectionId        String
+  sequence         Int
+  createdAt        DateTime @default(now())
+
+  @@id([courseInstanceId, moduleId, sequence])
+}
+
+model SectionItemSequence {
+  courseInstanceId String
+  sectionItemId    String
+  sectionId        String
+  moduleId         String
+  sequence         Int
+  createdAt        DateTime @default(now())
+
+  @@id([courseInstanceId, moduleId, sectionId, sequence])
 }
 
 model StudentAssessmentProgress {
@@ -28,27 +91,27 @@ model StudentAssessmentProgress {
 }
 
 model StudentAssessmentAttemptHistory {
-  attemptId           Int                        @id @default(autoincrement())
+  attemptId          Int                         @id @default(autoincrement())
   studentId          String
   assessmentId       String
   courseInstanceId   String
-  status             AssessmentAttemptStatusEnum                    @default(IN_PROGRESS)
-  attemptTime         DateTime
+  status             AssessmentAttemptStatusEnum @default(IN_PROGRESS)
+  attemptTime        DateTime
   submissionTime     DateTime?
   natAnswers         StudentNATAnswer[]
   descriptiveAnswers StudentDescriptiveAnswer[]
   mcqAnswers         StudentMCQAnswer[]
   msqAnswers         StudentMSQAnswer[]
-  createdAt          DateTime                   @default(now())
-  updatedAt          DateTime                   @updatedAt
+  createdAt          DateTime                    @default(now())
+  updatedAt          DateTime                    @updatedAt
 }
 
 model StudentAssessmentAttemptSummary {
   studentId        String   @map("studentId")
   assessmentId     String   @map("assessmentId")
   courseInstanceId String   @map("courseInstanceId")
-  latestAttemptId   Int      @map("latestAttemptId")
-  attemptCount      Int      @map("attemptCount")
+  latestAttemptId  Int      @map("latestAttemptId")
+  attemptCount     Int      @map("attemptCount")
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -85,7 +148,7 @@ model StudentNATAnswer {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  assessmentAttemptId             Int                            @map("assessmentAttemptId")
+  assessmentAttemptId             Int                             @map("assessmentAttemptId")
   StudentAssessmentAttemptHistory StudentAssessmentAttemptHistory @relation(fields: [assessmentAttemptId], references: [attemptId])
 }
 
@@ -129,10 +192,10 @@ model StudentMSQAnswer {
 }
 
 // Enums
-enum CourseProgressEnum {
-  ENROLLED
-  DROPPED
-  COMPLETED
+enum ProgressEnum {
+  IN_PROGRESS
+  INCOMPLETE
+  COMPLETE
 }
 
 enum ContentTypeEnum {
