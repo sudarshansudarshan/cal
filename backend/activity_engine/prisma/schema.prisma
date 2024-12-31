@@ -50,34 +50,25 @@ model StudentSectionItemProgress {
   @@id([studentId, sectionItemId, courseInstanceId])
 }
 
-model ModuleSequence {
+model ModuleNext {
+  moduleId         String   @id
+  nextModuleId     String?
   courseInstanceId String
-  moduleId         String
-  sequence         Int
   createdAt        DateTime @default(now())
-
-  @@id([courseInstanceId, sequence])
 }
 
-model SectionSequence {
-  courseInstanceId String
-  moduleId         String
-  sectionId        String
-  sequence         Int
-  createdAt        DateTime @default(now())
-
-  @@id([courseInstanceId, moduleId, sequence])
+model SectionNext {
+  sectionId     String   @id
+  nextSectionId String?
+  moduleId      String
+  createdAt     DateTime @default(now())
 }
 
-model SectionItemSequence {
-  courseInstanceId String
-  sectionItemId    String
-  sectionId        String
-  moduleId         String
-  sequence         Int
-  createdAt        DateTime @default(now())
-
-  @@id([courseInstanceId, moduleId, sectionId, sequence])
+model SectionItemNext {
+  sectionItemId     String   @id
+  nextSectionItemId String?
+  sectionId         String
+  createdAt         DateTime @default(now())
 }
 
 model StudentAssessmentProgress {

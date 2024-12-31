@@ -1,20 +1,27 @@
 import {Request, Response, NextFunction} from 'express';
 
 
-export class CourseMetricsController {
-    static async getCourseMetrics(req: Request, res: Response, next: NextFunction) {
-        try {
-        res.json({});
-        } catch (error) {
-        next(error);
-        }
+import { CourseProgressService } from '../../../services/courseProgress.service';
+
+const courseProgressService = new CourseProgressService();
+
+export const updateSectionItemProgress = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { courseInstanceId, studentId, sectionItemId, cascade } = req.body;
+
+        const updatedEntities = await courseProgressService.updateSectionItemProgress(
+            courseInstanceId,
+            studentId,
+            sectionItemId,
+            cascade ?? true
+        );
+
+        res.status(200).json(updatedEntities);
+    } catch (error) {
+        next(error); // Forward to error handling middleware
     }
-    
-    static async updateCourseMetrics(req: Request, res: Response, next: NextFunction) {
-        try {
-        res.json({status: "updated", data: {}});
-        } catch (error) {
-        next(error);
-        }
-    }
-}
+};
