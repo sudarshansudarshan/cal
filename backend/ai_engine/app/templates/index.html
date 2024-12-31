@@ -83,6 +83,14 @@
       border: 1px solid #ddd;
       border-radius: 4px;
     }
+    .error-message {
+      color: #dc2626;
+      padding: 1rem;
+      margin: 1rem 0;
+      border: 1px solid #dc2626;
+      border-radius: 0.25rem;
+      background-color: #fef2f2;
+    }
     #generating-sign {
       display: none;
       text-align: center;
@@ -556,6 +564,87 @@ document.getElementById('type').addEventListener('change', saveSegmentData);
   document.getElementById(id).addEventListener('input', saveSegmentData);
 });
 
+function getTotalSegments(videoIndex) {
+  return Object.keys(videoData[videoIndex]?.segments || {}).length;
+}
+
+function createBatches(videoIndices) {
+  const batches = [];
+  let currentBatch = [];
+  let currentBatchSegments = 0;
+  
+  for (const videoIndex of videoIndices) {
+    const videoSegments = getTotalSegments(videoIndex);
+    
+    if (currentBatchSegments + videoSegments > 15) {
+      if (currentBatch.length > 0) {
+        batches.push(currentBatch);
+      }
+      currentBatch = [videoIndex];
+      currentBatchSegments = videoSegments;
+    } else {
+      currentBatch.push(videoIndex);
+      currentBatchSegments += videoSegments;
+    }
+  }
+  
+  if (currentBatch.length > 0) {
+    batches.push(currentBatch);
+  }
+  
+  return batches;
+}
+
+async function processBatches(batches) {
+  for (let i = 0; i < batches.length; i++) {
+    const batch = batches[i];
+    
+    // Process all videos in current batch concurrently
+    const batchPromises = batch.map(videoIndex => {
+      const videoURL = videoUrls[videoIndex];
+      const segments = videoData[videoIndex].segments;
+      
+      const timestamps = [];
+      const segmentWiseQNo = [];
+      const segmentWiseQModel = [];
+      
+      Object.values(segments).forEach(data => {
+        if (data.timestamp !== null) timestamps.push(data.timestamp);
+        if (data.questions !== null) segmentWiseQNo.push(data.questions);
+        if (data.type !== null) segmentWiseQModel.push(data.type);
+      });
+      
+      const payload = {
+        url: videoURL,
+        user_api_key: document.getElementById('user-api-key').value,
+        timestamps,
+        segment_wise_q_no: segmentWiseQNo,
+        segment_wise_q_model: segmentWiseQModel,
+      };
+      
+      return fetch('/questions/process_video', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+      .then(response => response.json())
+      .then(data => {
+        responseData[videoIndex] = data;
+        return data;
+      });
+    });
+    
+    await Promise.all(batchPromises);
+    
+    // Wait 90 seconds before processing next batch
+    if (i < batches.length - 1) {
+      await new Promise(resolve => setTimeout(resolve, 90000));
+    }
+  }
+}
+
 document.getElementById('video-form').addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -572,61 +661,21 @@ document.getElementById('video-form').addEventListener('submit', async (event) =
   outputDiv.style.display = 'none';
   confirmButton.style.display = 'none';
 
-  // Process all videos that have segment data
-  const videoPromises = Object.keys(videoData).map(async (videoIndex) => {
-    const videoURL = videoUrls[videoIndex];
-    const segments = videoData[videoIndex].segments;
-
-    const timestamps = [];
-    const segmentWiseQNo = [];
-    const segmentWiseQModel = [];
-
-    Object.values(segments).forEach(data => {
-      if (data.timestamp !== null) timestamps.push(data.timestamp);
-      if (data.questions !== null) segmentWiseQNo.push(data.questions);
-      if (data.type !== null) segmentWiseQModel.push(data.type);
-    });
-
-    const payload = {
-      url: videoURL,
-      user_api_key: userApiKey,
-      timestamps,
-      segment_wise_q_no: segmentWiseQNo,
-      segment_wise_q_model: segmentWiseQModel,
-    };
-
-    // Add this right before the fetch call in the video-form submit handler
-    console.log('Payload being sent:', JSON.stringify(payload, null, 2));
-
-    try {
-      const response = await fetch('/questions/process_video', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      
-      const data = await response.json();
-      responseData[videoIndex] = data;
-      return data;
-    } catch (error) {
-      console.error(`Error processing video ${parseInt(videoIndex) + 1}:`, error);
-      throw error;
-    }
-  });
-
   try {
-    await Promise.all(videoPromises);
-    modifiedResponseData = JSON.parse(JSON.stringify(responseData)); // Deep copy
-    generatingSign.style.display = 'none';
-    outputDiv.style.display = 'block';
-    displayOutput(responseData[currentVideo]);
-    confirmButton.style.display = 'inline-block';
-  } catch (error) {
-    generatingSign.style.display = 'none';
-    outputDiv.textContent = `Error processing videos: ${error.message}`;
-  }
+  const videoIndices = Object.keys(videoData).map(Number);
+  const batches = createBatches(videoIndices);
+  await processBatches(batches);
+  
+  modifiedResponseData = JSON.parse(JSON.stringify(responseData)); // Deep copy
+  generatingSign.style.display = 'none';
+  outputDiv.style.display = 'block';
+  displayOutput(responseData[currentVideo]);
+  confirmButton.style.display = 'inline-block';
+} catch (error) {
+  generatingSign.style.display = 'none';
+  outputDiv.textContent = `Error processing videos: ${error.message}`;
+}
+      
 });
 
 function displayOutput(data) {
