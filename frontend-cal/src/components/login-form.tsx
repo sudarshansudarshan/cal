@@ -3,11 +3,15 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
+interface LoginFormProps extends React.ComponentPropsWithoutRef<"form"> {
+  toggleCover: () => void;  // Adding this to explicitly define the type
+}
+
 export function LoginForm({
   className,
   toggleCover,
   ...props
-}: React.ComponentPropsWithoutRef<"form">) {
+}: LoginFormProps) {  // Using LoginFormProps here
   return (
     <form className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">

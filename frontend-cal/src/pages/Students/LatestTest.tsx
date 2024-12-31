@@ -3,12 +3,23 @@ import React, { useState } from 'react';
 const LatestTest = () => {
   const [answers, setAnswers] = useState({});
 
-  const handleChange = (event) => {
+  interface Answers {
+    [key: string]: string;
+  }
+
+  interface ChangeEvent {
+    target: {
+      name: string;
+      value: string;
+    };
+  }
+
+  const handleChange = (event: ChangeEvent) => {
     const { name, value } = event.target;
-    setAnswers({
-      ...answers,
+    setAnswers((prevAnswers: Answers) => ({
+      ...prevAnswers,
       [name]: value,
-    });
+    }));
   };
 
   return (

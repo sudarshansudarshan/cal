@@ -7,6 +7,7 @@ declare global {
     interface Window {
         onYouTubeIframeAPIReady: () => void;
         YT: any;
+        player: YT.Player;
     }
 }
 import KeyboardLock from "@/components/proctoring-components/KeyboardLock";
@@ -17,6 +18,7 @@ import { Slider } from "@/components/ui/slider"
 
 
 interface Question {
+    question_id: number;
     question: string;
     options: string[];
     correctAnswer: string;
@@ -36,7 +38,6 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
 
 
 
-    const videoPlayerRef = useRef<HTMLDivElement>(null);
     const [player, setPlayer] = useState<YT.Player | null>(null);
     const [currentTime, setCurrentTime] = useState<number>(0);
     const [showPopup, setShowPopup] = useState<boolean>(false);
@@ -58,7 +59,7 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
     useEffect(() => {
         setCurrentPart(0);
     }, [currentFrame]);
-    const [data] = useState([
+    const [data] = useState<{ video: string; timestamps: { [key: number]: Question[] } }[]>([
         {
             video: "1z-E_KOC2L0",
             timestamps: {
@@ -151,7 +152,9 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
             const tag = document.createElement('script');
             tag.src = 'https://www.youtube.com/iframe_api';
             const firstScriptTag = document.getElementsByTagName('script')[0];
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            if (firstScriptTag.parentNode) {
+                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            }
 
             // Initialize player once API is ready
             window.onYouTubeIframeAPIReady = createPlayer;
@@ -316,12 +319,6 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
         }
     };
 
-    const formatTime = (time: number) => {
-        const minutes = Math.floor(time / 60);
-        const seconds = Math.floor(time % 60);
-        return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-    };
-
     const handleFrameScrollUp = () => {
         setCurrentFrame((prevFrame) => {
             if (currentPart > 0) {
@@ -398,7 +395,7 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
                         <div key={`question-${currentQuestionIndex}`} className="mb-4 w-full max-w-md shadow-lg p-5 bg-white rounded-lg">
                             <h3 className="text-2xl font-semibold mb-4 text-gray-800">{questions[currentQuestionIndex].question}</h3>
                             <ul  key={`question-set-${currentQuestionIndex}-${currentTimestamp}`}  className="space-y-4">
-                                {questions[currentQuestionIndex].options.map((option, index) => (
+                                {questions[currentQuestionIndex].options.map((option: string, index: number) => (
                                     <li key={index} className="flex items-center">
                                         <input
                                             type="radio"
@@ -434,6 +431,8 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
 
     return (
         <ResizablePanelGroup direction="vertical" className='bg-gray-200 p-2'>
+            <KeyboardLock/>
+            <RightClickDisabler/>
             <ResizablePanel defaultSize={95}>
                 <div className="flex flex-col h-full">
                     {/* 80% VerticalScrollFrames Section */}

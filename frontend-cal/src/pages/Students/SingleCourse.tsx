@@ -11,6 +11,12 @@ import {
 } from "@/components/ui/table";
 import { useFetchCoursesWithAuthQuery, useFetchModulesWithAuthQuery } from "../../store/apiService";
 
+interface Module {
+  id: number;
+  title: string;
+  sequence: number;
+}
+
 const SingleCourse = () => {
   const { courseId } = useParams(); // Get courseId from route params
 
@@ -18,22 +24,22 @@ const SingleCourse = () => {
   const { data: courseData, isLoading: courseLoading, error: courseError } = useFetchCoursesWithAuthQuery();
 
   // Fetch modules for the specific course
-  const { data: moduleData, isLoading: moduleLoading, error: moduleError } = useFetchModulesWithAuthQuery(parseInt(courseId, 10));
+  const { data: moduleData, isLoading: moduleLoading, error: moduleError } = useFetchModulesWithAuthQuery(courseId ? parseInt(courseId, 10) : 0);
 
   if (courseLoading || moduleLoading) {
     return <p>Loading course and modules...</p>;
   }
 
   if (courseError) {
-    return <p>Error fetching course: {courseError.message}</p>;
+    return <p>Error fetching course: {courseError instanceof Error ? courseError.message : 'Unknown error'}</p>;
   }
 
   if (moduleError) {
-    return <p>Error fetching modules: {moduleError.message}</p>;
+    return <p>Error fetching modules: {moduleError instanceof Error ? moduleError.message : 'Unknown error'}</p>;
   }
 
   // Find the specific course details
-  const course = courseData?.find((c) => c.id === parseInt(courseId, 10));
+  const course = courseData?.courses?.find((c) => c.id === (courseId ? parseInt(courseId, 10) : 0));
 
   if (!course) {
     return <p>Course not found!</p>;
@@ -43,7 +49,7 @@ const SingleCourse = () => {
     "https://i.pinimg.com/originals/24/12/bc/2412bc5c012e7360f602c13a92901055.jpg";
 
   // Modules data
-  const modules = moduleData || [];
+  const modules = moduleData?.modules || [];
   console.log("modules",modules);
 
   return (
@@ -75,13 +81,13 @@ const SingleCourse = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {modules.map((module) => (
+                {modules.map((module: Module) => (
                 <TableRow key={module.id}>
                   <TableCell className="font-medium">{module.id}</TableCell>
                   <TableCell>{module.title}</TableCell>
                   <TableCell className="text-right">{module.sequence}</TableCell>
                 </TableRow>
-              ))}
+                ))}
             </TableBody>
           </Table>
         </div>

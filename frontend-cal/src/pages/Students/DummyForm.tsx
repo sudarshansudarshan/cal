@@ -1,6 +1,13 @@
 import React from 'react';
 import { useFetchCoursesWithAuthQuery } from '../../store/apiService';
 
+interface Module {
+  id: string;
+  title: string;
+  description: string;
+  sequence: number;
+}
+
 const DummyForm = () => {
   // Fetch courses using the custom hook
   const { data, error, isLoading } = useFetchCoursesWithAuthQuery();
@@ -10,14 +17,19 @@ const DummyForm = () => {
   }
 
   if (error) {
-    return <p>Error loading courses: {error.message}</p>;
+    return (
+      <p>
+        Error loading courses: 
+        {'status' in error ? error.status : error.message}
+      </p>
+    );
   }
 
   return (
     <div>
       <h1>Courses</h1>
       <ul>
-        {data?.map((course) => (
+        {data?.courses?.map((course) => (
           <li key={course.id}>
             <h3>{course.name}</h3>
             <p><strong>Description:</strong> {course.description}</p>
@@ -38,13 +50,13 @@ const DummyForm = () => {
               <div>
                 <h4>Modules:</h4>
                 <ul>
-                  {course.modules.map((module) => (
+                    {course.modules.map((module: Module) => (
                     <li key={module.id}>
                       <p><strong>Title:</strong> {module.title}</p>
                       <p><strong>Description:</strong> {module.description}</p>
                       <p><strong>Sequence:</strong> {module.sequence}</p>
                     </li>
-                  ))}
+                    ))}
                 </ul>
               </div>
             )}

@@ -14,6 +14,7 @@ import { Slider } from "@/components/ui/slider"
 
 
 interface Question {
+  question_id: number;
   question: string;
   options: string[];
   correctAnswer: string;
@@ -34,7 +35,7 @@ const Courses: React.FC = () => {
   const [selectedAnswer, setSelectedAnswer] = useState<string>("");
   const [timestamps, setTimestamps] = useState<number[]>([]);
   const [questions, setQuestions] = useState<any[]>([]);
-  const [data] = useState([
+  const [data] = useState<{ video: string; timestamps: { [key: number]: Question[] } }[]>([
     {
       video: "1z-E_KOC2L0",
       timestamps: {
@@ -159,7 +160,7 @@ const Courses: React.FC = () => {
       setIsPlaying(false);
     }
     setCurrentTimestamp(timestamp);
-    setQuestions(data[0].timestamps[timestamp]); // Load questions for this timestamp
+    setQuestions(data[0].timestamps[timestamp] || []); // Load questions for this timestamp
     setSelectedAnswer(""); // Clear previous selections
     setCurrentQuestionIndex(0); // Start at the first question for this timestamp
     setShowPopup(true);
@@ -358,19 +359,19 @@ const Courses: React.FC = () => {
                 <p className="font-semibold">
                   {questions[currentQuestionIndex].question}
                 </p>
-                {questions[currentQuestionIndex].options.map((option, i) => (
+                {questions[currentQuestionIndex].options.map((option: string, i: number) => (
                   <div key={i} className="flex items-center mt-2">
-                    <input
-                      type="radio"
-                      id={`option-${i}`}
-                      name="current-question"
-                      value={option}
-                      onChange={() => handleAnswerSelection(option)}
-                      checked={selectedAnswer === option} // Explicitly bind the state
-                      className="mr-2"
-                    />
+                  <input
+                    type="radio"
+                    id={`option-${i}`}
+                    name="current-question"
+                    value={option}
+                    onChange={() => handleAnswerSelection(option)}
+                    checked={selectedAnswer === option} // Explicitly bind the state
+                    className="mr-2"
+                  />
 
-                    <label htmlFor={`option-${i}`}>{option}</label>
+                  <label htmlFor={`option-${i}`}>{option}</label>
                   </div>
                 ))}
               </div>

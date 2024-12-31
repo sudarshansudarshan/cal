@@ -3,11 +3,15 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-export function SignUpForm({
-    className,
-    toggleCover,
-    ...props
-}: React.ComponentPropsWithoutRef<"form">) {
+interface SignUpFormProps extends React.ComponentPropsWithoutRef<"form"> {
+    toggleCover: () => void;  // Specify the type of the toggleCover function
+  }
+  
+  export function SignUpForm({
+      className,
+      toggleCover,
+      ...props
+  }: SignUpFormProps) {  // Use the SignUpFormProps interface
     return (
         <form className={cn("flex flex-col gap-6", className)} {...props}>
             <div className="flex flex-col items-center gap-2 text-center">

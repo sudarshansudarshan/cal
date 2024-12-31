@@ -30,7 +30,12 @@ const AllCourses = () => {
   }
 
   if (error) {
-    return <p>Error loading courses: {error.message}</p>;
+    return (
+      <p>
+        Error loading courses:{" "}
+        {"status" in error ? error.status : error.message}
+      </p>
+    );
   }
 
   // Default image URL
@@ -38,12 +43,26 @@ const AllCourses = () => {
     "https://i.pinimg.com/originals/24/12/bc/2412bc5c012e7360f602c13a92901055.jpg";
 
   // Map API response to match the expected structure
-  const courseData = data?.map((course) => ({
+  interface Course {
+    id: string;
+    name: string;
+    image?: string;
+    enrolled: boolean;
+  }
+
+  interface MappedCourse {
+    id: string;
+    title: string;
+    image: string;
+    status: string;
+  }
+
+  const courseData: MappedCourse[] = data?.courses.map((course: Course) => ({
     id: course.id,
     title: course.name,
     image: course.image || defaultImage,
     status: course.enrolled ? "On going" : "New",
-  }));
+  })) || [];
 
   // Filtered courses based on selected filter
   const filteredCourses =
