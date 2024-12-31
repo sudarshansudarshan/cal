@@ -1,5 +1,5 @@
 import { ProgressEnum } from "@prisma/client";
-import prisma from "config/prisma";
+import prisma from "../config/prisma";
 
 export class CourseMetricsRepository {
     async createCourseProgress(courseInstanceId: string, studentId: string) {

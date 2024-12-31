@@ -12,15 +12,8 @@ import path from 'path';
 
 const app = express();
 
-/**
- * Serves the OpenAPI specification file (openapi.json) at the /openapi.json endpoint.
- */
 app.use('/openapi.json', express.static(path.join(__dirname, '../openapi.json')));
 
-/**
- * Integrates Scalar API documentation at the /reference endpoint.
- * The documentation is generated based on the OpenAPI specification served at /openapi.json.
- */
 app.use(
   '/api/v1/docs',
   apiReference({
@@ -32,25 +25,12 @@ app.use(
 
 app.use(express.json());
 
-/**
- * Mounts the version 1 API routes at the /v1 endpoint.
- */
 app.use('/v1', routes);
 
-/**
- * Middleware to handle errors that occur during request processing.
- */
 app.use(errorHandler);
 
-/**
- * The port number on which the server will listen for incoming requests.
- * It is either taken from the environment variable `PORT` or defaults to `3000`.
- */
 const PORT = process.env.PORT || 3000;
 
-/**
- * Starts the Express server and listens for incoming requests on the specified port.
- */
 app.listen(PORT, () => {
   console.log(`Activity service running on port ${PORT}. Access the API documentation at http://localhost:${PORT}/api/v1/docs`);
 });

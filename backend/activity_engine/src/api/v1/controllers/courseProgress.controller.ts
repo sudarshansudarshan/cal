@@ -1,38 +1,40 @@
-import {Request, Response, NextFunction} from 'express';
+import { Request, Response, NextFunction } from 'express';
 
 
 import { CourseProgressData, CourseProgressService } from '../../../services/courseProgress.service';
 
 const courseProgressService = new CourseProgressService();
 
-export const updateSectionItemProgress = async (
+export class CourseProgressController {
+
+  static updateSectionItemProgress = async (
     req: Request,
     res: Response,
     next: NextFunction
-) => {
+  ) => {
     try {
-        const { courseInstanceId, studentId, sectionItemId, cascade } = req.body;
+      const { courseInstanceId, studentId, sectionItemId, cascade } = req.body;
 
-        const updatedEntities = await courseProgressService.updateSectionItemProgress(
-            courseInstanceId,
-            studentId,
-            sectionItemId,
-            cascade ?? true
-        );
+      const updatedEntities = await courseProgressService.updateSectionItemProgress(
+        courseInstanceId,
+        studentId,
+        sectionItemId,
+        cascade ?? true
+      );
 
-        res.status(200).json(updatedEntities);
+      res.status(200).json(updatedEntities);
     } catch (error) {
-        next(error); // Forward to error handling middleware
+      next(error); // Forward to error handling middleware
     }
-};
-/**
- * Initializes progress for all students in a course instance.
- *
- * @param req - The HTTP request object.
- * @param res - The HTTP response object.
- * @param next - The next middleware function.
- */
-export const initializeProgressController = async (
+  };
+  /**
+   * Initializes progress for all students in a course instance.
+   *
+   * @param req - The HTTP request object.
+   * @param res - The HTTP response object.
+   * @param next - The next middleware function.
+   */
+  static initializeProgressController = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -40,7 +42,7 @@ export const initializeProgressController = async (
     try {
       // Extract and validate the request body
       const courseData: CourseProgressData = req.body;
-  
+
       // Validate required fields
       if (!courseData.courseInstanceId || !courseData.studentIds || !courseData.modules) {
         res.status(400).json({
@@ -48,10 +50,10 @@ export const initializeProgressController = async (
         });
         return Promise.resolve();
       }
-  
+
       // Call the service function
       const result = await courseProgressService.initializeStudentProgress(courseData);
-  
+
       // Respond with success
       res.status(200).json({
         message: "Progress initialization successful.",
@@ -63,3 +65,87 @@ export const initializeProgressController = async (
       next(error); // Forward to error-handling middleware
     }
   };
+
+
+  static getCourseProgress = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { courseInstanceId, studentId } = req.params;
+
+      const progress = await courseProgressService.getCourseProgress(
+        courseInstanceId,
+        studentId
+      );
+
+      res.status(200).json(progress);
+    } catch (error) {
+      next(error); // Forward to error handling middleware
+    }
+  }
+
+  static getModuleProgress = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { courseInstanceId, studentId, moduleId } = req.params;
+
+      const progress = await courseProgressService.getModuleProgress(
+        courseInstanceId,
+        studentId,
+        moduleId
+      );
+
+      res.status(200).json(progress);
+    } catch (error) {
+      next(error); // Forward to error handling middleware
+    }
+  }
+
+  static getSectionProgress = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { courseInstanceId, studentId, sectionId } = req.params;
+
+      const progress = await courseProgressService.getSectionProgress(
+        courseInstanceId,
+        studentId,
+        sectionId
+      );
+
+      res.status(200).json(progress);
+    } catch (error) {
+      next(error); // Forward to error handling middleware
+    }
+  }
+
+  static getSectionItemProgress = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { courseInstanceId, studentId, sectionItemId } = req.params;
+
+      const progress = await courseProgressService.getSectionItemProgress(
+        courseInstanceId,
+        studentId,
+        sectionItemId
+      );
+
+      res.status(200).json(progress);
+    } catch (error) {
+      next(error); // Forward to error handling middleware
+    }
+  }
+
+
+}
+

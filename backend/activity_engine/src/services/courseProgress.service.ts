@@ -1,6 +1,6 @@
 import { Prisma, ProgressEnum } from "@prisma/client";
-import prisma from "config/prisma";
-import { CourseProgressRepository } from "repositories/courseProgress.repository";
+import prisma from "../config/prisma";
+import { CourseProgressRepository } from "../repositories/courseProgress.repository";
 
 interface UpdatedEntities {
   course: string | null;
@@ -39,6 +39,12 @@ interface SeperatedIds {
   firstModule: string;
   firstSection: string;
   firstSectionItem: string;
+}
+
+interface NextData {
+  moduleNextData: Prisma.ModuleNextCreateManyInput[];
+  sectionNextData: Prisma.SectionNextCreateManyInput[];
+  sectionItemNextData: Prisma.SectionItemNextCreateManyInput[];
 }
 
 function extractAllIds(courseProgressData: CourseProgressData): SeperatedIds {
@@ -92,6 +98,48 @@ function extractAllIds(courseProgressData: CourseProgressData): SeperatedIds {
   };
 }
 
+function getNextData(courseData: CourseProgressData): NextData {
+  // Helper function to sort and build next-pair arrays
+  function buildNextData<T extends { sequence: number; [key: string]: any }>(
+    items: T[],
+    idKey: string,
+    parentKey?: string, // Optional key for parent (e.g., moduleId or sectionId)
+    parentValue?: string, // Optional value for parent key
+    includeCourseInstance: boolean = false // Flag to include courseInstanceId
+  ): Array<{ [key: string]: string | null }> {
+    items.sort((a, b) => a.sequence - b.sequence);
+    return items.map((item, index) => ({
+      [idKey]: item[idKey],
+      [`next${idKey[0].toUpperCase()}${idKey.slice(1)}`]:
+        items[index + 1]?.[idKey] || null,
+      ...(includeCourseInstance ? { courseInstanceId: courseData.courseInstanceId } : {}),
+      ...(parentKey ? { [parentKey]: parentValue } : {}), // Include parent key-value pair if provided
+    }));
+  }
+
+  // Get modules in order and build next-pair data with courseInstanceId
+  const moduleNextData = buildNextData(courseData.modules, "moduleId", undefined, undefined, true) as unknown as Prisma.ModuleNextCreateManyInput[];
+
+  // Get sections in order and build next-pair data without courseInstanceId, with moduleId included
+  const sectionNextData = courseData.modules.flatMap((module: Module) =>
+    buildNextData(module.sections, "sectionId", "moduleId", module.moduleId, false)
+  ) as unknown as Prisma.SectionNextCreateManyInput[];
+
+  // Get sectionItems in order and build next-pair data without courseInstanceId, with sectionId included
+  const sectionItemNextData = courseData.modules.flatMap((module) =>
+    module.sections.flatMap((section: Section) =>
+      buildNextData(section.sectionItems, "sectionItemId", "sectionId", section.sectionId, false)
+    )
+  ) as unknown as Prisma.SectionItemNextCreateManyInput[];
+
+  return {
+    moduleNextData,
+    sectionNextData,
+    sectionItemNextData,
+  };
+}
+
+
 const courseProgressRepo = new CourseProgressRepository();
 
 export class CourseProgressService {
@@ -117,6 +165,34 @@ export class CourseProgressService {
     cascade: boolean = true
   ): Promise<UpdatedEntities> {
     try {
+
+      // Check if the current sectionItemId is a nextSectionItemId in the SectionItemNext table
+    const previousSectionItem = await prisma.sectionItemNext.findFirst({
+      where: { nextSectionItemId: sectionItemId },
+      select: { sectionItemId: true }, // Get the previous section item
+    });
+
+    if (previousSectionItem) {
+      // If a previous section item exists, check its progress
+      const previousItemProgress = await prisma.studentSectionItemProgress.findUnique({
+        where: {
+          studentId_sectionItemId_courseInstanceId: {
+            studentId,
+            sectionItemId: previousSectionItem.sectionItemId,
+            courseInstanceId,
+          },
+        },
+        select: { progress: true },
+      });
+
+      // Ensure the previous item's progress is COMPLETE
+      if (previousItemProgress && previousItemProgress.progress !== ProgressEnum.COMPLETE) {
+        throw new Error(
+          `Cannot update progress for sectionItemId ${sectionItemId} because the previous item (${previousSectionItem.sectionItemId}) is not complete.`
+        );
+      }
+    }
+
       // Mark the current section item as COMPLETE
       await courseProgressRepo.updateSectionItemProgress(
         courseInstanceId,
@@ -368,27 +444,27 @@ export class CourseProgressService {
     }
   }
 
-/**
-   * Initializes progress records for all students in a given course instance.
-   *
-   * This method performs the following tasks:
-   * - Creates progress records for the course, modules, sections, and section items for each student.
-   * - Sets the first module, first section, and first section item as `IN_PROGRESS`.
-   * - Sets all other modules, sections, and section items as `INCOMPLETE`.
-   * - Ensures all operations are performed in a database transaction to maintain atomicity.
-   *
-   * @param courseData - Object containing the course progress data.
-   * @param courseData.courseInstanceId - The unique ID of the course instance.
-   * @param courseData.studentIds - Array of student IDs for whom progress needs to be initialized.
-   * @param courseData.modules - Array of modules containing sections and section items.
-   *
-   * @returns Promise<{ studentCount: number; totalRecords: number }>
-   * - `studentCount`: Total number of students for whom progress was initialized.
-   * - `totalRecords`: Total number of records created across all progress tables.
-   *
-   * @throws Error
-   * - If any operation within the transaction fails, the method will throw an error and rollback all changes.
-   */
+  /**
+     * Initializes progress records for all students in a given course instance.
+     *
+     * This method performs the following tasks:
+     * - Creates progress records for the course, modules, sections, and section items for each student.
+     * - Sets the first module, first section, and first section item as `IN_PROGRESS`.
+     * - Sets all other modules, sections, and section items as `INCOMPLETE`.
+     * - Ensures all operations are performed in a database transaction to maintain atomicity.
+     *
+     * @param courseData - Object containing the course progress data.
+     * @param courseData.courseInstanceId - The unique ID of the course instance.
+     * @param courseData.studentIds - Array of student IDs for whom progress needs to be initialized.
+     * @param courseData.modules - Array of modules containing sections and section items.
+     *
+     * @returns Promise<{ studentCount: number; totalRecords: number }>
+     * - `studentCount`: Total number of students for whom progress was initialized.
+     * - `totalRecords`: Total number of records created across all progress tables.
+     *
+     * @throws Error
+     * - If any operation within the transaction fails, the method will throw an error and rollback all changes.
+     */
   async initializeStudentProgress(
     courseData: CourseProgressData
   ): Promise<{ studentCount: number; totalRecords: number }> {
@@ -455,22 +531,52 @@ export class CourseProgressService {
 
       // Add all progress records to the transaction
       progressRecords.push(
-        prisma.studentModuleProgress.createMany({ data: moduleData }),
-        prisma.studentSectionProgress.createMany({ data: sectionData }),
-        prisma.studentSectionItemProgress.createMany({ data: sectionItemData }),
-        prisma.studentCourseProgress.create({
-          data: {
-            courseInstanceId,
-            studentId,
-            progress: ProgressEnum.IN_PROGRESS,
-          },
-        })
+        prisma.studentModuleProgress.createMany({ data: moduleData, skipDuplicates: true }),
+        prisma.studentSectionProgress.createMany({ data: sectionData, skipDuplicates: true }),
+        prisma.studentSectionItemProgress.createMany({ data: sectionItemData, skipDuplicates: true }),
       );
+      const existingProgress = await prisma.studentCourseProgress.findUnique({
+        where: {
+          studentId_courseInstanceId: {
+            studentId,
+            courseInstanceId,
+          },
+        },
+      });
+      
+      if (!existingProgress) {
+        // Add the record only if it doesn't exist
+        progressRecords.push(
+          prisma.studentCourseProgress.create({
+            data: {
+              courseInstanceId,
+              studentId,
+              progress: ProgressEnum.IN_PROGRESS,
+            },
+          })
+        );
+      }
+
 
       totalRecords +=
         moduleData.length + sectionData.length + sectionItemData.length + 1;
 
     }
+
+
+    // Get next-pair data for modules, sections, and section items
+    const {moduleNextData, sectionNextData, sectionItemNextData} = getNextData(courseData);
+
+    // Add next-pair data to the transaction
+    progressRecords.push(
+      prisma.moduleNext.createMany({ data: moduleNextData, skipDuplicates: true }),
+      prisma.sectionNext.createMany({ data: sectionNextData, skipDuplicates: true }),
+      prisma.sectionItemNext.createMany({ data: sectionItemNextData, skipDuplicates: true })
+    );
+
+
+
+
 
     // Execute all progress creations in a transaction
     try {
@@ -483,7 +589,33 @@ export class CourseProgressService {
 
   }
 
+  async getCourseProgress(courseInstanceId: string, studentId: string) {
+    const courseProgress = await courseProgressRepo.getCourseProgress(courseInstanceId, studentId);
+
+    return courseProgress;
+  }
+
+  async getModuleProgress(courseInstanceId: string, studentId: string, moduleId: string) {
+    const moduleProgress = await courseProgressRepo.getModuleProgress(courseInstanceId, studentId, moduleId);
+
+    return moduleProgress;
+  }
+
+  async getSectionProgress(courseInstanceId: string, studentId: string, sectionId: string) {
+    const sectionProgress = await courseProgressRepo.getSectionProgress(courseInstanceId, studentId, sectionId);
+
+    return sectionProgress;
+  }
+
+  async getSectionItemProgress(courseInstanceId: string, studentId: string, sectionItemId: string) {
+    const sectionItemProgress = await courseProgressRepo.getSectionItemProgress(courseInstanceId, studentId, sectionItemId);
+
+    return sectionItemProgress;
+  }
+
 
 }
+
+
 
 export { SectionItem, Section, Module, CourseProgressData };

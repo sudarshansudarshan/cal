@@ -1,5 +1,5 @@
 import { Prisma, ProgressEnum } from "@prisma/client";
-import prisma from "config/prisma";
+import prisma from "../config/prisma";
 import e from "express";
 import { stringify } from "querystring";
 
@@ -120,12 +120,12 @@ export class CourseProgressRepository {
      */
 
     async getCourseProgress(courseInstanceId: string, studentId: string) {
-        return prisma.studentCourseProgress.findUnique({
+        return prisma.studentCourseProgress.findFirst({
             where: {
-                studentId_courseInstanceId: {
-                    studentId,
-                    courseInstanceId,
-                },
+
+                studentId,
+                courseInstanceId,
+
             },
         });
     }
@@ -144,13 +144,11 @@ export class CourseProgressRepository {
         studentId: string,
         moduleId: string
     ) {
-        return prisma.studentModuleProgress.findUnique({
+        return prisma.studentModuleProgress.findFirst({
             where: {
-                studentId_moduleId_courseInstanceId: {
-                    studentId,
-                    moduleId,
-                    courseInstanceId,
-                },
+                studentId,
+                moduleId,
+                courseInstanceId,
             },
         });
     }
@@ -169,13 +167,13 @@ export class CourseProgressRepository {
         studentId: string,
         sectionId: string
     ) {
-        return prisma.studentSectionProgress.findUnique({
+        return prisma.studentSectionProgress.findFirst({
             where: {
-                studentId_sectionId_courseInstanceId: {
-                    studentId,
-                    sectionId,
-                    courseInstanceId,
-                },
+
+                studentId,
+                sectionId,
+                courseInstanceId,
+
             },
         });
     }
@@ -194,13 +192,13 @@ export class CourseProgressRepository {
         studentId: string,
         sectionItemId: string
     ) {
-        return prisma.studentSectionItemProgress.findUnique({
+        return prisma.studentSectionItemProgress.findFirst({
             where: {
-                studentId_sectionItemId_courseInstanceId: {
-                    studentId,
-                    sectionItemId,
-                    courseInstanceId,
-                },
+
+                studentId,
+                sectionItemId,
+                courseInstanceId,
+
             },
         });
     }
@@ -268,6 +266,7 @@ export class CourseProgressRepository {
         });
     }
 
+
     /**
      * Updates the progress of a course for a student in a specific course instance.
      *
@@ -290,7 +289,7 @@ export class CourseProgressRepository {
             },
         });
         if (!existingProgress) {
-            return this.createCourseProgress(courseInstanceId, studentId);
+            throw new Error("No progress record found");
         }
         const newProgress =
             existingProgress.progress === ProgressEnum.INCOMPLETE
@@ -337,7 +336,7 @@ export class CourseProgressRepository {
             },
         });
         if (!existingProgress) {
-            return this.createModuleProgress(courseInstanceId, studentId, moduleId);
+            throw new Error("No progress record found");
         }
         const newProgress =
             existingProgress.progress === ProgressEnum.INCOMPLETE
@@ -386,7 +385,7 @@ export class CourseProgressRepository {
             },
         });
         if (!existingProgress) {
-            return this.createSectionProgress(courseInstanceId, studentId, sectionId);
+            throw new Error("No progress record found");
         }
         const newProgress =
             existingProgress.progress === ProgressEnum.INCOMPLETE
@@ -437,11 +436,7 @@ export class CourseProgressRepository {
             }
         );
         if (!existingProgress) {
-            return this.createSectionItemProgress(
-                courseInstanceId,
-                studentId,
-                sectionItemId
-            );
+            throw new Error("No progress record found");
         }
         const newProgress =
             existingProgress.progress === ProgressEnum.INCOMPLETE
@@ -462,5 +457,5 @@ export class CourseProgressRepository {
         });
     }
 
-   
+
 }
