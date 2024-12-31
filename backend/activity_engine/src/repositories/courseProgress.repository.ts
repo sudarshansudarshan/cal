@@ -1,4 +1,4 @@
-import { ProgressEnum } from "@prisma/client";
+import { Prisma, ProgressEnum } from "@prisma/client";
 import prisma from "config/prisma";
 import e from "express";
 import { stringify } from "querystring";
@@ -461,4 +461,6 @@ export class CourseProgressRepository {
             },
         });
     }
+
+   
 }
