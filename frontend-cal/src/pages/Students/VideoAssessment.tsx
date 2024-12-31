@@ -34,6 +34,8 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
         }
     }, [setOpen]);
 
+
+
     const videoPlayerRef = useRef<HTMLDivElement>(null);
     const [player, setPlayer] = useState<YT.Player | null>(null);
     const [currentTime, setCurrentTime] = useState<number>(0);
@@ -105,87 +107,78 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
             },
         },
     ]);
-
-    console.log("current Part", currentPart)
+    const videoId = data[0].video;
 
     useEffect(() => {
         const videoData = data[0]; // Assuming single video data
         const ts = Object.keys(videoData.timestamps).map(Number);
         setTimestamps(ts);
-        console.log(ts)
     }, [data]);
 
+    const cleanupPlayer = () => {
+        if (window.player) {
+            window.player.destroy();
+        }
+    };
+
+    // Create player using YouTube IFrame API
+    const createPlayer = () => {
+        cleanupPlayer(); // Clean up any existing player instance
+        window.player = new YT.Player(`player-${currentFrame}`, {
+            videoId: videoId,
+            events: {
+                onReady: onPlayerReady,
+                onStateChange: onPlayerStateChange,
+            },
+            playerVars: {
+                rel: 0,
+                controls: 0,
+                modestbranding: 1,
+                showinfo: 0,
+                fs: 1,
+                iv_load_policy: 3,
+                cc_load_policy: 1,
+                autohide: 1,
+                enablejsapi: 1
+            },
+        });
+    };
+
+    // Effect to create the player
     useEffect(() => {
-        // Function to clean up the existing player
-        function cleanupPlayer() {
-            if (window.player && window.player.destroy) {
-                window.player.destroy();
-            }
+        if (typeof YT === 'undefined' || !YT.Player) {
+            // Load the YouTube IFrame Player API asynchronously
+            const tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+            // Initialize player once API is ready
+            window.onYouTubeIframeAPIReady = createPlayer;
+        } else {
+            createPlayer();
         }
 
-        // Load the IFrame Player API code asynchronously, if not already loaded
-        const setupYouTubeScript = () => {
-            if (window.YT && window.YT.Player) {
-                createPlayer();
-                console.log("chchchchhchchchaaaaaaaa")
-            } else {
-                const tag = document.createElement('script');
-                tag.src = 'https://www.youtube.com/iframe_api';
-                const firstScriptTag = document.getElementsByTagName('script')[0];
-                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-                window.onYouTubeIframeAPIReady = createPlayer;
-            }
-        };
-
-        // Create a new YT.Player when the API is ready
-        const createPlayer = () => {
-            cleanupPlayer(); // Clean up any existing player instance
-            window.player = new YT.Player(`player-${currentFrame}`, {
-                videoId: data.video, // Ensure this matches the updated data source
-                events: {
-                    onReady: onPlayerReady,
-                    onStateChange: onPlayerStateChange,
-                },
-                playerVars: {
-                    rel: 0, // Disable related videos
-                    controls: 0,
-                    modestbranding: 1,
-                    showinfo: 0,
-                    fs: 1,
-                    iv_load_policy: 3,
-                    cc_load_policy: 1,
-                    autohide: 1,
-                },
-            });
-            console.log("chchchchhchchchaaaaaaaa", window.player)
-        };
-
-        setupYouTubeScript();
-
         return () => {
-            cleanupPlayer(); // Clean up on component unmount or before re-running this effect
+            cleanupPlayer();
         };
-    }, [currentFrame]); // Re-run this effect when `currentFrame` changes
+    }, [currentFrame, videoId]);
+
 
     useEffect(() => {
         let interval: NodeJS.Timeout | undefined;
-        console.log("is playing", isPlaying)
         if (isPlaying) {
             interval = setInterval(() => {
                 if ((window as any).player) {
                     const current = (window as any).player.getCurrentTime();
                     setCurrentTime(current);
-                    console.log("current", current);
 
                     const currentTimestamp = Math.floor(current);
-                    console.log("currentTimestamp", currentTimestamp);
                     if (
                         timestamps.includes(currentTimestamp) &&
                         !triggeredTimestamps.current.has(currentTimestamp)
                     ) {
                         triggeredTimestamps.current.add(currentTimestamp);
-                        console.log("triggeredTimestamps", triggeredTimestamps.current);
                         pauseVideoAndShowPopup(currentTimestamp);
                     }
                 }
@@ -218,7 +211,6 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
         setCurrentPart((prevPart) => (prevPart < 1 ? prevPart + 1 : 0));
     };
 
-    console.log("bukla", (window as any).player)
 
     const handleIncorrectAnswer: () => void = () => {
         if (currentTimestamp !== null) {
@@ -227,10 +219,9 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
                 .sort((a, b) => b - a)[0];
             const resetTime = lastTimestamp ?? 0;
             setCurrentTime(resetTime);
+            setCurrentTimestamp(resetTime)
             if ((window as any).player) {
                 (window as any).player.seekTo(resetTime, true);
-                (window as any).player.playVideo();
-                setIsPlaying(true);
             }
             triggeredTimestamps.current.delete(currentTimestamp);
             setShowPopup(false); // Close the popup
@@ -243,8 +234,8 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
     const goToNextQuestion = () => {
         const currentQuestion = questions[currentQuestionIndex];
         if (selectedAnswer !== currentQuestion.correctAnswer) {
-            handleIncorrectAnswer();
             setSelectedAnswer(""); // Clear the selection for the current question
+            handleIncorrectAnswer();
             return;
         }
 
@@ -274,7 +265,9 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
 
 
     const handleAnswerSelection = (answer: string) => {
+        console.log("Answer : ", answer)
         setSelectedAnswer(answer);
+        console.log("selected Answer", selectedAnswer)
     };
 
     const togglePlayPause = () => {
@@ -294,7 +287,7 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
             (window as any).player.seekTo(newTime, true);  // Seek to the current time
             setCurrentTime(newTime);
         } else {
-            console.log("Attempting to seek to an invalid time.");
+            console.error("Invalid seek time");
         }
     };
 
@@ -352,7 +345,6 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
         );
         seekVideo(currentTime);
         setShowThumbnail(true);
-        console.log("current Frame", currentFrame)
     };
 
     const handlePartScrollUp = () => {
@@ -368,7 +360,6 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
     const frames = data
         .flatMap((frameData, frameIndex) => {
             const videoUrl = `https://www.youtube.com/embed/${frameData.video}?enablejsapi=1&controls=0&rel=0&modestbranding=1&showinfo=0&fs=1&iv_load_policy=3&cc_load_policy=1&autohide=1`;
-            console.log("lulululluulooo", frameIndex)
             return Object.keys(frameData.timestamps).map((timeKey, partIndex) => [
                 <div
                     key={`video-${frameIndex}-${partIndex}`}
@@ -378,9 +369,8 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
                         id={`player-${partIndex}`}
                         width="100%"
                         height="100%"
-                        src={videoUrl}
-                        title="YouTube video player"
-                        style={{ border: 0, pointerEvents: 'none', cursor: 'none' }}
+                        src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&controls=0&modestbranding=1&showinfo=0&fs=1&iv_load_policy=3&cc_load_policy=1&autohide=1`}
+                        frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                     ></iframe>
@@ -401,13 +391,13 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
                 </div>,
                 <div
                     key={`assessment-${frameIndex}-${partIndex}`}
-                    className="h-screen bg-cyan-500 text-white flex flex-col justify-center items-center p-4"
+                    className="h-screen bg-gray-100 text-gray-800 flex flex-col justify-center items-center p-4"
                 >
-                    <h2 className="mb-4 text-2xl font-bold">Questions at {timeKey} seconds</h2>
+                    <h2 className="mb-4 text-3xl font-bold text-gray-900">Questions at {timeKey} seconds</h2>
                     {questions.length > 0 && (
-                        <div className="mb-4 w-full max-w-md">
-                            <h3 className="text-xl font-semibold mb-2">{questions[currentQuestionIndex].question}</h3>
-                            <ul className="space-y-2">
+                        <div key={`question-${currentQuestionIndex}`} className="mb-4 w-full max-w-md shadow-lg p-5 bg-white rounded-lg">
+                            <h3 className="text-2xl font-semibold mb-4 text-gray-800">{questions[currentQuestionIndex].question}</h3>
+                            <ul  key={`question-set-${currentQuestionIndex}-${currentTimestamp}`}  className="space-y-4">
                                 {questions[currentQuestionIndex].options.map((option, index) => (
                                     <li key={index} className="flex items-center">
                                         <input
@@ -415,10 +405,10 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
                                             id={`question-${questions[currentQuestionIndex].question_id}-option-${index}`}
                                             name={`question-${questions[currentQuestionIndex].question_id}`}
                                             value={option}
-                                            className="mr-2"
                                             onChange={() => handleAnswerSelection(option)}
+                                            className="mr-3 h-5 w-5"
                                         />
-                                        <label htmlFor={`question-${questions[currentQuestionIndex].question_id}-option-${index}`}>
+                                        <label htmlFor={`question-${questions[currentQuestionIndex].question_id}-option-${index}`} className="text-lg text-gray-700">
                                             {option}
                                         </label>
                                     </li>
@@ -428,11 +418,12 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
                     )}
                     <button
                         onClick={goToNextQuestion}
-                        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        className="mt-6 px-6 py-3 bg-gray-800 text-white rounded hover:bg-gray-900 transition-colors duration-300"
                     >
                         {currentQuestionIndex < questions.length - 1 ? "Next Question" : "Submit"}
                     </button>
-                </div>,
+                </div>
+                ,
             ]);
         })
         .flat();
@@ -443,7 +434,7 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
 
     return (
         <ResizablePanelGroup direction="vertical" className='bg-gray-200 p-2'>
-            <ResizablePanel defaultSize={75}>
+            <ResizablePanel defaultSize={95}>
                 <div className="flex flex-col h-full">
                     {/* 80% VerticalScrollFrames Section */}
                     <div className="w-full h-[100%] overflow-hidden relative">
@@ -460,36 +451,7 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
                                     {part}
                                 </div>
                             ))}
-                        </div>
-
-                        {/* External Scroll Buttons */}
-                        <button
-                            onClick={handleFrameScrollUp}
-                            className="absolute top-1/2 left-2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full"
-                        >
-                            ↑ Frame
-                        </button>
-                        <button
-                            onClick={handleFrameScrollDown}
-                            className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full"
-                        >
-                            ↓ Frame
-                        </button>
-
-                        {/* Internal Scroll Buttons */}
-                        <button
-                            onClick={handlePartScrollUp}
-                            className="absolute top-1/4 left-4 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full"
-                        >
-                            ↑ Part
-                        </button>
-                        <button
-                            onClick={handlePartScrollDown}
-                            className="absolute top-3/4 left-4 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full"
-                        >
-                            ↓ Part
-                        </button>
-
+                        </div>``
                     </div>
                 </div>
             </ResizablePanel>
@@ -555,14 +517,6 @@ export default function VideoAssessment({ ...props }: React.ComponentProps<typeo
                         </div>
                     </div>
                 ) : ""}
-            </ResizablePanel>
-            <ResizableHandle className='p-1' />
-            <ResizablePanel defaultSize={20}>
-                <ResizablePanelGroup direction="horizontal">
-                    <ResizablePanel defaultSize={85} className='bg-black'>Transcript</ResizablePanel>
-                    <ResizableHandle className='p-1' />
-                    <ResizablePanel defaultSize={15} className='bg-black'>FaceCam</ResizablePanel>
-                </ResizablePanelGroup>
             </ResizablePanel>
         </ResizablePanelGroup>
     );
