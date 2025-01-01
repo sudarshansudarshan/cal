@@ -99,38 +99,36 @@ function extractAllIds(courseProgressData: CourseProgressData): SeperatedIds {
 }
 
 function getNextData(courseData: CourseProgressData): NextData {
-  // Helper function to sort and build next-pair arrays
-  function buildNextData<T extends { sequence: number; [key: string]: any }>(
-    items: T[],
-    idKey: string,
-    parentKey?: string, // Optional key for parent (e.g., moduleId or sectionId)
-    parentValue?: string, // Optional value for parent key
-    includeCourseInstance: boolean = false // Flag to include courseInstanceId
-  ): Array<{ [key: string]: string | null }> {
-    items.sort((a, b) => a.sequence - b.sequence);
-    return items.map((item, index) => ({
-      [idKey]: item[idKey],
-      [`next${idKey[0].toUpperCase()}${idKey.slice(1)}`]:
-        items[index + 1]?.[idKey] || null,
-      ...(includeCourseInstance ? { courseInstanceId: courseData.courseInstanceId } : {}),
-      ...(parentKey ? { [parentKey]: parentValue } : {}), // Include parent key-value pair if provided
-    }));
-  }
 
   // Get modules in order and build next-pair data with courseInstanceId
-  const moduleNextData = buildNextData(courseData.modules, "moduleId", undefined, undefined, true) as unknown as Prisma.ModuleNextCreateManyInput[];
+  const moduleNextData = courseData.modules.map((module, index) => ({
+    moduleId: module.moduleId,
+    nextModuleId: courseData.modules[index + 1]?.moduleId || null,
+    courseInstanceId: courseData.courseInstanceId,
+    sectionId: module.sections.find((section) => section.sequence === 1)?.sectionId || null,
 
-  // Get sections in order and build next-pair data without courseInstanceId, with moduleId included
-  const sectionNextData = courseData.modules.flatMap((module: Module) =>
-    buildNextData(module.sections, "sectionId", "moduleId", module.moduleId, false)
-  ) as unknown as Prisma.SectionNextCreateManyInput[];
+  })) as Prisma.ModuleNextCreateManyInput[];
 
-  // Get sectionItems in order and build next-pair data without courseInstanceId, with sectionId included
+  // Get sections in order and build next-pair data with moduleId and sectionId
+  const sectionNextData = courseData.modules.flatMap((module) =>
+    module.sections.map((section, index) => ({
+      sectionId: section.sectionId,
+      nextSectionId: module.sections[index + 1]?.sectionId || null,
+      moduleId: module.moduleId,
+      sectionItemId: section.sectionItems.find((item) => item.sequence === 1)?.sectionItemId || null,
+    }))
+  ) as Prisma.SectionNextCreateManyInput[];
+
+  // Get sectionItems in order and build next-pair data with sectionId
   const sectionItemNextData = courseData.modules.flatMap((module) =>
-    module.sections.flatMap((section: Section) =>
-      buildNextData(section.sectionItems, "sectionItemId", "sectionId", section.sectionId, false)
+    module.sections.flatMap((section) =>
+      section.sectionItems.map((item, index) => ({
+        sectionItemId: item.sectionItemId,
+        nextSectionItemId: section.sectionItems[index + 1]?.sectionItemId || null,
+        sectionId: section.sectionId,
+      }))
     )
-  ) as unknown as Prisma.SectionItemNextCreateManyInput[];
+  ) as Prisma.SectionItemNextCreateManyInput[];
 
   return {
     moduleNextData,
@@ -138,6 +136,7 @@ function getNextData(courseData: CourseProgressData): NextData {
     sectionItemNextData,
   };
 }
+
 
 
 const courseProgressRepo = new CourseProgressRepository();

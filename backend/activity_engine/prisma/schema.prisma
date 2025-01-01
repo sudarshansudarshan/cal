@@ -68,7 +68,7 @@ model SectionNext {
 
 model SectionItemNext {
   sectionItemId     String   @id
-  nextSectionItemId String
+  nextSectionItemId String?
   sectionId         String
   createdAt         DateTime @default(now())
 }
