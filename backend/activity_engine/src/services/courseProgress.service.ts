@@ -47,6 +47,8 @@ interface NextData {
   sectionItemNextData: Prisma.SectionItemNextCreateManyInput[];
 }
 
+
+
 function extractAllIds(courseProgressData: CourseProgressData): SeperatedIds {
   // Extract module IDs
   const modules = courseProgressData.modules.map((module) => module.moduleId);
@@ -134,6 +136,24 @@ function getNextData(courseData: CourseProgressData): NextData {
     moduleNextData,
     sectionNextData,
     sectionItemNextData,
+  };
+}
+
+function updateEntityListFields(
+  updatedEntities: UpdatedEntities,
+  updates: Partial<UpdatedEntities>
+): UpdatedEntities {
+  return {
+    ...updatedEntities,
+    modules: updates.modules
+      ? [...(updatedEntities.modules || []), ...updates.modules]
+      : updatedEntities.modules,
+    sections: updates.sections
+      ? [...(updatedEntities.sections || []), ...updates.sections]
+      : updatedEntities.sections,
+    sectionItems: updates.sectionItems
+      ? [...(updatedEntities.sectionItems || []), ...updates.sectionItems]
+      : updatedEntities.sectionItems,
   };
 }
 
@@ -228,10 +248,11 @@ export class CourseProgressService {
             sectionId,
             cascade
           );
-          return {
-            ...updatedEntities,
+
+          return updateEntityListFields(updatedEntities, {
             sectionItems: [sectionItemId],
-          };
+          });
+
         }
       }
 
@@ -294,11 +315,27 @@ export class CourseProgressService {
             studentId,
             nextSectionId
           );
+          
+          // Get the first section item of the next section
+          const {sectionItemId: nextSectionFirstSectionItemId} = await courseProgressRepo.getSectionDetails(
+            courseInstanceId,
+            studentId,
+            nextSectionId
+          );
+
+          // Mark the first section item of the next section as IN_PROGRESS
+          await courseProgressRepo.updateSectionItemProgress(
+            courseInstanceId,
+            studentId,
+            nextSectionFirstSectionItemId
+          );
+          
+
           return {
             course: null,
             modules: null,
             sections: [sectionId, nextSectionId],
-            sectionItems: null,
+            sectionItems: [nextSectionFirstSectionItemId],
           };
         } else {
           // If no more sections, mark the module as COMPLETE
@@ -374,11 +411,40 @@ export class CourseProgressService {
             studentId,
             nextModuleId
           );
+
+          // Get the first section of the next module
+          const {sectionId: nextModuleFirstSectionId} = await courseProgressRepo.getModuleDetails(
+            courseInstanceId,
+            studentId,
+            nextModuleId
+          );
+
+          // Mark the first section of the next module as IN_PROGRESS
+          await courseProgressRepo.updateSectionProgress(
+            courseInstanceId,
+            studentId,
+            nextModuleFirstSectionId
+          );
+
+          // Get the first section item of the next section of next module
+          const {sectionItemId: nextModuleFirstSectionItemId} = await courseProgressRepo.getSectionDetails(
+            courseInstanceId,
+            studentId,
+            nextModuleFirstSectionId
+          );
+
+          //Mark the first section item of the next module as IN_PROGRESS
+          await courseProgressRepo.updateSectionItemProgress(
+            courseInstanceId,
+            studentId,
+            nextModuleFirstSectionItemId
+          );
+
           return {
             course: null,
             modules: [moduleId, nextModuleId],
-            sections: null,
-            sectionItems: null,
+            sections: [nextModuleFirstSectionId],
+            sectionItems: [nextModuleFirstSectionItemId],
           };
         } else {
           // If no more modules, mark the course as COMPLETE
@@ -386,10 +452,11 @@ export class CourseProgressService {
             courseInstanceId,
             studentId,
           );
-          return {
-            ...updatedEntities,
+
+          return updateEntityListFields(updatedEntities, {
             modules: [moduleId],
-          };
+          });
+
         }
       }
 
