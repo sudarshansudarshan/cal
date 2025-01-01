@@ -119,13 +119,18 @@ export class CourseProgressRepository {
      * @returns A promise resolving to the course progress record, if found.
      */
 
+
     async getCourseProgress(courseInstanceId: string, studentId: string) {
-        return prisma.studentCourseProgress.findFirst({
+        
+        return prisma.studentCourseProgress.findUnique({
             where: {
-
-                studentId,
-                courseInstanceId,
-
+                studentId_courseInstanceId:{
+                    studentId,
+                    courseInstanceId
+                }
+            },
+            select: {
+                progress: true,
             },
         });
     }
@@ -144,12 +149,17 @@ export class CourseProgressRepository {
         studentId: string,
         moduleId: string
     ) {
-        return prisma.studentModuleProgress.findFirst({
+        return prisma.studentModuleProgress.findUnique({
             where: {
-                studentId,
-                moduleId,
-                courseInstanceId,
+                studentId_moduleId_courseInstanceId: {
+                    studentId,
+                    moduleId,
+                    courseInstanceId,
+                },
             },
+            select:{
+                progress:true
+            }
         });
     }
 
@@ -167,14 +177,19 @@ export class CourseProgressRepository {
         studentId: string,
         sectionId: string
     ) {
-        return prisma.studentSectionProgress.findFirst({
+        return prisma.studentSectionProgress.findUnique({
             where: {
 
-                studentId,
-                sectionId,
-                courseInstanceId,
+                studentId_sectionId_courseInstanceId:{
+                    studentId,
+                    sectionId,
+                    courseInstanceId
+                }
 
             },
+            select:{
+                progress:true
+            }
         });
     }
 
@@ -192,14 +207,19 @@ export class CourseProgressRepository {
         studentId: string,
         sectionItemId: string
     ) {
-        return prisma.studentSectionItemProgress.findFirst({
+        return prisma.studentSectionItemProgress.findUnique({
             where: {
 
-                studentId,
-                sectionItemId,
-                courseInstanceId,
+                studentId_sectionItemId_courseInstanceId:{
+                    studentId,
+                    sectionItemId,
+                    courseInstanceId
+                }
 
             },
+            select:{
+                progress:true
+            }
         });
     }
 

@@ -32,5 +32,5 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Activity service running on port ${PORT}. Access the API documentation at http://localhost:${PORT}/api/v1/docs`);
+  console.log(`Activity service runn ing on port ${PORT}. Access the API documentation at http://localhost:${PORT}/api/v1/docs`);
 });

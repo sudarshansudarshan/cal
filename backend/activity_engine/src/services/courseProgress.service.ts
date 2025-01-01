@@ -226,7 +226,8 @@ export class CourseProgressService {
           const updatedEntities = await this.updateSectionProgress(
             courseInstanceId,
             studentId,
-            sectionId
+            sectionId,
+            cascade
           );
           return {
             ...updatedEntities,
@@ -305,7 +306,8 @@ export class CourseProgressService {
           const updatedEntities = await this.updateModuleProgress(
             courseInstanceId,
             studentId,
-            moduleId
+            moduleId,
+            cascade
           );
           return {
             ...updatedEntities,
@@ -383,7 +385,7 @@ export class CourseProgressService {
           // If no more modules, mark the course as COMPLETE
           const updatedEntities = await this.updateCourseProgress(
             courseInstanceId,
-            studentId
+            studentId,
           );
           return {
             ...updatedEntities,

@@ -73,8 +73,9 @@ export class CourseProgressController {
     next: NextFunction
   ) => {
     try {
-      const { courseInstanceId, studentId } = req.params;
-
+      const courseInstanceId: string = req.query.courseInstanceId as string;
+      const studentId: string = req.query.studentId as string;
+      
       const progress = await courseProgressService.getCourseProgress(
         courseInstanceId,
         studentId
@@ -92,7 +93,9 @@ export class CourseProgressController {
     next: NextFunction
   ) => {
     try {
-      const { courseInstanceId, studentId, moduleId } = req.params;
+      const courseInstanceId: string = req.query.courseInstanceId as string;
+      const studentId: string = req.query.studentId as string;
+      const moduleId: string = req.query.moduleId as string;
 
       const progress = await courseProgressService.getModuleProgress(
         courseInstanceId,
@@ -112,7 +115,9 @@ export class CourseProgressController {
     next: NextFunction
   ) => {
     try {
-      const { courseInstanceId, studentId, sectionId } = req.params;
+      const courseInstanceId: string = req.query.courseInstanceId as string;
+      const studentId: string = req.query.studentId as string;
+      const sectionId: string = req.query.sectionId as string
 
       const progress = await courseProgressService.getSectionProgress(
         courseInstanceId,
@@ -132,7 +137,10 @@ export class CourseProgressController {
     next: NextFunction
   ) => {
     try {
-      const { courseInstanceId, studentId, sectionItemId } = req.params;
+      const courseInstanceId: string = req.query.courseInstanceId as string;
+      const studentId: string = req.query.studentId as string;
+      const sectionItemId: string = req.query.sectionItemId as string
+      
 
       const progress = await courseProgressService.getSectionItemProgress(
         courseInstanceId,

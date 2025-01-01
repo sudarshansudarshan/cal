@@ -52,6 +52,7 @@ model StudentSectionItemProgress {
 
 model ModuleNext {
   moduleId         String   @id
+  sectionId        String    // First section of moduleId
   nextModuleId     String?
   courseInstanceId String
   createdAt        DateTime @default(now())
@@ -59,6 +60,7 @@ model ModuleNext {
 
 model SectionNext {
   sectionId     String   @id
+  sectionItemId String    // First section item of sectionId
   nextSectionId String?
   moduleId      String
   createdAt     DateTime @default(now())
@@ -66,7 +68,7 @@ model SectionNext {
 
 model SectionItemNext {
   sectionItemId     String   @id
-  nextSectionItemId String?
+  nextSectionItemId String
   sectionId         String
   createdAt         DateTime @default(now())
 }

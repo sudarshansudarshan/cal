@@ -5,9 +5,9 @@ const router = Router();
 
 router.post("/update-section-item-progress", CourseProgressController.updateSectionItemProgress);
 router.post("/initialize-progress", CourseProgressController.initializeProgressController);
-router.post("/course", CourseProgressController.getCourseProgress);
-router.post("/module", CourseProgressController.getModuleProgress);
-router.post("/section", CourseProgressController.getSectionProgress);
-router.post("/section-item", CourseProgressController.getSectionItemProgress);
+router.get("/course", CourseProgressController.getCourseProgress);
+router.get("/module", CourseProgressController.getModuleProgress);
+router.get("/section", CourseProgressController.getSectionProgress);
+router.get("/section-item", CourseProgressController.getSectionItemProgress);
 
 export default router;

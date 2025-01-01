@@ -1,0 +1,61 @@
+{
+    "courseInstanceId": "courseInstanceId1",
+    "studentId": "studentId1",
+    "modules": [
+        {
+            "moduleId": "moduleId1",
+            "sequence": 1,
+            "sections": [
+                {
+                    "sectionId": "sectionId1",
+                    "sequence": 1,
+                    "sectionItems": [
+                        {
+                            "sectionItemId": "sectionItemId1",
+                            "sequence": 1
+                        },
+                        {
+                            "sectionItemId": "sectionItemId2",
+                            "sequence": 2
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "moduleId": "moduleId2",
+            "sequence": 2,
+            "sections": [
+                {
+                    "sectionId": "sectionId2",
+                    "sequence": 1,
+                    "sectionItems": [
+                        {
+                            "sectionItemId": "sectionItemId3",
+                            "sequence": 1
+                        },
+                        {
+                            "sectionItemId": "sectionItemId4",
+                            "sequence": 2
+                        }
+                    ]
+                },
+                {
+                    "sectionId": "sectionId3",
+                    "sequence": 2,
+                    "sectionItems": [
+                        {
+                            "sectionItemId": "sectionItemId5",
+                            "sequence": 1
+                        },
+                        {
+                            "sectionItemId": "sectionItemId6",
+                            "sequence": 2
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+
+}

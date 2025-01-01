@@ -835,34 +835,30 @@
       }
     },
     "/course-progress/course": {
-      "post": {
-        "summary": "Get course progress for a student",
+      "get": {
+        "summary": "Course Progress",
         "tags": ["CourseProgress"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["courseInstanceId", "studentId"],
-                "properties": {
-                  "courseInstanceId": {
-                    "type": "string",
-                    "description": "The unique ID of the course instance"
-                  },
-                  "studentId": {
-                    "type": "string",
-                    "description": "The unique ID of the student"
-                  }
-                },
-                "example": {
-                  "courseInstanceId": "courseABC",
-                  "studentId": "stu123"
-                }
-              }
+        "parameters":[
+            {
+            "name": "courseInstanceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "courseXYZ"
             }
-          }
-        },
+            },
+            {
+            "name": "studentId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "stu1"
+            }
+            }
+        ],
+        
         "responses": {
           "200": {
             "description": "Course progress retrieved successfully",
@@ -884,39 +880,39 @@
       }
     },
     "/course-progress/module": {
-      "post": {
-        "summary": "Get module progress for a student",
+      "get": {
+        "summary": "Module Progress",
         "tags": ["CourseProgress"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
+        "parameters":[
+          {
+            "name": "courseInstanceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "courseXYZ"
+            }
+            },
+            {
+            "name": "studentId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "stu1"
+            }
+          },
+            {
+              "name": "moduleId",
+              "in": "query",
+              "required": true,
               "schema": {
-                "type": "object",
-                "required": ["courseInstanceId", "studentId", "moduleId"],
-                "properties": {
-                  "courseInstanceId": {
-                    "type": "string",
-                    "description": "The unique ID of the course instance"
-                  },
-                  "studentId": {
-                    "type": "string",
-                    "description": "The unique ID of the student"
-                  },
-                  "moduleId": {
-                    "type": "string",
-                    "description": "The unique ID of the module"
-                  }
-                },
-                "example": {
-                  "courseInstanceId": "courseABC",
-                  "studentId": "stu123",
-                  "moduleId": "mod456"
-                }
+                "type": "string",
+                "example": "mod1"
               }
             }
-          }
-        },
+          
+        ],
         "responses": {
           "200": {
             "description": "Module progress retrieved successfully",
@@ -938,39 +934,38 @@
       }
     },
     "/course-progress/section": {
-      "post": {
-        "summary": "Get section progress for a student",
+      "get": {
+        "summary": "Section Progress",
         "tags": ["CourseProgress"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
+        "parameters":[
+          {
+            "name": "courseInstanceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "courseXYZ"
+            }
+            },
+            {
+            "name": "studentId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "stu1"
+            }
+          },
+            {
+              "name": "sectionId",
+              "in": "query",
+              "required": true,
               "schema": {
-                "type": "object",
-                "required": ["courseInstanceId", "studentId", "sectionId"],
-                "properties": {
-                  "courseInstanceId": {
-                    "type": "string",
-                    "description": "The unique ID of the course instance"
-                  },
-                  "studentId": {
-                    "type": "string",
-                    "description": "The unique ID of the student"
-                  },
-                  "sectionId": {
-                    "type": "string",
-                    "description": "The unique ID of the section"
-                  }
-                },
-                "example": {
-                  "courseInstanceId": "courseABC",
-                  "studentId": "stu123",
-                  "sectionId": "sec789"
-                }
+                "type": "string",
+                "example": "sec1"
               }
             }
-          }
-        },
+        ],
         "responses": {
           "200": {
             "description": "Section progress retrieved successfully",
@@ -992,39 +987,38 @@
       }
     },
     "/course-progress/section-item": {
-      "post": {
-        "summary": "Get section item progress for a student",
+      "get": {
+        "summary": "Section Item Progress",
         "tags": ["CourseProgress"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
+        "parameters":[
+          {
+            "name": "courseInstanceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "courseXYZ"
+            }
+            },
+            {
+            "name": "studentId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "stu1"
+            }
+          },
+            {
+              "name": "sectionItemId",
+              "in": "query",
+              "required": true,
               "schema": {
-                "type": "object",
-                "required": ["courseInstanceId", "studentId", "sectionItemId"],
-                "properties": {
-                  "courseInstanceId": {
-                    "type": "string",
-                    "description": "The unique ID of the course instance"
-                  },
-                  "studentId": {
-                    "type": "string",
-                    "description": "The unique ID of the student"
-                  },
-                  "sectionItemId": {
-                    "type": "string",
-                    "description": "The unique ID of the section item"
-                  }
-                },
-                "example": {
-                  "courseInstanceId": "courseABC",
-                  "studentId": "stu123",
-                  "sectionItemId": "item001"
-                }
+                "type": "string",
+                "example": "item1"
               }
             }
-          }
-        },
+        ],
         "responses": {
           "200": {
             "description": "Section item progress retrieved successfully",
