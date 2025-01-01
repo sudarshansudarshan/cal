@@ -1,134 +1,164 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import API_URL from "../../constant";
-import Cookies from "js-cookie";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import API_URL from '../../constant'
+import Cookies from 'js-cookie'
 
 export interface AuthResponse {
-  refresh: string;
-  access: string;
-  role: string;
-  email: string;
-  full_name: string;
+  refresh: string
+  access: string
+  role: string
+  email: string
+  full_name: string
+}
+
+export interface Institute {
+  id: number
+  name: string
+  // Add other properties as needed
 }
 
 export const apiService = createApi({
-  reducerPath: "api",
+  reducerPath: 'api',
   baseQuery: fetchBaseQuery({
     baseUrl: API_URL, // Replace with your API base URL
   }),
   endpoints: (builder) => ({
-    login: builder.mutation<AuthResponse, { username: string; password: string }>({
+    login: builder.mutation<
+      AuthResponse,
+      { username: string; password: string }
+    >({
       query: (credentials) => ({
-        url: "/auth/login/",
-        method: "POST",
+        url: '/auth/login/',
+        method: 'POST',
         body: credentials,
       }),
       onQueryStarted: async (arg, { queryFulfilled }) => {
         try {
-          const { data } = await queryFulfilled;
-          Cookies.set("access_token", data.access); // Store the correct access token
+          const { data } = await queryFulfilled
+          Cookies.set('access_token', data.access) // Store the correct access token
         } catch (error) {
-          console.error("Failed to store access token in cookies", error);
+          console.error('Failed to store access token in cookies', error)
         }
       },
     }),
 
-    signup: builder.mutation<AuthResponse, { first_name: string; last_name: string; username: string; email: string; password: string }>({
+    signup: builder.mutation<
+      AuthResponse,
+      {
+        first_name: string
+        last_name: string
+        username: string
+        email: string
+        password: string
+      }
+    >({
       query: (userData) => ({
-        url: "/auth/register/",
-        method: "POST",
+        url: '/auth/register/',
+        method: 'POST',
         body: userData,
       }),
       onQueryStarted: async (arg, { queryFulfilled }) => {
         try {
-          const { data } = await queryFulfilled;
-          Cookies.set("access_token", data.access); // Optionally store the token here too
+          const { data } = await queryFulfilled
+          Cookies.set('access_token', data.access) // Optionally store the token here too
         } catch (error) {
-          console.error("Signup failed", error);
+          console.error('Signup failed', error)
         }
       },
     }),
 
     logout: builder.mutation<void, void>({
       query: () => ({
-        url: "/auth/login/",
-        method: "POST",
+        url: '/auth/login/',
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${Cookies.get("access_token")}`,
+          Authorization: `Bearer ${Cookies.get('access_token')}`,
         },
       }),
       onQueryStarted: async (arg, { queryFulfilled }) => {
         try {
-          await queryFulfilled;
-          Cookies.remove("access_token"); // Remove the token after logout
+          await queryFulfilled
+          Cookies.remove('access_token') // Remove the token after logout
         } catch (error) {
-          console.error("Failed to remove access token from cookies", error);
+          console.error('Failed to remove access token from cookies', error)
         }
       },
     }),
 
-    fetchInstitutesWithAuth: builder.query<{ institutes: any[] }, void>({
+    fetchInstitutesWithAuth: builder.query<{ institutes: Institute[] }, void>({
       query: () => ({
-        url: "/institutes/",
-        method: "GET",
+        url: '/institutes/',
+        method: 'GET',
         headers: {
-          Authorization: `Bearer ${Cookies.get("access_token")}`,
+          Authorization: `Bearer ${Cookies.get('access_token')}`,
         },
       }),
     }),
 
-    fetchUsersWithAuth: builder.query<{ users: any[] }, void>({
+    fetchUsersWithAuth: builder.query<
+      { users: { id: number; name: string; email: string }[] },
+      void
+    >({
       query: () => ({
-        url: "/users/",
-        method: "GET",
+        url: '/users/',
+        method: 'GET',
         headers: {
-          Authorization: `Bearer ${Cookies.get("access_token")}`,
+          Authorization: `Bearer ${Cookies.get('access_token')}`,
         },
       }),
     }),
 
-    fetchVideoDetailsWithAuth: builder.query<{ videoDetails: any[] }, void>({
+    fetchVideoDetailsWithAuth: builder.query<
+      { videoDetails: { id: number; title: string; url: string }[] },
+      void
+    >({
       query: () => ({
-        url: "/videos/",
-        method: "GET",
+        url: '/videos/',
+        method: 'GET',
         headers: {
-          Authorization: `Bearer ${Cookies.get("access_token")}`,
+          Authorization: `Bearer ${Cookies.get('access_token')}`,
         },
       }),
     }),
 
     createVideoDetails: builder.mutation({
       query: (videoData) => ({
-        url: "/videos",
-        method: "POST",
+        url: '/videos',
+        method: 'POST',
         body: videoData,
         headers: {
-          Authorization: `Bearer ${Cookies.get("access_token")}`,
-          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          'Content-Type': 'application/json',
         },
       }),
     }),
-    fetchCoursesWithAuth: builder.query<{ courses: any[] }, void>({
+    fetchCoursesWithAuth: builder.query<
+      { courses: { id: number; title: string; description: string }[] },
+      void
+    >({
       query: () => ({
-      url: "/course/courses/",
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${Cookies.get("access_token")}`,
-        "Content-Type": "application/json",
-      },
+        url: '/course/courses/',
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          'Content-Type': 'application/json',
+        },
       }),
     }),
-    fetchModulesWithAuth: builder.query<{ modules: any[] }, number>({
+    fetchModulesWithAuth: builder.query<
+      { modules: { id: number; title: string; content: string }[] },
+      number
+    >({
       query: (courseId) => ({
         url: `/course/courses/${courseId}/`,
-        method: "GET",
+        method: 'GET',
         headers: {
-          Authorization: `Bearer ${Cookies.get("access_token")}`,
-          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          'Content-Type': 'application/json',
         },
       }),
     }),
   }),
-});
+})
 
 export const {
   useLoginMutation,
@@ -140,4 +170,4 @@ export const {
   useCreateVideoDetailsMutation,
   useFetchCoursesWithAuthQuery,
   useFetchModulesWithAuthQuery,
-} = apiService;
+} = apiService

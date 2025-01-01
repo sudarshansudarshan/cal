@@ -73,13 +73,11 @@
 //     </div>
 //   );
 // };
-    
+
 // export default Testing;
 
 const Testing = () => {
-  return (
-    <div>Testing</div>
-  )
+  return <div>Testing</div>
 }
 
 export default Testing
