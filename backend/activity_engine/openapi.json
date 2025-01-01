@@ -616,7 +616,7 @@
     },
     "/course-progress/update-section-item-progress": {
       "post": {
-        "summary": "Update progress for a section item",
+        "summary": "Update Seciton Item Progress",
         "tags": ["CourseProgress"],
         "requestBody": {
           "required": true,
@@ -708,7 +708,7 @@
     },
     "/course-progress/initialize-progress": {
       "post": {
-        "summary": "Initialize course progress for all students",
+        "summary": "Create Course Progress for Students",
         "tags": ["CourseProgress"],
         "requestBody": {
           "required": true,
@@ -836,7 +836,7 @@
     },
     "/course-progress/course": {
       "get": {
-        "summary": "Course Progress",
+        "summary": "Fetch Course Progress",
         "tags": ["CourseProgress"],
         "parameters":[
             {
@@ -881,7 +881,7 @@
     },
     "/course-progress/module": {
       "get": {
-        "summary": "Module Progress",
+        "summary": "Fetch Module Progress",
         "tags": ["CourseProgress"],
         "parameters":[
           {
@@ -935,7 +935,7 @@
     },
     "/course-progress/section": {
       "get": {
-        "summary": "Section Progress",
+        "summary": "Fetch Section Progress",
         "tags": ["CourseProgress"],
         "parameters":[
           {
@@ -988,7 +988,7 @@
     },
     "/course-progress/section-item": {
       "get": {
-        "summary": "Section Item Progress",
+        "summary": "Fetch Section Item Progress",
         "tags": ["CourseProgress"],
         "parameters":[
           {

@@ -48,7 +48,6 @@ interface NextData {
 }
 
 
-
 function extractAllIds(courseProgressData: CourseProgressData): SeperatedIds {
   // Extract module IDs
   const modules = courseProgressData.modules.map((module) => module.moduleId);
@@ -158,7 +157,6 @@ function updateEntityListFields(
 }
 
 
-
 const courseProgressRepo = new CourseProgressRepository();
 
 export class CourseProgressService {
@@ -177,7 +175,7 @@ export class CourseProgressService {
    * @returns A promise containing the updated entities.
    * @throws Error if the progress update fails.
    */
-  async updateSectionItemProgress(
+  public async updateSectionItemProgress(
     courseInstanceId: string,
     studentId: string,
     sectionItemId: string,
@@ -186,31 +184,31 @@ export class CourseProgressService {
     try {
 
       // Check if the current sectionItemId is a nextSectionItemId in the SectionItemNext table
-    const previousSectionItem = await prisma.sectionItemNext.findFirst({
-      where: { nextSectionItemId: sectionItemId },
-      select: { sectionItemId: true }, // Get the previous section item
-    });
-
-    if (previousSectionItem) {
-      // If a previous section item exists, check its progress
-      const previousItemProgress = await prisma.studentSectionItemProgress.findUnique({
-        where: {
-          studentId_sectionItemId_courseInstanceId: {
-            studentId,
-            sectionItemId: previousSectionItem.sectionItemId,
-            courseInstanceId,
-          },
-        },
-        select: { progress: true },
+      const previousSectionItem = await prisma.sectionItemNext.findFirst({
+        where: { nextSectionItemId: sectionItemId },
+        select: { sectionItemId: true }, // Get the previous section item
       });
 
-      // Ensure the previous item's progress is COMPLETE
-      if (previousItemProgress && previousItemProgress.progress !== ProgressEnum.COMPLETE) {
-        throw new Error(
-          `Cannot update progress for sectionItemId ${sectionItemId} because the previous item (${previousSectionItem.sectionItemId}) is not complete.`
-        );
+      if (previousSectionItem) {
+        // If a previous section item exists, check its progress
+        const previousItemProgress = await prisma.studentSectionItemProgress.findUnique({
+          where: {
+            studentId_sectionItemId_courseInstanceId: {
+              studentId,
+              sectionItemId: previousSectionItem.sectionItemId,
+              courseInstanceId,
+            },
+          },
+          select: { progress: true },
+        });
+
+        // Ensure the previous item's progress is COMPLETE
+        if (previousItemProgress && previousItemProgress.progress !== ProgressEnum.COMPLETE) {
+          throw new Error(
+            `Cannot update progress for sectionItemId ${sectionItemId} because the previous item (${previousSectionItem.sectionItemId}) is not complete.`
+          );
+        }
       }
-    }
 
       // Mark the current section item as COMPLETE
       await courseProgressRepo.updateSectionItemProgress(
@@ -277,6 +275,7 @@ export class CourseProgressService {
    * - Marks the current section as COMPLETE.
    * - If `cascade` is true:
    *   - Retrieves the next section and marks it as IN_PROGRESS if available.
+   *    - Retrieves the first section item of the next section and marks it as IN_PROGRESS.
    *   - If no next section exists, marks the module as COMPLETE.
    *
    * @param courseInstanceId - Unique ID of the course instance.
@@ -286,7 +285,7 @@ export class CourseProgressService {
    * @returns A promise containing the updated entities.
    * @throws Error if the progress update fails.
    */
-  async updateSectionProgress(
+  private async updateSectionProgress(
     courseInstanceId: string,
     studentId: string,
     sectionId: string,
@@ -315,9 +314,9 @@ export class CourseProgressService {
             studentId,
             nextSectionId
           );
-          
+
           // Get the first section item of the next section
-          const {sectionItemId: nextSectionFirstSectionItemId} = await courseProgressRepo.getSectionDetails(
+          const { sectionItemId: nextSectionFirstSectionItemId } = await courseProgressRepo.getSectionDetails(
             courseInstanceId,
             studentId,
             nextSectionId
@@ -329,7 +328,7 @@ export class CourseProgressService {
             studentId,
             nextSectionFirstSectionItemId
           );
-          
+
 
           return {
             course: null,
@@ -373,6 +372,9 @@ export class CourseProgressService {
    * - Marks the current module as COMPLETE.
    * - If `cascade` is true:
    *   - Retrieves the next module and marks it as IN_PROGRESS if available.
+   * - If next module exists:
+   *   - Retrieves the first section of the next module and marks it as IN_PROGRESS.
+   *   - Retrieves the first section item of the next section and marks it as IN_PROGRESS.
    *   - If no next module exists, marks the course as COMPLETE.
    *
    * @param courseInstanceId - Unique ID of the course instance.
@@ -383,7 +385,7 @@ export class CourseProgressService {
    * @throws Error if the progress update fails.
    */
 
-  async updateModuleProgress(
+  private async updateModuleProgress(
     courseInstanceId: string,
     studentId: string,
     moduleId: string,
@@ -413,7 +415,7 @@ export class CourseProgressService {
           );
 
           // Get the first section of the next module
-          const {sectionId: nextModuleFirstSectionId} = await courseProgressRepo.getModuleDetails(
+          const { sectionId: nextModuleFirstSectionId } = await courseProgressRepo.getModuleDetails(
             courseInstanceId,
             studentId,
             nextModuleId
@@ -427,7 +429,7 @@ export class CourseProgressService {
           );
 
           // Get the first section item of the next section of next module
-          const {sectionItemId: nextModuleFirstSectionItemId} = await courseProgressRepo.getSectionDetails(
+          const { sectionItemId: nextModuleFirstSectionItemId } = await courseProgressRepo.getSectionDetails(
             courseInstanceId,
             studentId,
             nextModuleFirstSectionId
@@ -487,7 +489,7 @@ export class CourseProgressService {
    * @throws Error if the progress update fails.
    */
 
-  async updateCourseProgress(
+  private async updateCourseProgress(
     courseInstanceId: string,
     studentId: string
   ): Promise<UpdatedEntities> {
@@ -533,14 +535,16 @@ export class CourseProgressService {
      * @throws Error
      * - If any operation within the transaction fails, the method will throw an error and rollback all changes.
      */
-  async initializeStudentProgress(
+  public async initializeStudentProgress(
     courseData: CourseProgressData
   ): Promise<{ studentCount: number; totalRecords: number }> {
     const { courseInstanceId, studentIds, modules } = courseData;
 
+    // Initialize an array to store all progress records
     const progressRecords: Prisma.PrismaPromise<any>[] = [];
-    let totalRecords = 0;
 
+    // Initialize a counter to track the total number of records created
+    let totalRecords = 0;
 
     // Extract all IDs from the course progress data
     const {
@@ -611,7 +615,7 @@ export class CourseProgressService {
           },
         },
       });
-      
+
       if (!existingProgress) {
         // Add the record only if it doesn't exist
         progressRecords.push(
@@ -625,28 +629,32 @@ export class CourseProgressService {
         );
       }
 
-
+      // Increment the total records count by the number of records created for the student
       totalRecords +=
         moduleData.length + sectionData.length + sectionItemData.length + 1;
-
     }
 
 
-    // Get next-pair data for modules, sections, and section items
-    const {moduleNextData, sectionNextData, sectionItemNextData} = getNextData(courseData);
+    /**
+     * Meta Data necessary for progress tracking of module, section, and section item.
+     * - Pointers for each entity to the next entity in the hierarchy.
+     * - Used to determine the next entity to mark as `IN_PROGRESS`.
+     * - Ensures the correct order of progress tracking.
+     * 
+     * TODO: Refactor this to a separate function and a seperate route.
+     */
 
-    // Add next-pair data to the transaction
+    // Get meta data for modules, sections, and section items
+    const { moduleNextData, sectionNextData, sectionItemNextData } = getNextData(courseData);
+
+    // Add meta data to the transaction
     progressRecords.push(
       prisma.moduleNext.createMany({ data: moduleNextData, skipDuplicates: true }),
       prisma.sectionNext.createMany({ data: sectionNextData, skipDuplicates: true }),
       prisma.sectionItemNext.createMany({ data: sectionItemNextData, skipDuplicates: true })
     );
 
-
-
-
-
-    // Execute all progress creations in a transaction
+    // Execute transaction
     try {
       await prisma.$transaction(progressRecords);
       return { studentCount: studentIds.length, totalRecords };
@@ -657,33 +665,71 @@ export class CourseProgressService {
 
   }
 
-  async getCourseProgress(courseInstanceId: string, studentId: string) {
+
+  /**
+   * Retrieves the progress data for a specific student within a course instance.
+   * 
+   * This function fetches the current progress status of `courseInstance` only.
+   * 
+   * @param courseInstanceId - The unique identifier for the course instance.
+   * @param studentId - The unique identifier for the student whose progress is being fetched.
+   * @param moduleId - The unique identifier for the module within the course.
+   * @returns A promise that resolves with the student's progress data for the given module in the specified course instance.
+   */
+  public async getCourseProgress(courseInstanceId: string, studentId: string) {
     const courseProgress = await courseProgressRepo.getCourseProgress(courseInstanceId, studentId);
 
     return courseProgress;
   }
 
-  async getModuleProgress(courseInstanceId: string, studentId: string, moduleId: string) {
+  /**
+  * Retrieves the progress data for a specific student within a module of a given course instance.
+  * 
+  * This function fetches the current progress status of the given `moduleId` only.
+  * 
+  * @param courseInstanceId - The unique identifier for the course instance.
+  * @param studentId - The unique identifier for the student whose progress is being fetched.
+  * @param moduleId - The unique identifier for the module within the course.
+  * @returns A promise that resolves with the student's progress data for the given module in the specified course instance.
+  */
+  public async getModuleProgress(courseInstanceId: string, studentId: string, moduleId: string) {
     const moduleProgress = await courseProgressRepo.getModuleProgress(courseInstanceId, studentId, moduleId);
 
     return moduleProgress;
   }
 
-  async getSectionProgress(courseInstanceId: string, studentId: string, sectionId: string) {
+  /**
+   * Retrieves the progress data for a specific student within a section of a given course instance.
+   * 
+   * This function fetches the current progress status of the given `sectionId` only.
+   * 
+   * @param courseInstanceId The unique identifier for the course instance.
+   * @param studentId The unique identifier for the student whose progress is being fetched.
+   * @param sectionId The unique identifier for the section within the course.
+   * @returns A promise that resolves with the student's progress data for the given section in the specified course instance.
+   */
+  public async getSectionProgress(courseInstanceId: string, studentId: string, sectionId: string) {
     const sectionProgress = await courseProgressRepo.getSectionProgress(courseInstanceId, studentId, sectionId);
 
     return sectionProgress;
   }
 
-  async getSectionItemProgress(courseInstanceId: string, studentId: string, sectionItemId: string) {
-    const sectionItemProgress = await courseProgressRepo.getSectionItemProgress(courseInstanceId, studentId, sectionItemId);
 
+  /**
+   * Retrieves the progress data for a specific student within a section item of a given course instance.
+   * 
+   * This function fetches the current progress status of the given `sectionItemId` only.
+   * 
+   * @param courseInstanceId The unique identifier for the course instance.
+   * @param studentId The unique identifier for the student whose progress is being fetched.
+   * @param sectionItemId The unique identifier for the section item within the course.
+   * @returns A promise that resolves with the student's progress data for the given section item in the specified course instance.
+   */
+  public async getSectionItemProgress(courseInstanceId: string, studentId: string, sectionItemId: string) {
+    const sectionItemProgress = await courseProgressRepo.getSectionItemProgress(courseInstanceId, studentId, sectionItemId);
     return sectionItemProgress;
   }
 
-
 }
-
-
 
 export { SectionItem, Section, Module, CourseProgressData };

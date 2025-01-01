@@ -9,8 +9,12 @@ import routes from './api/v1/routes/index';
 import { apiReference } from '@scalar/express-api-reference';
 import { errorHandler } from './api/v1/middlewares/errorHandler';
 import path from 'path';
+import cors from 'cors'
+
 
 const app = express();
+
+app.use(cors());
 
 app.use('/openapi.json', express.static(path.join(__dirname, '../openapi.json')));
 
