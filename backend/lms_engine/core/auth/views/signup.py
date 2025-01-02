@@ -16,8 +16,6 @@ def signup(request):
     first_name = request.data.get("first_name")
     last_name = request.data.get("last_name")
 
-    print(email, password, first_name, last_name)
-
     if not email or not password:
         return Response(
             {"error": "Email and password are required."},
