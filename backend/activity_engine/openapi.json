@@ -13,19 +13,35 @@
   ],
   "tags": [
     {
-      "name": "Attempts",
-      "description": "Endpoints related to handling assessment attempts and answers."
+      "name": "Assessment",
+      "description": "Endpoints related to handling assessment grading and storing of answers."
     },
     {
       "name": "Metrics",
       "description": "Endpoints related to student activity metrics (video metrics, violations)."
     },
     {
-      "name": "CourseProgress",
+      "name": "Course Progress",
       "description": "Endpoints related to managing course progress for students."
     }
   ],
   "paths": {
+    "/assessment/submit": {
+      "post": {
+        "summary": "Submit assessment for grading",
+        "tags": ["Assessment"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                
+              }
+            }
+          }
+        }
+      }
+    },
     "/attempts": {
       "post": {
         "summary": "Start a new assessment attempt",

@@ -81,6 +81,7 @@ model StudentAssessmentProgress {
   assessmentStatus AssessmentStatusEnum
   createdAt        DateTime             @default(now())
   updatedAt        DateTime             @updatedAt
+  @@unique([studentId, assessmentId, courseInstanceId])
 }
 
 model StudentAssessmentAttemptHistory {
@@ -217,4 +218,5 @@ enum AssessmentStatusEnum {
 enum AssessmentAttemptStatusEnum {
   IN_PROGRESS
   SUBMITTED
+  FAILED
 }

@@ -1,50 +1,62 @@
 import prisma from '../config/prisma';
+import { SubmissionAnswers } from '../types/assessment.types';
 
 export class AnswersRepository {
-  async createNATAnswer(attemptId: number, studentId: string, courseInstanceId: string, questionId: string, value: string) {
-    return prisma.studentNATAnswer.create({
-      data: {
+  async storeAnswers(
+    attemptId: number,
+    studentId: string,
+    courseInstanceId: string,
+    answers: SubmissionAnswers
+  ): Promise<void> {
+    // Store NAT Answers
+    for (const nat of answers.natAnswers) {
+      await prisma.studentNATAnswer.create({
+        data: {
+          assessmentAttemptId: attemptId,
+          studentId,
+          courseInstanceId,
+          questionId: nat.questionId,
+          value: nat.value,
+        },
+      });
+    }
+
+    // Store Descriptive Answers
+    for (const desc of answers.descriptiveAnswers) {
+      await prisma.studentDescriptiveAnswer.create({
+        data: {
+          assessmentAttemptId: attemptId,
+          studentId,
+          courseInstanceId,
+          questionId: desc.questionId,
+          answerText: desc.answerText,
+        },
+      });
+    }
+
+    // Store MCQ Answers
+    for (const mcq of answers.mcqAnswers) {
+      await prisma.studentMCQAnswer.create({
+        data: {
+          assessmentAttemptId: attemptId,
+          studentId,
+          courseInstanceId,
+          questionId: mcq.questionId,
+          choiceId: mcq.choiceId,
+        },
+      });
+    }
+
+    // Store MSQ Answers
+    for (const msq of answers.msqAnswers) {
+      const data = msq.choiceIds.map(choiceId => ({
         assessmentAttemptId: attemptId,
         studentId,
         courseInstanceId,
-        questionId,
-        value
-      }
-    });
-  }
-
-  async createDescriptiveAnswer(attemptId: number, studentId: string, courseInstanceId: string, questionId: string, answerText: string) {
-    return prisma.studentDescriptiveAnswer.create({
-      data: {
-        assessmentAttemptId: attemptId,
-        studentId,
-        courseInstanceId,
-        questionId,
-        answerText
-      }
-    });
-  }
-
-  async createMCQAnswer(attemptId: number, studentId: string, courseInstanceId: string, questionId: string, choiceId: string) {
-    return prisma.studentMCQAnswer.create({
-      data: {
-        assessmentAttemptId: attemptId,
-        studentId,
-        courseInstanceId,
-        questionId,
-        choiceId
-      }
-    });
-  }
-
-  async createMSQAnswers(attemptId: number, studentId: string, courseInstanceId: string, questionId: string, choiceIds: string[]) {
-    const data = choiceIds.map(choiceId => ({
-      assessmentAttemptId: attemptId,
-      studentId,
-      courseInstanceId,
-      questionId,
-      choiceId
-    }));
-    return prisma.studentMSQAnswer.createMany({ data });
+        questionId: msq.questionId,
+        choiceId,
+      }));
+      await prisma.studentMSQAnswer.createMany({ data });
+    }
   }
 }
