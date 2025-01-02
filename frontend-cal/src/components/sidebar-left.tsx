@@ -31,6 +31,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useLogoutMutation } from '@/store/apiService'
+import { useDispatch } from 'react-redux'
+import { logoutState } from '@/store/slices/authSlice'
+import { useNavigate } from 'react-router-dom'
 
 // Sample data with subparts and sub-subparts
 const data = {
@@ -123,6 +127,19 @@ export function SidebarLeft({
   const { setOpen } = useSidebar() // Access setOpen to control the sidebar state
   console.log('props')
   console.log('setOpen', setOpen)
+  const dispatch = useDispatch()
+  const [logout] = useLogoutMutation()
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    try {
+      await logout().unwrap()
+      dispatch(logoutState())
+      navigate('/login')
+    } catch (err) {
+      console.error('Logout failed:', err)
+    }
+  }
 
   interface NavItem {
     title: string
@@ -210,7 +227,14 @@ export function SidebarLeft({
             {data.navSecondary.map((item) => (
               <SidebarMenuButton
                 key={item.title}
-                onClick={() => (window.location.href = item.url)}
+                onClick={() => {
+                  if (item.title === 'Logout') {
+                    // Use Logout component here
+                    handleLogout()
+                  } else {
+                    window.location.href = item.url
+                  }
+                }}
                 className='flex items-center rounded-md py-2 pl-2 pr-4 text-sm'
               >
                 <item.icon className='mr-3 flex size-5' />

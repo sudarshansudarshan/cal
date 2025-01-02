@@ -27,7 +27,7 @@ export const apiService = createApi({
       { username: string; password: string }
     >({
       query: (credentials) => ({
-        url: '/auth/login/',
+        url: '/',
         method: 'POST',
         body: credentials,
       }),
@@ -52,23 +52,15 @@ export const apiService = createApi({
       }
     >({
       query: (userData) => ({
-        url: '/auth/register/',
+        url: '/signup',
         method: 'POST',
         body: userData,
       }),
-      onQueryStarted: async (arg, { queryFulfilled }) => {
-        try {
-          const { data } = await queryFulfilled
-          Cookies.set('access_token', data.access) // Optionally store the token here too
-        } catch (error) {
-          console.error('Signup failed', error)
-        }
-      },
     }),
 
     logout: builder.mutation<void, void>({
       query: () => ({
-        url: '/auth/login/',
+        url: '/userLogout',
         method: 'POST',
         headers: {
           Authorization: `Bearer ${Cookies.get('access_token')}`,

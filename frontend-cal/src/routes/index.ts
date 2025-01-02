@@ -16,6 +16,7 @@ import Testing from '@/pages/Students/Testing'
 import SingleCourse from '@/pages/Students/SingleCourse'
 import VideoAssessment from '@/pages/Students/VideoAssessment'
 import LatestTest from '@/pages/Students/LatestTest'
+import VideoPlaylistAssessment from '@/pages/Students/VideoPlaylistAssessment'
 
 const router = createBrowserRouter([
   {
@@ -61,6 +62,10 @@ const router = createBrowserRouter([
           {
             path: 'latestTest',
             element: React.createElement(LatestTest),
+          },
+          {
+            path: 'videoPlaylistAssessment',
+            element: React.createElement(VideoPlaylistAssessment),
           },
         ],
       },

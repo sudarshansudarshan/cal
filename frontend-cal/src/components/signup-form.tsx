@@ -1,11 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useSignupMutation } from '../store/apiService'
 
 interface SignUpFormProps extends React.ComponentPropsWithoutRef<'form'> {
-  toggleCover: () => void // Specify the type of the toggleCover function
+  toggleCover: () => void
 }
 
 export function SignUpForm({
@@ -13,9 +14,37 @@ export function SignUpForm({
   toggleCover,
   ...props
 }: SignUpFormProps) {
-  // Use the SignUpFormProps interface
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const [name, setName] = useState<string>('')
+  const [lastName, setLastName] = useState<string>('')
+  const [username, setUsername] = useState<string>('')
+  const [signup, { isLoading, error }] = useSignupMutation()
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      await signup({
+        email,
+        password,
+        first_name: name,
+        last_name: lastName,
+        username: username,
+      }).unwrap()
+      // handle successful signup
+      toggleCover()
+    } catch (err) {
+      console.error('Signup error:', err)
+      // handle error
+    }
+  }
+
   return (
-    <form className={cn('flex flex-col gap-6', className)} {...props}>
+    <form
+      className={cn('flex flex-col gap-6', className)}
+      onSubmit={handleSignup}
+      {...props}
+    >
       <div className='flex flex-col items-center gap-2 text-center'>
         <h1 className='text-2xl font-bold'>Create an Account</h1>
         <p className='text-balance text-sm text-muted-foreground'>
@@ -24,24 +53,62 @@ export function SignUpForm({
       </div>
       <div className='grid gap-6'>
         <div className='grid gap-2'>
-          <Label htmlFor='name'>Name</Label>
-          <Input id='name' type='text' placeholder='John Doe' />
+          <Label htmlFor='firstname'>First Name</Label>
+          <Input
+            id='firstname'
+            type='text'
+            placeholder='First Name'
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+        <div className='grid gap-2'>
+          <Label htmlFor='lastname'>Last Name</Label>
+          <Input
+            id='lastname'
+            type='text'
+            placeholder='Last Name'
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+          />
+        </div>
+        <div className='grid gap-2'>
+          <Label htmlFor='username'>Username</Label>
+          <Input
+            id='username'
+            type='text'
+            placeholder='Username'
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
         </div>
         <div className='grid gap-2'>
           <Label htmlFor='email'>Email</Label>
-          <Input id='email' type='email' placeholder='m@example.com' />
+          <Input
+            id='email'
+            type='email'
+            placeholder='m@example.com'
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
         <div className='grid gap-2'>
           <Label htmlFor='password'>Password</Label>
-          <Input id='password' type='password' />
+          <Input
+            id='password'
+            type='password'
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
-        <div className='grid gap-2'>
-          <Label htmlFor='password'>Confirm Password</Label>
-          <Input id='password' type='password' />
-        </div>
-        <Button type='submit' className='w-full'>
+        <Button type='submit' className='w-full' disabled={isLoading}>
           Sign Up
         </Button>
+        {error && (
+          <p className='mt-4 text-red-500'>
+            Error: {'status' in error ? error.status : error.message}
+          </p>
+        )}
         <div className='relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border'>
           <span className='relative z-10 bg-background px-2 text-muted-foreground'>
             Or continue with

@@ -1,11 +1,15 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { useLoginMutation } from '../store/apiService'
+import { setUser } from '../store/slices/authSlice'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useNavigate } from 'react-router-dom'
 
 interface LoginFormProps extends React.ComponentPropsWithoutRef<'form'> {
-  toggleCover: () => void // Adding this to explicitly define the type
+  toggleCover: () => void
 }
 
 export function LoginForm({
@@ -13,19 +17,45 @@ export function LoginForm({
   toggleCover,
   ...props
 }: LoginFormProps) {
-  // Using LoginFormProps here
+  const [username, setUsername] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const [login, { isLoading, error }] = useLoginMutation()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const response = await login({ username, password }).unwrap()
+      dispatch(setUser(response))
+      navigate('/')
+    } catch (err) {
+      console.error('Login failed:', err)
+    }
+  }
+
   return (
-    <form className={cn('flex flex-col gap-6', className)} {...props}>
+    <form
+      className={cn('flex flex-col gap-6', className)}
+      onSubmit={handleLogin}
+      {...props}
+    >
       <div className='flex flex-col items-center gap-2 text-center'>
         <h1 className='text-2xl font-bold'>Welcome Back !</h1>
         <p className='text-balance text-sm text-muted-foreground'>
-          Enter your email below to login to your account
+          Enter your Username below to login to your account
         </p>
       </div>
       <div className='grid gap-6'>
         <div className='grid gap-2'>
-          <Label htmlFor='email'>Email</Label>
-          <Input id='email' type='email' placeholder='m@example.com' />
+          <Label htmlFor='username'>Username</Label>
+          <Input
+            id='username'
+            type='text'
+            placeholder='Username'
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
         </div>
         <div className='grid gap-2'>
           <div className='flex items-center'>
@@ -40,11 +70,21 @@ export function LoginForm({
               Forgot your password?
             </button>
           </div>
-          <Input id='password' type='password' />
+          <Input
+            id='password'
+            type='password'
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
-        <Button type='submit' className='w-full'>
+        <Button type='submit' className='w-full' disabled={isLoading}>
           Login
         </Button>
+        {error && (
+          <p className='text-red-500'>
+            Error: {'status' in error ? error.status : error.message}
+          </p>
+        )}
         <div className='relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border'>
           <span className='relative z-10 bg-background px-2 text-muted-foreground'>
             Or continue with
