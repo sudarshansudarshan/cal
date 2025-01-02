@@ -154,6 +154,29 @@
       <input type="url" id="playlist-url" placeholder="Enter YouTube playlist or video URL" required />      <button id="fetch-videos" class="inline">Submit</button>
     </div>
 
+    <div class="hierarchy-dropdowns">
+      <div>
+        <label for="course-select">Course</label>
+        <select id="course-select">
+          <option value="">Select Course</option>
+        </select>
+      </div>
+      
+      <div>
+        <label for="module-select">Module</label>
+        <select id="module-select" disabled>
+          <option value="">Select Module</option>
+        </select>
+      </div>
+      
+      <div>
+        <label for="section-select">Section</label>
+        <select id="section-select" disabled>
+          <option value="">Select Section</option>
+        </select>
+      </div>
+    </div>
+
     <div class="default-settings">
       <label for="default-segments">Default Number of Segments</label>
       <input type="number" id="default-segments" min="1" placeholder="Enter default segments count" />
@@ -235,6 +258,90 @@
     let defaultQuestions = 0;
     let videoDurations = {};
     let modifiedResponseData = {};
+    let hierarchyData = null;
+    let selectedSectionId = null;
+
+// Fetch course hierarchy when page loads
+fetch('http://127.0.0.1:5000/api/courses/hierarchy', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+  .then(response => response.json())
+  .then(data => {
+    hierarchyData = data;
+    populateCourseDropdown();
+  })
+  .catch(error => console.error('Error fetching hierarchy:', error));
+
+function populateCourseDropdown() {
+  const courseSelect = document.getElementById('course-select');
+  courseSelect.innerHTML = '<option value="">Select Course</option>';
+  
+  hierarchyData.results.forEach(course => {
+    const option = document.createElement('option');
+    option.value = course.id;
+    option.textContent = course.name;
+    courseSelect.appendChild(option);
+  });
+}
+
+function updateModuleDropdown(courseId) {
+  const moduleSelect = document.getElementById('module-select');
+  moduleSelect.innerHTML = '<option value="">Select Module</option>';
+  moduleSelect.disabled = !courseId;
+  
+  if (!courseId) return;
+  
+  const course = hierarchyData.results.find(c => c.id === parseInt(courseId));
+  if (course) {
+    course.modules.forEach(module => {
+      const option = document.createElement('option');
+      option.value = module.id;
+      option.textContent = module.title;
+      moduleSelect.appendChild(option);
+    });
+  }
+}
+
+function updateSectionDropdown(moduleId) {
+  const sectionSelect = document.getElementById('section-select');
+  sectionSelect.innerHTML = '<option value="">Select Section</option>';
+  sectionSelect.disabled = !moduleId;
+  
+  if (!moduleId) return;
+  
+  const course = hierarchyData.results.find(c => 
+    c.modules.some(m => m.id === parseInt(moduleId))
+  );
+  if (course) {
+    const module = course.modules.find(m => m.id === parseInt(moduleId));
+    if (module) {
+      module.sections.forEach(section => {
+        const option = document.createElement('option');
+        option.value = section.id;
+        option.textContent = section.title;
+        sectionSelect.appendChild(option);
+      });
+    }
+  }
+}
+
+// Add event listeners for dropdowns
+document.getElementById('course-select').addEventListener('change', (e) => {
+  updateModuleDropdown(e.target.value);
+  document.getElementById('section-select').disabled = true;
+  document.getElementById('section-select').innerHTML = '<option value="">Select Section</option>';
+});
+
+document.getElementById('module-select').addEventListener('change', (e) => {
+  updateSectionDropdown(e.target.value);
+});
+
+document.getElementById('section-select').addEventListener('change', (e) => {
+  selectedSectionId = e.target.value ? parseInt(e.target.value) : null;
+});
 
     function secondsToHMS(seconds) {
       const hrs = Math.floor(seconds / 3600);
@@ -694,10 +801,10 @@ function displayOutput(data) {
   showVideoOutput(currentVideo);
 }
 
-function saveCurrentVideoModifications() {
-  if (!modifiedResponseData[currentVideo]) return;
+function saveVideoEdits(videoIndex) {
+  if (!modifiedResponseData[videoIndex]) return;
   
-  const data = modifiedResponseData[currentVideo];
+  const data = modifiedResponseData[videoIndex];
   
   // Save title and description
   const titleEl = document.getElementById('title');
@@ -729,8 +836,8 @@ function saveCurrentVideoModifications() {
 function showVideoOutput(index) {
   if (!modifiedResponseData[index]) return;
   
-  if (currentVideo !== null && currentVideo !== index) {
-    saveCurrentVideoModifications();
+  if (currentVideo !== null) {
+    saveVideoEdits(currentVideo);
   }
 
   const data = modifiedResponseData[index];
@@ -745,14 +852,27 @@ function showVideoOutput(index) {
   // Display video information
   const videoInfo = document.getElementById('video-info');
   videoInfo.innerHTML = `
-    <label for="video-id">Video ID</label>
-    <input type="text" id="video-id" value="${data.video_id}" disabled />
+    <label for="video-url">Video URL</label>
+    <input type="text" id="video-url" value="${data.video_url}" disabled />
 
     <label for="title">Title</label>
     <input type="text" id="title" value="${data.title}" />
 
     <label for="description">Description</label>
     <textarea id="description">${data.description}</textarea>
+
+    <label for="section-info">Selected Section</label>
+    <input type="text" id="section-info" value="${
+      hierarchyData?.results
+        .find(course => course.modules.some(module => 
+          module.sections.some(section => section.id === selectedSectionId)
+        ))
+        ?.modules
+        .find(module => module.sections.some(section => section.id === selectedSectionId))
+        ?.sections
+        .find(section => section.id === selectedSectionId)
+        ?.title || 'No section selected'
+    }" disabled />
   `;
 
   // Display segments
@@ -882,57 +1002,57 @@ function showSegmentDetails(index) {
       }
     });
 
-document.getElementById('confirm-btn').addEventListener('click', () => {
-  if (!modifiedResponseData[currentVideo]) return;
+    document.getElementById('confirm-btn').addEventListener('click', async () => {
+      if (!selectedSectionId) {
+        alert('Please select a section before submitting');
+        return;
+      }
 
-  saveCurrentVideoModifications();
+      // Save modifications for current video before proceeding
+      if (currentVideo !== null) {
+        saveVideoEdits(currentVideo);
+      }
 
-  const data = modifiedResponseData[currentVideo];
-  
-  const modifiedData = {
-    video_id: data.video_id,
-    title: data.title,
-    description: data.description,
-    segments: [...data.segments],  // Create a fresh copy of segments
-    questions: [...data.questions]  // Create a fresh copy of questions
-  };
+      // Gather and send data for all videos
+      const videoIndices = Object.keys(modifiedResponseData).map(Number);
+      const errors = [];
 
-  // Update any edited fields from the DOM
-  modifiedData.segments.forEach((segment, i) => {
-    const textElement = document.getElementById(`segment-text-${i}`);
-    if (textElement) {
-      segment.text = textElement.value;
-    }
-  });
+      for (const videoIndex of videoIndices) {
+        const data = modifiedResponseData[videoIndex];
+        
+        const modifiedData = {
+          video_url: data.video_url,
+          title: data.title,
+          description: data.description,
+          section_id: selectedSectionId,
+          segments: data.segments.map(segment => ({...segment})),
+          questions: data.questions.map(question => ({...question}))
+        };
 
-  modifiedData.questions.forEach((question, i) => {
-    const textElement = document.getElementById(`question-text-${i}`);
-    const correctAnswerElement = document.getElementById(`correct-answer-${i}`);
-    if (textElement) {
-      question.question = textElement.value;
-    }
-    if (correctAnswerElement) {
-      question.correct_answer = parseInt(correctAnswerElement.value);
-    }
-    question.options = question.options.map((_, j) => {
-      const optElement = document.getElementById(`option-${i}-${j}`);
-      return optElement ? optElement.value : '';
+        try {
+          const response = await fetch('http://127.0.0.1:5000/output', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(modifiedData)
+          });
+
+          if (!response.ok) {
+            throw new Error(`Video ${videoIndex + 1}: HTTP error! status: ${response.status}`);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          errors.push(error.message);
+        }
+      }
+
+      if (errors.length > 0) {
+        alert('Some videos failed to submit:\n' + errors.join('\n'));
+      } else {
+        alert('All videos submitted successfully!');
+      }
     });
-  });
-
-  const videoTitle = modifiedData.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-  const filename = `video_${currentVideo + 1}_${videoTitle}_data.json`;
-
-  const blob = new Blob([JSON.stringify(modifiedData, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-});
   </script>
   <div id="temp-player" style="display: none;"></div>
 </body>

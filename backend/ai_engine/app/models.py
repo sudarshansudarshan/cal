@@ -388,7 +388,7 @@ def process_video(
                     questions.append(question)
 
         output = VideoResponse(
-            video_id=video_id,
+            video_url=url,
             title=title,
             description=description,
             segments=segments,
@@ -437,7 +437,7 @@ def process_video(
         # Step 4: Return the processed data
         print("processing pending")
         output = VideoResponse(
-            video_id=video_id,
+            video_url=url,
             title=title,
             description=description,
             segments=segments,
