@@ -1,0 +1,13 @@
+//signup
+{
+    "email": "adityabmv@gmail.com",
+    "password": "aditya1234",
+    "first_name": "Aditya",
+    "last_name": "BMV"
+}
+//login
+{
+    "client_id": "D3Ux6xVRbq2neG1UCpKwX8a4n5aS7DzHKQ7NdC9G",
+    "email": "adityabmv@gmail.com",
+    "password": "aditya1234"
+}

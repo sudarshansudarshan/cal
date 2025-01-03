@@ -3,6 +3,12 @@ import { AssessmentAttemptStatusEnum, AssessmentStatusEnum } from '@prisma/clien
 import { MSQAnswer, SubmissionAnswers } from '../types/assessment.types';
 
 export class AssessmentRepository {
+  async getAssessmentProgress(studentId: string, assessmentId: string, courseInstanceId: string) {
+    const progress = await prisma.studentAssessmentProgress.findUnique({
+      where: { studentId_assessmentId_courseInstanceId: { studentId, assessmentId, courseInstanceId } },
+    });
+    return progress?.assessmentStatus;
+  }
   async createAttempt(studentId: string, courseInstanceId: string, assessmentId: string): Promise<{ attemptId: number }> {
     const attempt = await prisma.studentAssessmentAttemptHistory.create({
       data: {
@@ -14,6 +20,23 @@ export class AssessmentRepository {
       },
     });
     return { attemptId: attempt.attemptId };
+  }
+
+  async createAssessmentProgress(studentId: string, assessmentId: string, courseInstanceId: string): Promise<void> {
+    const progress = await prisma.studentAssessmentProgress.findUnique({
+      where: { studentId_assessmentId_courseInstanceId: { studentId, assessmentId, courseInstanceId } },
+    });
+  
+    if (!progress) {
+      await prisma.studentAssessmentProgress.create({
+        data: {
+          studentId,
+          assessmentId,
+          courseInstanceId,
+          assessmentStatus: AssessmentStatusEnum.PENDING, // Default status
+        },
+      });
+    }
   }
 
   async updateAssessmentStatus(

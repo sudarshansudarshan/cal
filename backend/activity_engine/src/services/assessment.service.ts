@@ -21,29 +21,37 @@ export class AssessmentService {
     courseInstanceId: string,
     assessmentId: string,
     answers: SubmissionAnswers
-  ): Promise<{ attemptId: number; gradingStatus: AssessmentStatusEnum }> {
+  ): Promise<{ attemptId: number; gradingStatus: AssessmentAttemptStatusEnum; assessmentGradingStatus: AssessmentStatusEnum;  correctAnswers: number; totalQuestions: number }> {
     // Step 1: Create a new assessment attempt
     const { attemptId } = await assessmentRepo.createAttempt(studentId, courseInstanceId, assessmentId);
-    console.log(answers);
-
-    // Step 2: Store the submitted answers in the database
+  
+    // Step 2: Ensure assessment progress exists
+    await assessmentRepo.createAssessmentProgress(studentId, assessmentId, courseInstanceId);
+  
+    // Step 3: Store the submitted answers in the database
     await answersRepo.storeAnswers(attemptId, studentId, courseInstanceId, answers);
-
-    // Step 3: Update the attempt status to IN_PROGRESS
+  
+    // Step 4: Update the attempt status to IN_PROGRESS
     await assessmentRepo.updateAttemptStatus(attemptId, AssessmentAttemptStatusEnum.IN_PROGRESS);
-
-    // Step 4: Perform grading immediately
-    const gradingResult = await this.gradeAssessmentAttempt(attemptId);
-
-    // Step 5: Update the overall assessment status (PASSED/FAILED)
-    const gradingStatus =
-      gradingResult.status === AssessmentAttemptStatusEnum.SUBMITTED
+  
+    // Step 5: Perform grading immediately
+    const gradingResult: GradingResult = await this.gradeAssessmentAttempt(attemptId);
+    const correctAnswers: number = gradingResult.correctAnswers;
+    const totalQuestions: number = gradingResult.totalQuestions;
+  
+    // Step 6: Update the overall assessment status (PASSED/FAILED)
+    const assessmentGradingResult =
+      gradingResult.status === AssessmentAttemptStatusEnum.SUCCESS
         ? AssessmentStatusEnum.PASSED
         : AssessmentStatusEnum.FAILED;
+    
+    const gradingStatus = gradingResult.status;
+  
+    await assessmentRepo.updateAssessmentStatus(studentId, assessmentId, courseInstanceId, assessmentGradingResult);
 
-    await assessmentRepo.updateAssessmentStatus(studentId, assessmentId, courseInstanceId, gradingStatus);
-
-    return { attemptId, gradingStatus };
+    const assessmentGradingStatus = await assessmentRepo.getAssessmentProgress(studentId, assessmentId, courseInstanceId);
+  
+    return { attemptId, gradingStatus, assessmentGradingStatus,  correctAnswers, totalQuestions };
   }
 
   /**
@@ -63,7 +71,7 @@ export class AssessmentService {
         await assessmentRepo.updateAttemptStatus(attemptId, gradingResult.status);
 
         // If the grading result is PASSED, update the overall assessment status
-        if (gradingResult.status === AssessmentAttemptStatusEnum.SUBMITTED) {
+        if (gradingResult.status === AssessmentAttemptStatusEnum.SUCCESS) {
           await assessmentRepo.updateAssessmentStatus(studentId, assessmentId, courseInstanceId, AssessmentStatusEnum.PASSED);
         }
       }, 3, 2000); // Retry grading up to 3 times with a delay of 2000ms between attempts
@@ -106,10 +114,10 @@ export class AssessmentService {
         return {
           questionId: id,
           type: 'NAT',
-          value: '42.5', // Predicted correct value for NAT
-          toleranceMin: 0.5,
-          toleranceMax: 0.5,
-          decimalPrecision: 2,
+          value: '42', // Predicted correct value for NAT
+          toleranceMin: 0,
+          toleranceMax: 0,
+          decimalPrecision: 0,
         };
       } else if (id.startsWith('MCQ')) {
         return {
@@ -205,7 +213,7 @@ export class AssessmentService {
     // Determine the grading status based on the number of correct answers
     const status =
       correctAnswers === totalQuestions
-        ? AssessmentAttemptStatusEnum.SUBMITTED
+        ? AssessmentAttemptStatusEnum.SUCCESS
         : AssessmentAttemptStatusEnum.FAILED;
 
     return { correctAnswers, totalQuestions, status };

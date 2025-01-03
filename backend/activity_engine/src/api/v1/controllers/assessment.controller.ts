@@ -9,7 +9,7 @@ export class AssessmentController {
         const { studentId, assessmentId, courseInstanceId, answers } = req.body;
   
         // Submit the assessment (store answers and grade)
-        const { attemptId, gradingStatus } = await assessmentService.submitAssessment(
+        const { attemptId, gradingStatus, assessmentGradingStatus, correctAnswers, totalQuestions } = await assessmentService.submitAssessment(
           studentId,
           courseInstanceId,
           assessmentId,
@@ -19,7 +19,10 @@ export class AssessmentController {
         res.status(200).json({
           status: 'grading_completed',
           attemptId,
-          gradingStatus, // PASSED or FAILED
+          gradingStatus, // SUCCESS or FAILED
+          assessmentGradingStatus, // PASSED or FAILED
+          correctAnswers,
+          totalQuestions 
         });
       } catch (error) {
         next(error);

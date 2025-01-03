@@ -129,9 +129,21 @@ model StudentViolationMetrics {
   contentType   ContentTypeEnum
   contentTypeId String          @map("contentTypeId")
   violationType String          @map("violationType")
+  cameraImages  ViolationImage[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 }
+
+model ViolationImage {
+  id            Int                   @id @default(autoincrement())
+  violationId   Int
+  imageData     String                // Base64-encoded image string
+  createdAt     DateTime              @default(now())
+  StudentViolationMetrics StudentViolationMetrics @relation(fields: [violationId], references: [id])
+
+  @@index([violationId])
+}
+
 
 model StudentNATAnswer {
   id               Int      @id @default(autoincrement())
@@ -217,6 +229,6 @@ enum AssessmentStatusEnum {
 
 enum AssessmentAttemptStatusEnum {
   IN_PROGRESS
-  SUBMITTED
+  SUCCESS
   FAILED
 }
