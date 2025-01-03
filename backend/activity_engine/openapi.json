@@ -372,9 +372,9 @@
                   }
                 },
                 "example": {
-                  "courseInstanceId": "courseABC",
-                  "studentId": "stu123",
-                  "sectionItemId": "item456",
+                  "courseInstanceId": "courseXYZ",
+                  "studentId": "stu1",
+                  "sectionItemId": "item1",
                   "cascade": true
                 }
               }
@@ -434,7 +434,19 @@
             "description": "Invalid request data"
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Internal Server Error",
+            "content":{
+              "application/json":{
+                "schema":{
+                  "type":"object",
+                  "properties":{
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -608,7 +620,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties":{
+                    "progress":{
+                      "type":"string"
+                    }
+                  }
                 }
               }
             }
@@ -663,7 +680,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties":{
+                    "progress":{
+                      "type":"string"
+                    }
+                  }
                 }
               }
             }
@@ -718,7 +740,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties":{
+                    "progress":{
+                      "type":"string"
+                    }
+                  }
                 }
               }
             }
@@ -773,7 +800,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties":{
+                    "progress":{
+                      "type":"string"
+                    }
+                  }
                 }
               }
             }
