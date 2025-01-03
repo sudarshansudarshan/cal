@@ -3,9 +3,9 @@ import { MetricsController } from '../controllers/metrics.controller';
 
 const router = Router();
 
-router.get('/video', MetricsController.getVideoMetrics);
-router.post('/video', MetricsController.updateVideoMetrics);
+// router.get('/video', MetricsController.getVideoMetrics);
+// router.post('/video', MetricsController.updateVideoMetrics);
 router.get('/violations', MetricsController.getViolations);
-router.post('/violations', MetricsController.recordViolation);
+router.post('/violations', MetricsController.recordViolationWithImages);
 
 export default router;

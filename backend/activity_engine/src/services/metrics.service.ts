@@ -1,5 +1,6 @@
 import { MetricsRepository } from '../repositories/metrics.repository';
 import { ContentTypeEnum } from '@prisma/client';
+import { ViolationInput } from '../types/metrics.types';
 
 const metricsRepo = new MetricsRepository();
 
@@ -12,8 +13,9 @@ export class MetricsService {
     return metricsRepo.updateVideoMetrics(studentId, courseInstanceId, videoId, replays);
   }
 
-  async recordViolation(studentId: string, contentType: ContentTypeEnum, contentTypeId: string, violationType: string) {
-    return metricsRepo.recordViolation(studentId, contentType, contentTypeId, violationType);
+  async recordViolationWithImages(input: ViolationInput) {
+    const { studentId, contentType, contentTypeId, violationType, images } = input;
+    return metricsRepo.recordViolationWithImages(studentId, contentType, contentTypeId, violationType, images);
   }
 
   async getViolations(studentId: string, contentTypeId: string) {

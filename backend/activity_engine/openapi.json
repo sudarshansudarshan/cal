@@ -29,14 +29,21 @@
     "/assessment/submit": {
       "post": {
         "summary": "Submit assessment for grading",
-        "tags": ["Assessment"],
+        "tags": [
+          "Assessment"
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["assessmentId", "studentId", "courseInstanceId", "answers"],
+                "required": [
+                  "assessmentId",
+                  "studentId",
+                  "courseInstanceId",
+                  "answers"
+                ],
                 "properties": {
                   "assessmentId": {
                     "type": "string",
@@ -54,14 +61,22 @@
                     "type": "array",
                     "items": {
                       "type": "object",
-                      "required": ["questionId", "type"],
+                      "required": [
+                        "questionId",
+                        "type"
+                      ],
                       "properties": {
                         "questionId": {
                           "type": "string"
                         },
                         "type": {
                           "type": "string",
-                          "enum": ["NAT", "DESCRIPTIVE", "MCQ", "MSQ"]
+                          "enum": [
+                            "NAT",
+                            "DESCRIPTIVE",
+                            "MCQ",
+                            "MSQ"
+                          ]
                         },
                         "value": {
                           "type": "string"
@@ -102,7 +117,10 @@
                     "msqAnswers": [
                       {
                         "questionId": "MSQ1",
-                        "choiceIds": ["C1", "C2"]
+                        "choiceIds": [
+                          "C1",
+                          "C2"
+                        ]
                       }
                     ],
                     "descriptiveAnswers": []
@@ -114,146 +132,13 @@
         }
       }
     },
-    "/metrics/video": {
-      "get": {
-        "summary": "Get video metrics for a student",
-        "tags": ["Metrics"],
-        "parameters": [
-          {
-            "name": "studentId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "courseInstanceId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "videoId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Video metrics retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "studentId": {
-                      "type": "string"
-                    },
-                    "courseInstanceId": {
-                      "type": "string"
-                    },
-                    "videoId": {
-                      "type": "string"
-                    },
-                    "replays": {
-                      "type": "integer"
-                    }
-                  }
-                },
-                "example": {
-                  "studentId": "stu123",
-                  "courseInstanceId": "courseABC",
-                  "videoId": "video789",
-                  "replays": 5
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "summary": "Update video metrics for a student",
-        "tags": ["Metrics"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "studentId",
-                  "courseInstanceId",
-                  "videoId",
-                  "replays"
-                ],
-                "properties": {
-                  "studentId": {
-                    "type": "string"
-                  },
-                  "courseInstanceId": {
-                    "type": "string"
-                  },
-                  "videoId": {
-                    "type": "string"
-                  },
-                  "replays": {
-                    "type": "integer"
-                  }
-                },
-                "example": {
-                  "studentId": "stu123",
-                  "courseInstanceId": "courseABC",
-                  "videoId": "video789",
-                  "replays": 6
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Metrics updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "object"
-                    }
-                  }
-                },
-                "example": {
-                  "status": "updated",
-                  "data": {
-                    "studentId": "stu123",
-                    "courseInstanceId": "courseABC",
-                    "videoId": "video789",
-                    "replays": 6
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
+
     "/metrics/violations": {
       "get": {
-        "summary": "Get recorded violations",
-        "tags": ["Metrics"],
+        "summary": "Get recorded violations with images",
+        "tags": [
+          "Metrics"
+        ],
         "parameters": [
           {
             "name": "studentId",
@@ -280,7 +165,52 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/StudentViolationMetrics"
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "studentId": {
+                        "type": "string"
+                      },
+                      "contentType": {
+                        "type": "string",
+                        "enum": [
+                          "VIDEO",
+                          "ARTICLE",
+                          "ASSESSMENT"
+                        ]
+                      },
+                      "contentTypeId": {
+                        "type": "string"
+                      },
+                      "violationType": {
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "cameraImages": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer"
+                            },
+                            "imageData": {
+                              "type": "string",
+                              "description": "Base64-encoded image data"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          }
+                        }
+                      }
+                    }
                   }
                 },
                 "example": [
@@ -290,7 +220,19 @@
                     "contentType": "VIDEO",
                     "contentTypeId": "video789",
                     "violationType": "OUT_OF_FRAME",
-                    "createdAt": "2024-12-12T10:00:00Z"
+                    "createdAt": "2024-12-12T10:00:00Z",
+                    "cameraImages": [
+                      {
+                        "id": 101,
+                        "imageData": "data:image/jpeg;base64,/9j/4AAQSkZJRg...",
+                        "createdAt": "2024-12-12T10:05:00Z"
+                      },
+                      {
+                        "id": 102,
+                        "imageData": "data:image/jpeg;base64,/9j/4AAQSkZJRg...",
+                        "createdAt": "2024-12-12T10:06:00Z"
+                      }
+                    ]
                   }
                 ]
               }
@@ -299,8 +241,10 @@
         }
       },
       "post": {
-        "summary": "Record a new violation",
-        "tags": ["Metrics"],
+        "summary": "Record a new violation with images",
+        "tags": [
+          "Metrics"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -311,7 +255,8 @@
                   "studentId",
                   "contentType",
                   "contentTypeId",
-                  "violationType"
+                  "violationType",
+                  "images"
                 ],
                 "properties": {
                   "studentId": {
@@ -319,20 +264,44 @@
                   },
                   "contentType": {
                     "type": "string",
-                    "enum": ["VIDEO", "ARTICLE", "ASSESSMENT"]
+                    "enum": [
+                      "VIDEO",
+                      "ARTICLE",
+                      "ASSESSMENT"
+                    ]
                   },
                   "contentTypeId": {
                     "type": "string"
                   },
                   "violationType": {
                     "type": "string"
+                  },
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "base64Image": {
+                          "type": "string",
+                          "description": "Base64-encoded image data"
+                        }
+                      }
+                    }
                   }
                 },
                 "example": {
                   "studentId": "stu123",
                   "contentType": "VIDEO",
                   "contentTypeId": "video789",
-                  "violationType": "OUT_OF_FRAME"
+                  "violationType": "OUT_OF_FRAME",
+                  "images": [
+                    {
+                      "base64Image": "data:image/jpeg;base64,/9j/4AAQSkZJRg..."
+                    },
+                    {
+                      "base64Image": "data:image/jpeg;base64,/9j/4AAQSkZJRg..."
+                    }
+                  ]
                 }
               }
             }
@@ -340,7 +309,7 @@
         },
         "responses": {
           "200": {
-            "description": "Violation recorded",
+            "description": "Violation recorded with images",
             "content": {
               "application/json": {
                 "schema": {
@@ -370,14 +339,20 @@
     "/course-progress/update-section-item-progress": {
       "post": {
         "summary": "Update Seciton Item Progress",
-        "tags": ["CourseProgress"],
+        "tags": [
+          "CourseProgress"
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["courseInstanceId", "studentId", "sectionItemId"],
+                "required": [
+                  "courseInstanceId",
+                  "studentId",
+                  "sectionItemId"
+                ],
                 "properties": {
                   "courseInstanceId": {
                     "type": "string",
@@ -444,8 +419,13 @@
                 "example": {
                   "course": null,
                   "modules": null,
-                  "sections": ["section1"],
-                  "sectionItems": ["item456", "item457"]
+                  "sections": [
+                    "section1"
+                  ],
+                  "sectionItems": [
+                    "item456",
+                    "item457"
+                  ]
                 }
               }
             }
@@ -462,14 +442,20 @@
     "/course-progress/initialize-progress": {
       "post": {
         "summary": "Create Course Progress for Students",
-        "tags": ["CourseProgress"],
+        "tags": [
+          "CourseProgress"
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["courseInstanceId", "studentIds", "modules"],
+                "required": [
+                  "courseInstanceId",
+                  "studentIds",
+                  "modules"
+                ],
                 "properties": {
                   "courseInstanceId": {
                     "type": "string",
@@ -527,7 +513,10 @@
                 },
                 "example": {
                   "courseInstanceId": "courseXYZ",
-                  "studentIds": ["stu1", "stu2"],
+                  "studentIds": [
+                    "stu1",
+                    "stu2"
+                  ],
                   "modules": [
                     {
                       "moduleId": "mod1",
@@ -590,9 +579,11 @@
     "/course-progress/course": {
       "get": {
         "summary": "Fetch Course Progress",
-        "tags": ["CourseProgress"],
-        "parameters":[
-            {
+        "tags": [
+          "CourseProgress"
+        ],
+        "parameters": [
+          {
             "name": "courseInstanceId",
             "in": "query",
             "required": true,
@@ -600,8 +591,8 @@
               "type": "string",
               "example": "courseXYZ"
             }
-            },
-            {
+          },
+          {
             "name": "studentId",
             "in": "query",
             "required": true,
@@ -609,9 +600,8 @@
               "type": "string",
               "example": "stu1"
             }
-            }
+          }
         ],
-        
         "responses": {
           "200": {
             "description": "Course progress retrieved successfully",
@@ -635,8 +625,10 @@
     "/course-progress/module": {
       "get": {
         "summary": "Fetch Module Progress",
-        "tags": ["CourseProgress"],
-        "parameters":[
+        "tags": [
+          "CourseProgress"
+        ],
+        "parameters": [
           {
             "name": "courseInstanceId",
             "in": "query",
@@ -645,8 +637,8 @@
               "type": "string",
               "example": "courseXYZ"
             }
-            },
-            {
+          },
+          {
             "name": "studentId",
             "in": "query",
             "required": true,
@@ -655,16 +647,15 @@
               "example": "stu1"
             }
           },
-            {
-              "name": "moduleId",
-              "in": "query",
-              "required": true,
-              "schema": {
-                "type": "string",
-                "example": "mod1"
-              }
+          {
+            "name": "moduleId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "mod1"
             }
-          
+          }
         ],
         "responses": {
           "200": {
@@ -689,8 +680,10 @@
     "/course-progress/section": {
       "get": {
         "summary": "Fetch Section Progress",
-        "tags": ["CourseProgress"],
-        "parameters":[
+        "tags": [
+          "CourseProgress"
+        ],
+        "parameters": [
           {
             "name": "courseInstanceId",
             "in": "query",
@@ -699,8 +692,8 @@
               "type": "string",
               "example": "courseXYZ"
             }
-            },
-            {
+          },
+          {
             "name": "studentId",
             "in": "query",
             "required": true,
@@ -709,15 +702,15 @@
               "example": "stu1"
             }
           },
-            {
-              "name": "sectionId",
-              "in": "query",
-              "required": true,
-              "schema": {
-                "type": "string",
-                "example": "sec1"
-              }
+          {
+            "name": "sectionId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "sec1"
             }
+          }
         ],
         "responses": {
           "200": {
@@ -742,8 +735,10 @@
     "/course-progress/section-item": {
       "get": {
         "summary": "Fetch Section Item Progress",
-        "tags": ["CourseProgress"],
-        "parameters":[
+        "tags": [
+          "CourseProgress"
+        ],
+        "parameters": [
           {
             "name": "courseInstanceId",
             "in": "query",
@@ -752,8 +747,8 @@
               "type": "string",
               "example": "courseXYZ"
             }
-            },
-            {
+          },
+          {
             "name": "studentId",
             "in": "query",
             "required": true,
@@ -762,15 +757,15 @@
               "example": "stu1"
             }
           },
-            {
-              "name": "sectionItemId",
-              "in": "query",
-              "required": true,
-              "schema": {
-                "type": "string",
-                "example": "item1"
-              }
+          {
+            "name": "sectionItemId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "item1"
             }
+          }
         ],
         "responses": {
           "200": {
@@ -792,7 +787,6 @@
         }
       }
     },
-
     "components": {
       "schemas": {
         "StudentNATAnswer": {
@@ -930,7 +924,11 @@
             },
             "contentType": {
               "type": "string",
-              "enum": ["VIDEO", "ARTICLE", "ASSESSMENT"]
+              "enum": [
+                "VIDEO",
+                "ARTICLE",
+                "ASSESSMENT"
+              ]
             },
             "contentTypeId": {
               "type": "string"

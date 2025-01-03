@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { MetricsService } from '../../../services/metrics.service';
 import { ContentTypeEnum } from '@prisma/client';
+import { ViolationInput } from '../../../types/metrics.types';
 
 const metricsService = new MetricsService();
 
@@ -9,8 +10,8 @@ export class MetricsController {
     try {
       const { studentId, courseInstanceId, videoId } = req.query;
       const data = await metricsService.getVideoMetrics(
-        studentId as string, 
-        courseInstanceId as string, 
+        studentId as string,
+        courseInstanceId as string,
         videoId as string
       );
       res.json(data || {});
@@ -23,17 +24,17 @@ export class MetricsController {
     try {
       const { studentId, courseInstanceId, videoId, replays } = req.body;
       const data = await metricsService.updateVideoMetrics(studentId, courseInstanceId, videoId, replays);
-      res.json({ status: "updated", data });
+      res.json({ status: 'updated', data });
     } catch (error) {
       next(error);
     }
   }
 
-  static async recordViolation(req: Request, res: Response, next: NextFunction) {
+  static async recordViolationWithImages(req: Request, res: Response, next: NextFunction) {
     try {
-      const { studentId, contentType, contentTypeId, violationType } = req.body;
-      const data = await metricsService.recordViolation(studentId, contentType as ContentTypeEnum, contentTypeId, violationType);
-      res.json({ status: "recorded", violationId: data.id });
+      const input: ViolationInput = req.body;
+      const data = await metricsService.recordViolationWithImages(input);
+      res.json({ status: 'recorded', violationId: data.id });
     } catch (error) {
       next(error);
     }
