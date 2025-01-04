@@ -23,9 +23,9 @@ const authSlice = createSlice({
       state.isAuthenticated = false
     },
     setUser: (state, action: PayloadAction<AuthResponse>) => {
-      const { role, email, full_name, access } = action.payload
+      const { role, email, full_name, access_token } = action.payload
       state.user = { role, email, name: full_name }
-      state.token = access
+      state.token = access_token
       state.isAuthenticated = true
     },
   },
@@ -39,7 +39,7 @@ const authSlice = createSlice({
             email: payload.email,
             name: payload.full_name,
           }
-          state.token = payload.access
+          state.token = payload.access_token
           state.isAuthenticated = true
         }
       )
@@ -51,7 +51,7 @@ const authSlice = createSlice({
             email: payload.email,
             name: payload.full_name,
           }
-          state.token = payload.access
+          state.token = payload.access_token
           state.isAuthenticated = true
         }
       )

@@ -1,34 +1,34 @@
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 const CameraAndMicCheck = () => {
-    const [cameraAvailable, setCameraAvailable] = useState(false);
-    const [micAvailable, setMicAvailable] = useState(false);
+  const [cameraAvailable, setCameraAvailable] = useState(false)
+  const [micAvailable, setMicAvailable] = useState(false)
 
-    useEffect(() => {
-        navigator.mediaDevices.enumerateDevices().then(devices => {
-            const videoInput = devices.some(device => device.kind === 'videoinput');
-            const audioInput = devices.some(device => device.kind === 'audioinput');
+  useEffect(() => {
+    navigator.mediaDevices.enumerateDevices().then((devices) => {
+      const videoInput = devices.some((device) => device.kind === 'videoinput')
+      const audioInput = devices.some((device) => device.kind === 'audioinput')
 
-            setCameraAvailable(videoInput);
-            setMicAvailable(audioInput);
+      setCameraAvailable(videoInput)
+      setMicAvailable(audioInput)
 
-            if (!videoInput) {
-                toast('Camera not found');
-            }
-            if (!audioInput) {
-                toast('Microphone not found');
-            }
-        });
-    }, []);
+      if (!videoInput) {
+        toast('Camera not found')
+      }
+      if (!audioInput) {
+        toast('Microphone not found')
+      }
+    })
+  }, [])
 
-    return (
-        <div>
-            <h1>Camera and Microphone Check</h1>
-            <p>Camera: {cameraAvailable ? 'Available' : 'Not Available'}</p>
-            <p>Microphone: {micAvailable ? 'Available' : 'Not Available'}</p>
-        </div>
-    );
-};
+  return (
+    <div>
+      <h1>Camera and Microphone Check</h1>
+      <p>Camera: {cameraAvailable ? 'Available' : 'Not Available'}</p>
+      <p>Microphone: {micAvailable ? 'Available' : 'Not Available'}</p>
+    </div>
+  )
+}
 
-export default CameraAndMicCheck;
+export default CameraAndMicCheck

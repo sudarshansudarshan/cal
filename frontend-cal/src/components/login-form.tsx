@@ -17,16 +17,18 @@ export function LoginForm({
   toggleCover,
   ...props
 }: LoginFormProps) {
-  const [username, setUsername] = useState<string>('')
+  const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [login, { isLoading, error }] = useLoginMutation()
+  const client_id = '2fJ3a4rRLF2acwl27nnBvTHokYCDHdv7Cw7EgjJt'
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const response = await login({ username, password }).unwrap()
+      const response = await login({ email, password, client_id }).unwrap()
+      console.log(email, password, client_id)
       dispatch(setUser(response))
       navigate('/')
     } catch (err) {
@@ -48,13 +50,13 @@ export function LoginForm({
       </div>
       <div className='grid gap-6'>
         <div className='grid gap-2'>
-          <Label htmlFor='username'>Username</Label>
+          <Label htmlFor='email'>Email</Label>
           <Input
-            id='username'
-            type='text'
-            placeholder='Username'
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            id='email'
+            type='email'
+            placeholder='example@example.com'
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className='grid gap-2'>

@@ -18,8 +18,8 @@ export function SignUpForm({
   const [password, setPassword] = useState<string>('')
   const [name, setName] = useState<string>('')
   const [lastName, setLastName] = useState<string>('')
-  const [username, setUsername] = useState<string>('')
   const [signup, { isLoading, error }] = useSignupMutation()
+  const role = 'student'
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,7 +29,7 @@ export function SignUpForm({
         password,
         first_name: name,
         last_name: lastName,
-        username: username,
+        role: role,
       }).unwrap()
       // handle successful signup
       toggleCover()
@@ -70,16 +70,6 @@ export function SignUpForm({
             placeholder='Last Name'
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-          />
-        </div>
-        <div className='grid gap-2'>
-          <Label htmlFor='username'>Username</Label>
-          <Input
-            id='username'
-            type='text'
-            placeholder='Username'
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
           />
         </div>
         <div className='grid gap-2'>

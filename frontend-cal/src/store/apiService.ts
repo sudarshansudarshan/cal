@@ -3,8 +3,8 @@ import API_URL from '../../constant'
 import Cookies from 'js-cookie'
 
 export interface AuthResponse {
-  refresh: string
-  access: string
+  refresh_token: string
+  access_token: string
   role: string
   email: string
   full_name: string
@@ -24,17 +24,17 @@ export const apiService = createApi({
   endpoints: (builder) => ({
     login: builder.mutation<
       AuthResponse,
-      { username: string; password: string }
+      { username: string; password: string; client_id: string }
     >({
       query: (credentials) => ({
-        url: '/',
+        url: '/auth/login/',
         method: 'POST',
         body: credentials,
       }),
       onQueryStarted: async (arg, { queryFulfilled }) => {
         try {
           const { data } = await queryFulfilled
-          Cookies.set('access_token', data.access) // Store the correct access token
+          Cookies.set('access_token', data.access_token) // Store the correct access token
         } catch (error) {
           console.error('Failed to store access token in cookies', error)
         }
@@ -46,15 +46,18 @@ export const apiService = createApi({
       {
         first_name: string
         last_name: string
-        username: string
         email: string
         password: string
+        role: string
       }
     >({
       query: (userData) => ({
-        url: '/signup',
+        url: '/auth/signup/',
         method: 'POST',
         body: userData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
       }),
     }),
 
@@ -64,6 +67,7 @@ export const apiService = createApi({
         method: 'POST',
         headers: {
           Authorization: `Bearer ${Cookies.get('access_token')}`,
+          'Content-Type': 'application/json',
         },
       }),
       onQueryStarted: async (arg, { queryFulfilled }) => {
