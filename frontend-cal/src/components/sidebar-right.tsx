@@ -56,10 +56,10 @@ export function SidebarRight({
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-          <BlurDetectction />
+          {/* <BlurDetectction />
           <ParentComponent />
 
-          <CameraAndMicCheck />
+          <CameraAndMicCheck /> */}
           <SidebarMenuItem>
             <SidebarMenuButton>
               <Plus />

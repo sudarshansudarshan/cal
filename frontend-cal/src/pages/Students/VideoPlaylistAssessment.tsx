@@ -8,6 +8,8 @@ import { toast } from 'sonner'
 import { useSidebar } from '@/components/ui/sidebar'
 import { Fullscreen, Pause, Play } from 'lucide-react'
 import { Slider } from '@/components/ui/slider'
+import RightClickDisabler from '@/components/proctoring-components/RightClickDisable'
+import KeyboardLock from '@/components/proctoring-components/KeyboardLock'
 
 const VideoPlaylistAssessment = () => {
   const { setOpen } = useSidebar() // Access setOpen to control the sidebar state
@@ -65,6 +67,7 @@ const VideoPlaylistAssessment = () => {
   const [currentFrame, setCurrentFrame] = useState(0)
   const [currentPart, setCurrentPart] = useState(0)
   const playerRefs = useRef(new Array(data[0].sections.length))
+  const currentTimeIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const [totalDuration, setTotalDuration] = useState<number>(0)
   const [currentTime, setCurrentTime] = useState<number>(0)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0)
@@ -73,6 +76,13 @@ const VideoPlaylistAssessment = () => {
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1)
   const [volume, setVolume] = useState<number>(50) // Define volume state here
 
+  const clearTimeInterval = () => {
+    if (currentTimeIntervalRef.current) {
+      clearInterval(currentTimeIntervalRef.current);
+      currentTimeIntervalRef.current = null;
+    }
+  };
+
   const handleFrameScrollDown = () => {
     setCurrentFrame((prevFrame) => {
       const newFrame = prevFrame < frames.length / 2 - 1 ? prevFrame + 1 : 0
@@ -80,6 +90,7 @@ const VideoPlaylistAssessment = () => {
       return newFrame
     })
     setCurrentPart(0) // Reset currentPart to 0
+    setIsPlaying(false) // Pause the video when switching frames
   }
 
   const resetVideoState = (newFrame: number) => {
@@ -96,31 +107,42 @@ const VideoPlaylistAssessment = () => {
     data[0].sections.forEach((section, index) => {
       playerRefs.current[index] = new window.YT.Player(`player-${index}`, {
         events: {
-          onReady: onPlayerReady,
-          onStateChange: onPlayerStateChange,
+          onReady: (event) => onPlayerReady(event, index),
+          onStateChange: handlePlayerStateChange,
         },
-      })
-    })
-  
+      });
+    });
+
     return () => {
-      // Cleanup players when the component is unmounted or frame changes
-      playerRefs.current.forEach((player) => {
-        if (player && player.destroy) {
-          player.destroy()
-        }
-      })
-    }
-  }, [data])
+      playerRefs.current.forEach(player => player?.destroy());
+    };
+  }, [data]);
 
-  const onPlayerStateChange = (event) => {
-    const player = playerRefs.current[currentFrame]
-
-    if (event.data === window.YT.PlayerState.PLAYING && player) {
-      setInterval(() => {
-        setCurrentTime(player.getCurrentTime()) // Update the current time based on the active player
-      }, 1000)
+  const handlePlayerStateChange = (event) => {
+    const player = playerRefs.current[currentFrame];
+    if (event.data === window.YT.PlayerState.PLAYING) {
+      if (!currentTimeIntervalRef.current) {
+        currentTimeIntervalRef.current = setInterval(() => {
+          if (player && isPlaying) {
+            setCurrentTime(player.getCurrentTime());
+          }
+        }, 1000);
+      }
+    } else {
+      clearTimeInterval(); // Clear interval if the player is not playing
     }
-  }
+
+    if (event.data === window.YT.PlayerState.ENDED) {
+      handlePartScrollDown(); // Handle video change on end
+    }
+  };
+
+  useEffect(() => {
+    // Ensure to clean up interval on component unmount
+    return () => {
+      clearTimeInterval();
+    };
+  }, []);
 
   console.log('Current Time', currentTime)
 
@@ -130,16 +152,17 @@ const VideoPlaylistAssessment = () => {
   }
 
   const togglePlayPause = () => {
-    const player = playerRefs.current[currentFrame]
+    const player = playerRefs.current[currentFrame];
     if (player) {
       if (isPlaying) {
-        player.pauseVideo()
+        player.pauseVideo();
+        clearTimeInterval(); // Clear interval when pausing
       } else {
-        player.playVideo()
+        player.playVideo();
       }
-      setIsPlaying(!isPlaying)
+      setIsPlaying(!isPlaying);
     }
-  }
+  };
 
   const handleAnswerSelection = (answer) => {
     setSelectedAnswer(answer)
@@ -268,6 +291,8 @@ const VideoPlaylistAssessment = () => {
 
   return (
     <ResizablePanelGroup direction='vertical' className='bg-gray-200 p-2'>
+      <RightClickDisabler/>
+      <KeyboardLock/>
       <ResizablePanel defaultSize={95}>
         <div className='flex h-full flex-col'>
           <div className='relative size-full overflow-hidden'>
