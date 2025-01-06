@@ -128,7 +128,15 @@ export const apiService = createApi({
       }),
     }),
     fetchCoursesWithAuth: builder.query<
-      { courses: { id: number; title: string; description: string }[] },
+      {
+        courses: {
+          course_id: number
+          name: string
+          description: string
+          visibility: string
+          created_at: string
+        }[]
+      },
       void
     >({
       query: () => ({
@@ -136,7 +144,6 @@ export const apiService = createApi({
         method: 'GET',
         headers: {
           Authorization: `Bearer ${Cookies.get('access_token')}`,
-          'Content-Type': 'application/json',
         },
       }),
     }),
@@ -153,11 +160,24 @@ export const apiService = createApi({
         },
       }),
     }),
+    fetchAssessmentWithAuth: builder.query<
+      { assessment: { id: number; title: string; description: string } },
+      number
+    >({
+      query: (assessmentId) => ({
+        url: `/assessment/questions/${assessmentId}/`,
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${Cookies.get('access_token')}`,
+        },
+      }),
+    }),
   }),
 })
 
 export const {
   useLoginMutation,
+  useFetchAssessmentWithAuthQuery,
   useSignupMutation,
   useLogoutMutation,
   useFetchInstitutesWithAuthQuery,

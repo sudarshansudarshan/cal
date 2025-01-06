@@ -2,7 +2,13 @@ import { createSlice } from '@reduxjs/toolkit'
 import { apiService } from '../apiService'
 
 interface CourseState {
-  courses: { id: number; title: string; description: string }[]
+  courses: {
+    course_id: number
+    name: string
+    description: string
+    visibility: string
+    created_at: string
+  }[]
   loading: boolean
   error: string | null
 }

@@ -10,8 +10,10 @@ import { Fullscreen, Pause, Play } from 'lucide-react'
 import { Slider } from '@/components/ui/slider'
 import RightClickDisabler from '@/components/proctoring-components/RightClickDisable'
 import KeyboardLock from '@/components/proctoring-components/KeyboardLock'
+import { useFetchAssessmentWithAuthQuery } from '@/store/apiService'
+import { setAssessment, clearAssessment } from '@/store/slices/fetchAssessment'
 
-const VideoPlaylistAssessment = () => {
+const VideoMain = () => {
   const { setOpen } = useSidebar() // Access setOpen to control the sidebar state
   const hasSetOpen = useRef(false) // Ref to track if setOpen has been called
 
@@ -28,146 +30,7 @@ const VideoPlaylistAssessment = () => {
         {
           section_item_id: 'section_item_id1',
           source: 'WW7YO0b4QHs',
-          questions: [
-            {
-              question_id: 1,
-              question: 'What is the capital of France?',
-              options: ['Paris', 'London', 'Berlin'],
-              correctAnswer: 'Paris',
-            },
-            {
-              question_id: 2,
-              question: 'What is 2 + 2?',
-              options: ['3', '4', '5'],
-              correctAnswer: '4',
-            },
-          ],
-        },
-        {
-          section_item_id: 'section_item_id2',
-          source: 'oi64QRZmhgs',
-          questions: [
-            {
-              question_id: 3,
-              question: 'What is the capital of India?',
-              options: ['New Delhi', 'Mumbai', 'Kolkata'],
-              correctAnswer: 'New Delhi',
-            },
-            {
-              question_id: 4,
-              question: 'What is 3 + 3?',
-              options: ['5', '6', '7'],
-              correctAnswer: '6',
-            },
-          ],
-        },
-        {
-          section_item_id: 'section_item_id3',
-          source: 'v65Pbjd_PPY',
-          questions: [
-            {
-              question_id: 5,
-              question: 'What is the capital of Japan?',
-              options: ['Tokyo', 'Osaka', 'Kyoto'],
-              correctAnswer: 'Tokyo',
-            },
-            {
-              question_id: 6,
-              question: 'What is 5 + 5?',
-              options: ['9', '10', '11'],
-              correctAnswer: '10',
-            },
-          ],
-        },
-        {
-          section_item_id: 'section_item_id4',
-          source: 'vfFyAFGKN0M',
-          questions: [
-            {
-              question_id: 7,
-              question: 'What is the capital of Germany?',
-              options: ['Berlin', 'Munich', 'Frankfurt'],
-              correctAnswer: 'Berlin',
-            },
-            {
-              question_id: 8,
-              question: 'What is 7 + 7?',
-              options: ['13', '14', '15'],
-              correctAnswer: '14',
-            },
-          ],
-        },
-        {
-          section_item_id: 'section_item_id5',
-          source: 'LA3R7Tk-8LY',
-          questions: [
-            {
-              question_id: 9,
-              question: 'What is the capital of Italy?',
-              options: ['Rome', 'Milan', 'Naples'],
-              correctAnswer: 'Rome',
-            },
-            {
-              question_id: 10,
-              question: 'What is 8 + 8?',
-              options: ['15', '16', '17'],
-              correctAnswer: '16',
-            },
-          ],
-        },
-        {
-          section_item_id: 'section_item_id6',
-          source: '2LQ2QS9r-Ho',
-          questions: [
-            {
-              question_id: 11,
-              question: 'What is the capital of Spain?',
-              options: ['Madrid', 'Barcelona', 'Valencia'],
-              correctAnswer: 'Madrid',
-            },
-            {
-              question_id: 12,
-              question: 'What is 9 + 9?',
-              options: ['17', '18', '19'],
-              correctAnswer: '18',
-            },
-          ],
-        },
-        {
-          section_item_id: 'section_item_id7',
-          source: '9HDdnbacDO4',
-          questions: [
-            {
-              question_id: 13,
-              question: 'What is the capital of Canada?',
-              options: ['Ottawa', 'Toronto', 'Vancouver'],
-              correctAnswer: 'Ottawa',
-            },
-            {
-              question_id: 14,
-              question: 'What is 10 + 10?',
-              options: ['19', '20', '21'],
-              correctAnswer: '20',
-            },
-          ],
-        },
-        {
-          section_item_id: 'section_item_id8',
-          source: '2XXXSL7hjnI',
-          questions: [
-            {
-              question_id: 15,
-              question: 'What is the capital of Australia?',
-              options: ['Canberra', 'Sydney', 'Melbourne'],
-              correctAnswer: 'Canberra',
-            },
-            {
-              question_id: 16,
-              question: 'What is 11 + 11?',
-              options: ['21', '22', '23'],
-              correctAnswer: '22',
-            },
-          ],
+          assessment_id: 1,
         },
       ],
     },
@@ -183,6 +46,16 @@ const VideoPlaylistAssessment = () => {
   const [selectedAnswer, setSelectedAnswer] = useState<string>('')
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1)
   const [volume, setVolume] = useState<number>(50) // Define volume state here
+
+  const assessments = data[0].sections.reduce((acc, section) => {
+    const { data: assessmentData, isFetching } =
+      useFetchAssessmentWithAuthQuery(section.assessment_id)
+    if (assessmentData && !isFetching) {
+      acc[section.section_item_id] = assessmentData.assessment
+      dispatch(setAssessment(assessmentData.assessment))
+    }
+    return acc
+  }, {})
 
   const clearTimeInterval = () => {
     if (currentTimeIntervalRef.current) {
@@ -500,4 +373,5 @@ const VideoPlaylistAssessment = () => {
   )
 }
 
-export default VideoPlaylistAssessment
+export default VideoMain
+

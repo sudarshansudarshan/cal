@@ -20,7 +20,7 @@ export function LoginForm({
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [login, { isLoading, error }] = useLoginMutation()
-  const client_id = '2fJ3a4rRLF2acwl27nnBvTHokYCDHdv7Cw7EgjJt'
+  const client_id = 'DxA1zppqvkaXEih17wi0huxW1Vj8aScd4jNnqryp'
   const dispatch = useDispatch()
   const navigate = useNavigate()
 

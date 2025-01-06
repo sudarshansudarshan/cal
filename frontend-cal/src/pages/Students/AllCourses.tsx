@@ -39,25 +39,25 @@ const AllCourses = () => {
 
   // Map API response to match the expected structure
   interface Course {
-    id: string
+    course_id: string
     name: string
     image?: string
     enrolled: boolean
   }
 
   interface MappedCourse {
-    id: string
+    course_id: string
     title: string
     image: string
     status: string
   }
 
   const courseData: MappedCourse[] =
-    data?.courses.map((course: Course) => ({
-      id: course.id,
+    data?.results.map((course: Course) => ({
+      id: course.course_id,
       title: course.name,
       image: course.image || defaultImage,
-      status: course.enrolled ? 'On going' : 'New',
+      status: course.enrolled ? 'On going' : 'Completed',
     })) || []
 
   // Filtered courses based on selected filter
@@ -84,7 +84,6 @@ const AllCourses = () => {
               <SelectGroup>
                 <SelectLabel>Filter</SelectLabel>
                 <SelectItem value='All'>All</SelectItem>
-                <SelectItem value='New'>New</SelectItem>
                 <SelectItem value='On going'>On going</SelectItem>
                 <SelectItem value='Completed'>Completed</SelectItem>
               </SelectGroup>
@@ -103,11 +102,9 @@ const AllCourses = () => {
                 {/* Status Badge */}
                 <div
                   className={`flex w-20 justify-center rounded-sm p-1 text-xs text-white ${
-                    course.status === 'New'
-                      ? 'bg-green-500'
-                      : course.status === 'On going'
-                        ? 'bg-yellow-500'
-                        : 'bg-gray-500'
+                    course.status === 'On going'
+                      ? 'bg-yellow-500'
+                      : 'bg-gray-500'
                   }`}
                 >
                   {course.status}
