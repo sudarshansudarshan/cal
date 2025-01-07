@@ -1,8 +1,9 @@
-import * as React from 'react'
-import { Plus } from 'lucide-react'
+import * as React from "react"
+import { Plus } from "lucide-react"
 
-import { Calendars } from '@/components/calendars'
-import { NavUser } from '@/components/nav-user'
+import { Calendars } from "@/components/calendars"
+import { DatePicker } from "@/components/date-picker"
+import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
   SidebarContent,
@@ -11,29 +12,34 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar'
-import CameraAndMicCheck from './proctoring-components/CameraAndMicCheck'
-import ParentComponent from './proctoring-components/ParentComponent'
-import BlurDetectction from './proctoring-components/BlurDetection'
+  SidebarRail,
+  SidebarSeparator,
+} from "@/components/ui/sidebar"
+import CameraAndMicCheck from "./proctoring-components/CameraAndMicCheck"
+import { ModeToggle } from "./mode-toggle"
+import ParentComponent from "./proctoring-components/ParentComponent"
+import BlurDetectction from "./proctoring-components/BlurDetection"
+import SnapshotRecorder from "./proctoring-components/SnapshotRecorder"
+
 
 // This is sample data.
 const data = {
   user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
+    name: "shadcn",
+    email: "m@example.com",
+    avatar: "/avatars/shadcn.jpg",
   },
   calendars: [
     {
-      name: 'My Schedules',
+      name: "My Schedules",
       items: [],
     },
     {
-      name: 'Announcements',
+      name: "Announcements",
       items: [],
     },
     {
-      name: 'Updates',
+      name: "Updates",
       items: [],
     },
   ],
@@ -44,22 +50,20 @@ export function SidebarRight({
 }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar
-      collapsible='none'
-      className='sticky top-0 hidden h-svh border-l lg:flex'
+      collapsible="none"
+      className="sticky hidden lg:flex top-0 h-svh border-l"
       {...props}
     >
-      <SidebarHeader className='h-16 border-b border-sidebar-border'>
+      <SidebarHeader className="h-16 border-b border-sidebar-border">
         <NavUser user={data.user} />
       </SidebarHeader>
-      <SidebarContent className='mt-2'>
+      <SidebarContent>
         <Calendars calendars={data.calendars} />
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-          <BlurDetectction />
-          <ParentComponent />
-
-          {/* <CameraAndMicCheck /> */}
+        {/* <ParentComponent /> */}
+        <CameraAndMicCheck/>
           <SidebarMenuItem>
             <SidebarMenuButton>
               <Plus />

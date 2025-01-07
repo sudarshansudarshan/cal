@@ -147,12 +147,9 @@ export const apiService = createApi({
         },
       }),
     }),
-    fetchModulesWithAuth: builder.query<
-      { modules: { id: number; title: string; content: string }[] },
-      number
-    >({
+    fetchModulesWithAuth: builder.query<{ modules: {}[] }, number>({
       query: (courseId) => ({
-        url: `/course/courses/${courseId}/`,
+        url: `/course/modules/?course_id=${courseId}`,
         method: 'GET',
         headers: {
           Authorization: `Bearer ${Cookies.get('access_token')}`,

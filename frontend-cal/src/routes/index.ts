@@ -18,6 +18,7 @@ import VideoAssessment from '@/pages/Students/VideoAssessment'
 import LatestTest from '@/pages/Students/LatestTest'
 import VideoPlaylistAssessment from '@/pages/Students/VideoPlaylistAssessment'
 import VideoMain from '@/pages/Students/VideoMain'
+import Section from '@/pages/Students/Section'
 
 const router = createBrowserRouter([
   {
@@ -72,6 +73,10 @@ const router = createBrowserRouter([
             path: 'videoMain',
             element: React.createElement(VideoMain),
           },
+          {
+            path: 'section',
+            element: React.createElement(Section),
+          }
         ],
       },
       {

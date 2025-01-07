@@ -60,8 +60,8 @@ const SingleCourse = () => {
   }
 
   // Find the specific course details
-  const course = courseData?.courses?.find(
-    (c) => c.id === (courseId ? parseInt(courseId, 10) : 0)
+  const course = courseData?.results?.find(
+    (c) => c.course_id === (courseId ? parseInt(courseId, 10) : 0)
   )
 
   if (!course) {
@@ -72,7 +72,7 @@ const SingleCourse = () => {
     'https://i.pinimg.com/originals/24/12/bc/2412bc5c012e7360f602c13a92901055.jpg'
 
   // Modules data
-  const modules = moduleData?.modules || []
+  const modules = moduleData?.results || []
   console.log('modules', modules)
 
   return (
@@ -102,16 +102,22 @@ const SingleCourse = () => {
               <TableRow>
                 <TableHead className='w-[100px]'>ID</TableHead>
                 <TableHead>Module Title</TableHead>
-                <TableHead className='text-right'>Sequence</TableHead>
+                <TableHead className='text-right'>Description</TableHead>
+                <TableHead className='text-right'>Created At</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {modules.map((module: Module) => (
                 <TableRow key={module.id}>
-                  <TableCell className='font-medium'>{module.id}</TableCell>
+                  <TableCell className='font-medium'>
+                    {module.module_id}
+                  </TableCell>
                   <TableCell>{module.title}</TableCell>
                   <TableCell className='text-right'>
-                    {module.sequence}
+                    {module.description}
+                  </TableCell>
+                  <TableCell className='text-right'>
+                    {new Date(module.created_at).toLocaleDateString()}
                   </TableCell>
                 </TableRow>
               ))}
