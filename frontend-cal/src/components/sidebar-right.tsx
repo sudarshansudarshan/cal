@@ -19,6 +19,9 @@ import CameraAndMicCheck from "./proctoring-components/CameraAndMicCheck"
 import { ModeToggle } from "./mode-toggle"
 import ParentComponent from "./proctoring-components/ParentComponent"
 import BlurDetectction from "./proctoring-components/BlurDetection"
+import FaceRecognition from "./proctoring-components/FaceRecognition"
+
+
 
 
 // This is sample data.
@@ -64,8 +67,8 @@ export function SidebarRight({
       <SidebarFooter>
         <SidebarMenu>
         <BlurDetectction />
+        <FaceRecognition/>
         <ParentComponent />
-        
         <CameraAndMicCheck/>
           <SidebarMenuItem>
             <SidebarMenuButton>

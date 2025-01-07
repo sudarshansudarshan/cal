@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import FaceRecognition from "./FaceRecognition";
 
 const BlurDetection = () => {
 
