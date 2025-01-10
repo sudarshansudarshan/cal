@@ -16,17 +16,27 @@ export class AssessmentService {
    * @param answers - The submitted answers for the assessment.
    * @returns The attempt ID and the grading status (PASSED/FAILED).
    */
+
+  public async startAssessment(studentId: string, courseInstanceId: string, assessmentId:string):Promise<{
+    attemptId: number
+  }> {
+
+    await assessmentRepo.createAssessmentProgress(studentId, courseInstanceId, assessmentId);
+    const { attemptId } = await assessmentRepo.createAttempt(studentId, courseInstanceId, assessmentId);
+    return {attemptId}
+  }
+
   public async submitAssessment(
     studentId: string,
     courseInstanceId: string,
     assessmentId: string,
+    attemptId: number,
     answers: SubmissionAnswers
   ): Promise<{ attemptId: number; gradingStatus: AssessmentAttemptStatusEnum; assessmentGradingStatus: AssessmentStatusEnum;  correctAnswers: number; totalQuestions: number }> {
     // Step 1: Create a new assessment attempt
-    const { attemptId } = await assessmentRepo.createAttempt(studentId, courseInstanceId, assessmentId);
-  
-    // Step 2: Ensure assessment progress exists
-    await assessmentRepo.createAssessmentProgress(studentId, assessmentId, courseInstanceId);
+
+    // // Step 2: Ensure assessment progress exists
+    // await assessmentRepo.createAssessmentProgress(studentId, assessmentId, courseInstanceId);
   
     // Step 3: Store the submitted answers in the database
     await answersRepo.storeAnswers(attemptId, studentId, courseInstanceId, answers);
