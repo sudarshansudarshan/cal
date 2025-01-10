@@ -457,7 +457,6 @@ export default function VideoAssessment() {
                 </div>
               ))}
             </div>
-            ``
           </div>
         </div>
       </ResizablePanel>
