@@ -1,3 +1,5 @@
+// src/services/assessment.service.ts
+
 import { AssessmentRepository } from '../repositories/assessment.repository';
 import { AnswersRepository } from '../repositories/answers.repository';
 import { SubmissionAnswers, GradingResult, QuestionSolution } from '../types/assessment.types';
@@ -6,6 +8,28 @@ import { retry } from '../utils/retry';
 
 const assessmentRepo = new AssessmentRepository();
 const answersRepo = new AnswersRepository();
+
+interface DjangoSolutionResponse {
+  question_type: 'NAT' | 'MCQ' | 'MSQ' | 'DESC';
+  solution: {
+    // NAT solution fields
+    value?: number;
+    tolerance_max?: number;
+    tolerance_min?: number;
+    decimal_precision?: number;
+    // MCQ solution fields
+    choice?: string;
+    // MSQ solution fields
+    choices?: string[];
+    // Descriptive solution fields
+    model_solution?: string;
+    max_word_limit?: number;
+    min_word_limit?: number;
+    // Common field
+    solution_explanation: string;
+  };
+}
+
 
 export class AssessmentService {
   /**
@@ -112,39 +136,72 @@ export class AssessmentService {
    * @param answers - The submitted answers for the assessment.
    * @returns An array of correct solutions for the questions.
    */
-  async fetchSolutionsFromDjango(answers: SubmissionAnswers): Promise<QuestionSolution[]> {
+  private async fetchSolutionsFromDjango(answers: SubmissionAnswers): Promise<QuestionSolution[]> {
     const questionIds = [
       ...answers.natAnswers.map(a => a.questionId),
       ...answers.mcqAnswers.map(a => a.questionId),
       ...answers.msqAnswers.map(a => a.questionId),
+      ...answers.descriptiveAnswers.map(a => a.questionId)
     ];
   
-    return questionIds.map(id => {
-      if (id.startsWith('NAT')) {
-        return {
-          questionId: id,
-          type: 'NAT',
-          value: '42', // Predicted correct value for NAT
-          toleranceMin: 0,
-          toleranceMax: 0,
-          decimalPrecision: 0,
-        };
-      } else if (id.startsWith('MCQ')) {
-        return {
-          questionId: id,
-          type: 'MCQ',
-          correctChoiceId: 'C1', // Predicted correct choice for MCQ
-        };
-      } else if (id.startsWith('MSQ')) {
-        return {
-          questionId: id,
-          type: 'MSQ',
-          correctChoiceIds: ['C1', 'C2'], // Predicted correct choices for MSQ
-        };
-      }
+    try {
+      const solutions = await Promise.all(
+        questionIds.map(async (questionId) => {
+          const response = await fetch(`http://localhost:8000/solutions/${questionId}`);
+          
+          if (!response.ok) {
+            throw new Error(`Failed to fetch solution for question ${questionId}`);
+          }
   
-      throw new Error(`Unsupported question type for questionId: ${id}`);
-    });
+          const data: DjangoSolutionResponse = await response.json();
+          
+          // Map Django response to QuestionSolution type
+          switch (data.question_type) {
+            case 'NAT':
+              return {
+                questionId,
+                type: 'NAT',
+                value: data.solution.value?.toString() ?? '0',
+                toleranceMin: data.solution.tolerance_min ?? 0,
+                toleranceMax: data.solution.tolerance_max ?? 0,
+                decimalPrecision: data.solution.decimal_precision ?? 0,
+              };
+  
+            case 'MCQ':
+              return {
+                questionId,
+                type: 'MCQ',
+                correctChoiceId: data.solution.choice ?? '',
+              };
+  
+            case 'MSQ':
+              return {
+                questionId,
+                type: 'MSQ',
+                correctChoiceIds: data.solution.choices ?? [],
+              };
+  
+            case 'DESC':
+              return {
+                questionId,
+                type: 'DESCRIPTIVE',
+                minWordLimit: data.solution.min_word_limit ?? 0,
+                maxWordLimit: data.solution.max_word_limit ?? Number.MAX_SAFE_INTEGER,
+                modelSolution: data.solution.model_solution ?? '',
+              };
+  
+            default:
+              throw new Error(`Unsupported question type: ${data.question_type}`);
+          }
+        })
+      );
+  
+      return solutions;
+  
+    } catch (error) {
+      console.error('Error fetching solutions from Django:', error);
+      throw error;
+    }
   }
   
 
