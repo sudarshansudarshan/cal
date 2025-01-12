@@ -16,10 +16,10 @@ export class AssessmentController {
                 correctAnswers,
                 totalQuestions
             } = await assessmentService.submitAssessment(
-                attemptId,
                 studentId,
                 courseInstanceId,
                 assessmentId,
+                attemptId,
                 answers
             );
 
@@ -38,7 +38,7 @@ export class AssessmentController {
 
     static async startAssessment(req: Request, res: Response, next: NextFunction) {
         try {
-            const {studentId, assessmentId, courseInstanceId, answers} = req.body;
+            const {studentId, assessmentId, courseInstanceId} = req.body;
             const {attemptId} = await assessmentService.startAssessment(studentId, courseInstanceId, assessmentId);
             res.status(200).json({
                 status: 'started',

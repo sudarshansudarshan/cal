@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:9000/v1",
+      "url": "http://localhost:3000/v1",
       "description": "Local development server"
     }
   ],
@@ -26,6 +26,49 @@
     }
   ],
   "paths": {
+
+        "/assessment/start": {
+      "post": {
+        "summary": "Start assessment for grading",
+        "tags": [
+          "Assessment"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "assessmentId",
+                  "studentId",
+                  "courseInstanceId"
+                ],
+                "properties": {
+                  "assessmentId": {
+                    "type": "string",
+                    "description": "The ID of the assessment"
+                  },
+                  "studentId": {
+                    "type": "string",
+                    "description": "The ID of the student"
+                  },
+                  "courseInstanceId": {
+                    "type": "string",
+                    "description": "The course instance identifier"
+                  }
+                },
+                "example": {
+                  "studentId": "stu1",
+                  "courseInstanceId": "course",
+                  "assessmentId": "A-1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/assessment/submit": {
       "post": {
         "summary": "Submit assessment for grading",
@@ -40,6 +83,7 @@
                 "type": "object",
                 "required": [
                   "assessmentId",
+                  "attemptId",
                   "studentId",
                   "courseInstanceId",
                   "answers"
@@ -48,6 +92,10 @@
                   "assessmentId": {
                     "type": "string",
                     "description": "The ID of the assessment"
+                  },
+                   "attemptId": {
+                    "type": "string",
+                    "description": "The ID of the attempt"
                   },
                   "studentId": {
                     "type": "string",
@@ -101,6 +149,7 @@
                   "studentId": "stu1",
                   "courseInstanceId": "course",
                   "assessmentId": "A-1",
+                  "attemptId": "1",
                   "answers": {
                     "natAnswers": [
                       {

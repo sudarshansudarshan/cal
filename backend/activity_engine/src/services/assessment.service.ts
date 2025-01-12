@@ -2,9 +2,10 @@
 
 import { AssessmentRepository } from '../repositories/assessment.repository';
 import { AnswersRepository } from '../repositories/answers.repository';
-import { SubmissionAnswers, GradingResult, QuestionSolution } from '../types/assessment.types';
+import { SubmissionAnswers, GradingResult, QuestionSolution, NATSolution, MCQSolution, MSQSolution, DescriptiveSolution } from '../types/assessment.types';
 import { AssessmentAttemptStatusEnum, AssessmentStatusEnum } from '@prisma/client';
 import { retry } from '../utils/retry';
+import { init } from 'express-oas-generator';
 
 const assessmentRepo = new AssessmentRepository();
 const answersRepo = new AnswersRepository();
@@ -147,13 +148,18 @@ export class AssessmentService {
     try {
       const solutions = await Promise.all(
         questionIds.map(async (questionId) => {
-          const response = await fetch(`http://localhost:8000/solutions/${questionId}`);
+          const response = await fetch(`http://localhost:8000/api/v1/assessment/solutions/${questionId}`,{
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer _lBPeGJ7f4wyNkblusdY4MUR3ftMN8Bn2NrzmuAd-Qw'
+          }});
           
           if (!response.ok) {
             throw new Error(`Failed to fetch solution for question ${questionId}`);
           }
   
-          const data: DjangoSolutionResponse = await response.json();
+          const data = await response.json() as DjangoSolutionResponse;
           
           // Map Django response to QuestionSolution type
           switch (data.question_type) {
@@ -165,21 +171,21 @@ export class AssessmentService {
                 toleranceMin: data.solution.tolerance_min ?? 0,
                 toleranceMax: data.solution.tolerance_max ?? 0,
                 decimalPrecision: data.solution.decimal_precision ?? 0,
-              };
+              } as NATSolution;
   
             case 'MCQ':
               return {
                 questionId,
                 type: 'MCQ',
                 correctChoiceId: data.solution.choice ?? '',
-              };
+              } as MCQSolution;
   
             case 'MSQ':
               return {
                 questionId,
                 type: 'MSQ',
                 correctChoiceIds: data.solution.choices ?? [],
-              };
+              } as MSQSolution;
   
             case 'DESC':
               return {
@@ -188,7 +194,7 @@ export class AssessmentService {
                 minWordLimit: data.solution.min_word_limit ?? 0,
                 maxWordLimit: data.solution.max_word_limit ?? Number.MAX_SAFE_INTEGER,
                 modelSolution: data.solution.model_solution ?? '',
-              };
+              } as DescriptiveSolution;
   
             default:
               throw new Error(`Unsupported question type: ${data.question_type}`);
@@ -197,7 +203,6 @@ export class AssessmentService {
       );
   
       return solutions;
-  
     } catch (error) {
       console.error('Error fetching solutions from Django:', error);
       throw error;
