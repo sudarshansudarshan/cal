@@ -1,26 +1,27 @@
 {
   "name": "content_engine",
   "version": "0.0.1",
-  "main": "index.ts",
-  "scripts": {
-    "dev": "nodemon src/index.ts",
-    "migrate": "prisma migrate dev"
-  },
-  "author": "",
-  "license": "MIT",
-  "description": "",
+  "main": "src/index.ts",
+  "seed:prod": "NODE_ENV=production node ./build/src/seeds/init.js",
   "dependencies": {
-    "@prisma/client": "^6.0.1",
+    "@prisma/client": "^6.2.1",
     "@scalar/express-api-reference": "^0.4.171",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "express-oas-generator": "^1.0.46"
-  },
-  "devDependencies": {
+    "express-oas-generator": "^1.0.46",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
     "nodemon": "^3.1.7",
+    "prisma": "^6.2.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
-  }
+  },
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "migrate": "prisma migrate dev",
+    "start": "ts-node src/index.ts"
+  },
+  "author": "",
+  "license": "MIT",
+  "description": ""
 }

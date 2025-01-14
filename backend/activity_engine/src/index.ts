@@ -5,7 +5,7 @@
  */
 
 import express from 'express';
-import routes from './api/v1/routes/index';
+import routes from './api/v1/routes';
 import { apiReference } from '@scalar/express-api-reference';
 import { errorHandler } from './api/v1/middlewares/errorHandler';
 import path from 'path';

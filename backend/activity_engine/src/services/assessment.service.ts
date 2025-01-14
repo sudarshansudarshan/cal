@@ -148,12 +148,14 @@ export class AssessmentService {
     try {
       const solutions = await Promise.all(
         questionIds.map(async (questionId) => {
-          const response = await fetch(`http://localhost:8000/api/v1/assessment/solutions/${questionId}`,{
+          const response = await fetch(`http://192.168.119.239:8000/api/v1/assessment/solutions/${questionId}`,{
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer _lBPeGJ7f4wyNkblusdY4MUR3ftMN8Bn2NrzmuAd-Qw'
+              'Authorization': 'Bearer 6SVmS41laCUD8JzxVibqyXiyLyKPyYYzX-U3xwmBqWI'
           }});
+
+          console.log("This is the BODY",response.body);
           
           if (!response.ok) {
             throw new Error(`Failed to fetch solution for question ${questionId}`);
