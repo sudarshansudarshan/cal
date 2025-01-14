@@ -19,6 +19,7 @@ import LatestTest from '@/pages/Students/LatestTest'
 import VideoPlaylistAssessment from '@/pages/Students/VideoPlaylistAssessment'
 import VideoMain from '@/pages/Students/VideoMain'
 import Section from '@/pages/Students/Section'
+import AllSections from '@/pages/Students/AllSections'
 
 const router = createBrowserRouter([
   {
@@ -74,9 +75,13 @@ const router = createBrowserRouter([
             element: React.createElement(VideoMain),
           },
           {
-            path: 'section',
+            path: 'section/:sectionId',
             element: React.createElement(Section),
-          }
+          },
+          {
+            path: '/singleCourse/:courseId/:moduleId',
+            element: React.createElement(AllSections),
+          },
         ],
       },
       {

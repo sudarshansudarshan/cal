@@ -1,6 +1,15 @@
 export const content = [
   {
     id: 1,
+    title: 'New Article',
+    content:
+      'This is a new article added to the beginning of the list. It provides an overview of the latest developments in technology and science. The article discusses recent advancements, innovative projects, and future trends that are shaping the world. It also highlights the impact of these developments on society and the economy. This article is a valuable resource for anyone interested in staying updated with the latest news and insights in the tech and science fields.',
+    type: 'Article',
+    status: 'New',
+    grade: 'A',
+  },
+  {
+    id: 2,
     title: 'Math Assignment',
     src: '1z-E_KOC2L0',
     type: 'Video',
@@ -8,7 +17,7 @@ export const content = [
     grade: 'A',
   },
   {
-    id: 2,
+    id: 3,
     title: 'Science Project',
     src: '',
     type: 'Assessment',
@@ -16,7 +25,7 @@ export const content = [
     grade: 'B',
   },
   {
-    id: 3,
+    id: 4,
     title: 'History Essay',
     src: '',
     content:
@@ -26,7 +35,7 @@ export const content = [
     grade: 'A+',
   },
   {
-    id: 4,
+    id: 5,
     title: 'English Literature',
     src: '',
     type: 'Assessment',
@@ -34,7 +43,7 @@ export const content = [
     grade: 'B+',
   },
   {
-    id: 5,
+    id: 6,
     title: 'Computer Science Assignment',
     src: 'dQw4w9WgXcQ',
     type: 'Video',
@@ -42,7 +51,7 @@ export const content = [
     grade: 'A',
   },
   {
-    id: 6,
+    id: 7,
     title: 'Chemistry Lab Report',
     src: '',
     type: 'Assessment',
@@ -50,7 +59,7 @@ export const content = [
     grade: 'A-',
   },
   {
-    id: 7,
+    id: 8,
     title: 'Geography Presentation',
     content:
       'This is a detailed paragraph about Geography. It explores the physical features of the Earth, including mountains, rivers, and oceans. The presentation also delves into the various climatic zones and their characteristics, as well as the impact of human activities on the environment. It highlights the importance of sustainable practices and conservation efforts to protect our planet. Additionally, the presentation covers the cultural and economic aspects of different regions, providing a holistic understanding of Geography. This comprehensive overview makes it an excellent resource for students and educators.',
@@ -59,7 +68,7 @@ export const content = [
     grade: 'B-',
   },
   {
-    id: 8,
+    id: 9,
     title: 'Art Project',
     src: '',
     type: 'Assessment',

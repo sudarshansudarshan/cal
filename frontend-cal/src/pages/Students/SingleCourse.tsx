@@ -1,5 +1,5 @@
 import React from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import {
   Table,
   TableBody,
@@ -74,6 +74,7 @@ const SingleCourse = () => {
   // Modules data
   const modules = moduleData?.results || []
   console.log('modules', modules)
+  console.log("courseID",courseId)
 
   return (
     <div className='flex h-full justify-between'>
@@ -104,6 +105,7 @@ const SingleCourse = () => {
                 <TableHead>Module Title</TableHead>
                 <TableHead className='text-right'>Description</TableHead>
                 <TableHead className='text-right'>Created At</TableHead>
+                <TableHead className='text-right'>Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -118,6 +120,14 @@ const SingleCourse = () => {
                   </TableCell>
                   <TableCell className='text-right'>
                     {new Date(module.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className='text-right'>
+                    <Link
+                      to={`/singleCourse/${courseId}/${module.module_id}`}
+                      className='inline-block w-full rounded bg-gray-800 px-4 py-2 text-center text-white'
+                    >
+                      View
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))}

@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import API_URL from '../../constant'
+import API_URL, { ACTIVITY_URL } from '../../constant'
 import Cookies from 'js-cookie'
 
 export interface AuthResponse {
@@ -35,6 +35,7 @@ export const apiService = createApi({
         try {
           const { data } = await queryFulfilled
           Cookies.set('access_token', data.access_token) // Store the correct access token
+          Cookies.set('user_id', data.user_id)
         } catch (error) {
           console.error('Failed to store access token in cookies', error)
         }
@@ -169,10 +170,66 @@ export const apiService = createApi({
         },
       }),
     }),
+    fetchSectionsWithAuth: builder.query<
+      { sections: { id: number; title: string; content: string }[] },
+      { courseId: number; moduleId: number }
+    >({
+      query: ({ courseId, moduleId }) => ({
+        url: `/course/sections/?course_id=${courseId}&module_id=${moduleId}`,
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${Cookies.get('access_token')}`,
+        },
+      }),
+    }),
+    fetchItemsWithAuth: builder.query<
+      { items: { id: number; name: string; description: string }[] },
+      number
+    >({
+      query: (sectionId) => ({
+        url: `/course/items/?section_id=${sectionId}`,
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${Cookies.get('access_token')}`,
+        },
+      }),
+    }),
+    fetchQuestionsWithAuth: builder.query<
+      { items: { id: number; name: string; description: string }[] },
+      number
+    >({
+      query: (assessmentId) => ({
+        url: `/assessment/questions/?assessment_id=${assessmentId}`,
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${Cookies.get('access_token')}`,
+        },
+      }),
+    }),
+    updateSectionItemProgress: builder.mutation<
+      void,
+      {
+        courseInstanceId: string
+        studentId: string
+        sectionItemId: string
+        cascade: true
+      }
+    >({
+      query: (progressData) => ({
+        url: '/course-progress/update-section-item-progress',
+        method: 'POST',
+        body: progressData,
+        headers: {
+          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          'Content-Type': 'application/json',
+        },
+      }),
+    }),
   }),
 })
 
 export const {
+  useFetchItemsWithAuthQuery,
   useLoginMutation,
   useFetchAssessmentWithAuthQuery,
   useSignupMutation,
@@ -183,4 +240,65 @@ export const {
   useCreateVideoDetailsMutation,
   useFetchCoursesWithAuthQuery,
   useFetchModulesWithAuthQuery,
+  useFetchSectionsWithAuthQuery,
+  useFetchQuestionsWithAuthQuery,
+  useUpdateSectionItemProgressMutation,
 } = apiService
+
+const ANOTHER_API_URL = ACTIVITY_URL // Replace with your new API base URL
+
+export const anotherApiService = createApi({
+  reducerPath: 'anotherApi',
+  baseQuery: fetchBaseQuery({
+    baseUrl: ANOTHER_API_URL,
+  }),
+  endpoints: (builder) => ({
+    startAssessment: builder.mutation<
+      void,
+      { courseInstanceId: string; assessmentId: string }
+    >({
+      query: (assessmentData) => ({
+        url: '/assessment/start',
+        method: 'POST',
+        body: {
+          ...assessmentData,
+          studentId: Cookies.get('user_id'), // Get studentId from cookies
+        },
+        headers: {
+          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          'Content-Type': 'application/json',
+        },
+      }),
+    }),
+    submitAssessment: builder.mutation<
+      void,
+      {
+        courseInstanceId: string
+        assessmentId: string
+        attemptId: string
+        answers: {
+          natAnswers: { questionId: string; value: string }[]
+          mcqAnswers: { questionId: string; choiceId: string }[]
+          msqAnswers: { questionId: string; choiceIds: string[] }[]
+          descriptiveAnswers: { questionId: string; value: string }[]
+        }
+      }
+    >({
+      query: (submissionData) => ({
+        url: '/assessment/submit',
+        method: 'POST',
+        body: {
+          ...submissionData,
+          studentId: Cookies.get('user_id'), // Get studentId from cookies
+        },
+        headers: {
+          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          'Content-Type': 'application/json',
+        },
+      }),
+    }),
+  }),
+})
+
+export const { useStartAssessmentMutation, useSubmitAssessmentMutation } =
+  anotherApiService
