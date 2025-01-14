@@ -10,6 +10,15 @@ import { init } from 'express-oas-generator';
 const assessmentRepo = new AssessmentRepository();
 const answersRepo = new AnswersRepository();
 
+interface LoginResponse {
+  access_token: string;
+  expires_in: number;
+  refresh_token: string;
+  token_type: string;
+  scope: string;
+  user_id: number;
+}
+
 interface DjangoSolutionResponse {
   question_type: 'NAT' | 'MCQ' | 'MSQ' | 'DESC';
   solution: {
@@ -146,14 +155,39 @@ export class AssessmentService {
     ];
   
     try {
+      const URLBASE = "https://calm-447804.el.r.appspot.com/api/v1/";
+      const loginResponse = await fetch(`${URLBASE}auth/login/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: "root@root.com",
+          password: "root",
+          client_id: "CBSb3npocDqJ2bDHv6DjbjwqS1voDcIroykgJBOi",
+          scope: "read write",
+        }),
+      });
+
+      if (!loginResponse.ok) {
+        throw new Error(`Login failed: ${loginResponse.statusText}`);
+      }
+
+      // Ensure the response matches the expected structure
+      const loginData = await loginResponse.json() as LoginResponse;
+
+      // Extract the access token
+      const accessToken = loginData.access_token;
+
       const solutions = await Promise.all(
         questionIds.map(async (questionId) => {
-          const response = await fetch(`http://192.168.119.239:8000/api/v1/assessment/solutions/${questionId}`,{
-            method: 'GET',
+          const response = await fetch(`${URLBASE}assessment/solutions/${questionId}`, {
+            method: "GET",
             headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer 6SVmS41laCUD8JzxVibqyXiyLyKPyYYzX-U3xwmBqWI'
-          }});
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
 
           console.log("This is the BODY",response.body);
           
