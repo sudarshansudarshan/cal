@@ -31,15 +31,17 @@ const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
         <span>{assignment.item_type}</span>
         <StatusBadge status={assignment.status} />
         <span>
-          <Button
-            onClick={() =>
-              navigate('/videoMain', {
-                state: { assignment, sectionId, courseId, moduleId },
-              })
-            }
-          >
-            Start
-          </Button>
+          {assignment.item_type === 'video' && assignment.id === 1 && (
+            <Button
+              onClick={() =>
+                navigate('/videoMain', {
+                  state: { assignment, sectionId, courseId, moduleId },
+                })
+              }
+            >
+              Start
+            </Button>
+          )}
         </span>
       </div>
     </div>

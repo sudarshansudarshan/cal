@@ -269,6 +269,15 @@ export const anotherApiService = createApi({
           'Content-Type': 'application/json',
         },
       }),
+      onQueryStarted: async (arg, { queryFulfilled }) => {
+        try {
+          const { data } = await queryFulfilled
+          Cookies.set('attemptId', data.attemptId) // Store the correct access token
+          Cookies.remove('gradingData')
+        } catch (error) {
+          console.error('Failed to store access token in cookies', error)
+        }
+      },
     }),
     submitAssessment: builder.mutation<
       void,

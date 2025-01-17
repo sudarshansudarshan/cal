@@ -20,7 +20,7 @@ export function LoginForm({
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [login, { isLoading, error }] = useLoginMutation()
-  const client_id = 'CBSb3npocDqJ2bDHv6DjbjwqS1voDcIroykgJBOi'
+  const client_id = 'vgkais5eGt2s7QlNyxeL1z9NbPsnqCp81eXPlSMj'
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
@@ -30,7 +30,7 @@ export function LoginForm({
       const response = await login({ email, password, client_id }).unwrap()
       console.log(email, password, client_id)
       dispatch(setUser(response))
-      navigate('/')
+      navigate('/allCourses')
     } catch (err) {
       console.error('Login failed:', err)
     }

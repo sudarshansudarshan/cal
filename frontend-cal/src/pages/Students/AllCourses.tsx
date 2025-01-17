@@ -15,7 +15,7 @@ import { useFetchCoursesWithAuthQuery } from '../../store/apiService'
 import { Link } from 'react-router-dom'
 
 const AllCourses = () => {
-  const [filter, setFilter] = useState('On going') // Default filter
+  const [filter, setFilter] = useState('Completed') // Default filter
 
   // Fetch courses from API
   const { data, error, isLoading } = useFetchCoursesWithAuthQuery()

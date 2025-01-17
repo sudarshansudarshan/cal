@@ -99,10 +99,12 @@ const VideoMain = () => {
         assessmentId: assessmentId.toString(),
       })
         .then((response) => {
-          console.log('Assessment started:', response.data)
-          if (response.data) {
-            setResponseData(response.data) // Store the data in state
+          console.log('Response:', response.data.attemptId)
+          if (response.data && response.data.attemptId) {
+            setResponseData(response.data.attemptId)
             toast('Assessment started successfully!', { type: 'success' })
+          } else {
+            throw new Error('No attemptId received')
           }
         })
         .catch((error) => {
@@ -193,16 +195,13 @@ const VideoMain = () => {
   }
 
   const handleSubmit = () => {
-    if (selectedOption === null) return // No option selected, do nothing
-
-    // Commit the selected option as the answer
     setSelectedAnswer(selectedOption)
     const question = AssessmentData[currentQuestionIndex]
 
     submitAssessment({
       courseInstanceId: courseId,
       assessmentId: assessmentId.toString(),
-      attemptId: responseData.attemptId, // Replace with actual attemptId
+      attemptId: responseData, // Replace with actual attemptId
       answers: {
         natAnswers: [], // Replace with actual data
         mcqAnswers: [
@@ -217,8 +216,8 @@ const VideoMain = () => {
     })
       .then((response) => {
         if (response.data) {
-          setGradingData(response.data) // Store the data in state
-          Cookies.set('gradingData', response.data)
+          Cookies.set('gradingData', response.data.assessmentGradingStatus)
+          setGradingData(response.data.assessmentGradingStatus) // Store the data in state
           toast('Assessment started successfully!', { type: 'success' })
         }
       })
@@ -228,19 +227,14 @@ const VideoMain = () => {
           type: 'error',
         })
       })
-    console.log('titititiit', response)
-    console.log('Grading Data : ', gradingData)
 
-    const isCorrect = selectedOption === question.answer
-    setIsAnswerCorrect(isCorrect)
-
-    if (!isCorrect) {
-      toast('Incorrect Answer! Please try again.', { type: 'error' })
-    } else {
+    if (Cookies.get('gradingData') === 'PASSED') {
       toast('Assessment Complete!', { type: 'success' })
-      handleSectionItemProgression()
       handleNextFrame() // Trigger handleNextFrame if the answer is correct
       // Here, you can add further actions, such as navigating away or showing a summary.
+    } else if (Cookies.get('gradingData') === 'FAILED') {
+      toast('Incorrect Answer! Please try again.', { type: 'error' })
+      handlePrevFrame()
     }
 
     // Optionally, reset or handle state as needed after submission

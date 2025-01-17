@@ -61,7 +61,7 @@ export function SidebarRight({
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-          {/* <ParentComponent /> */}
+          <ParentComponent />
           <CameraAndMicCheck />
           <SidebarMenuItem>
             <SidebarMenuButton>
