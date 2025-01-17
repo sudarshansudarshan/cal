@@ -194,6 +194,11 @@ const HandLandmarkerComponent: React.FC<HandLandmarkerComponentProps> = ({ files
                     } else {
                         setGesture("None");
                     }
+                    if(results.landmarks[0]){
+                        setGesture(getGesture(results.landmarks[0]));
+                    } else {
+                        setGesture("None");
+                    }
                 } else {
                     setHandCount(0);
                 }

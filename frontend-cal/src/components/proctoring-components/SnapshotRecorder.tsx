@@ -75,11 +75,11 @@ const SnapshotRecorder: React.FC<{ anomalies: Anomalies }> = ({
       }
     }
   }, [])
-
   useEffect(() => {
     intervalRef.current = setInterval(async () => {
       // if there is an anomaly, set a counter of 5, and after that counter ends upload the last 11 frames to cloud.
       // while the counter is running, do not reset the counter.
+
       const activeAnomalies = getActiveAnomalies()
       if (videoRef.current) {
         const id = await handleSaveSnapshot({
