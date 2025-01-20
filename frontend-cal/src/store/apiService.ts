@@ -24,7 +24,7 @@ export const apiService = createApi({
   endpoints: (builder) => ({
     login: builder.mutation<
       AuthResponse,
-      { username: string; password: string; client_id: string }
+      { email: string; password: string; client_id: string }
     >({
       query: (credentials) => ({
         url: '/auth/login/',

@@ -1,5 +1,7 @@
+// Indicates this is a client-side component
 'use client'
 
+// Import React and necessary icons from lucide-react library
 import * as React from 'react'
 import {
   AudioWaveform,
@@ -17,6 +19,7 @@ import {
   ChevronRight,
 } from 'lucide-react'
 
+// Import custom UI components and hooks
 import {
   Sidebar,
   SidebarContent,
@@ -32,18 +35,23 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+
+// Import Redux and routing related hooks
 import { useLogoutMutation } from '@/store/apiService'
 import { useDispatch } from 'react-redux'
 import { logoutState } from '@/store/slices/authSlice'
 import { useNavigate } from 'react-router-dom'
 
-// Sample data with subparts and sub-subparts
+// Mock data structure for sidebar navigation
+// Contains teams, main navigation items and secondary navigation items
 const data = {
+  // Team switcher data
   teams: [
     { name: 'CAL', logo: Command, plan: 'Enterprise' },
     { name: 'CAL', logo: AudioWaveform, plan: 'Startup' },
     { name: 'CAL', logo: Command, plan: 'Free' },
   ],
+  // Main navigation items with nested subparts
   navMain: [
     {
       title: 'Dashboard',
@@ -117,6 +125,7 @@ const data = {
       ],
     },
   ],
+  // Secondary navigation items (bottom of sidebar)
   navSecondary: [
     { title: 'Calendar', url: '#', icon: Calendar },
     { title: 'Settings', url: '#', icon: Settings2 },
@@ -126,9 +135,11 @@ const data = {
   ],
 }
 
+// Main SidebarLeft component
 export function SidebarLeft({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
+  // State management for navigation selections and positioning
   const [selectedNav, setSelectedNav] = React.useState<NavItem | null>(null)
   const [selectedSubpart, setSelectedSubpart] = React.useState<Subpart | null>(
     null
@@ -139,11 +150,14 @@ export function SidebarLeft({
     top: 0,
     left: 0,
   })
+
+  // Hooks for sidebar, navigation and Redux state management
   const { setOpen } = useSidebar()
   const dispatch = useDispatch()
   const [logout] = useLogoutMutation()
   const navigate = useNavigate()
 
+  // Handle user logout
   const handleLogout = async () => {
     try {
       await logout().unwrap()
@@ -154,6 +168,7 @@ export function SidebarLeft({
     }
   }
 
+  // TypeScript interfaces for navigation items
   interface NavItem {
     title: string
     url: string
@@ -173,6 +188,7 @@ export function SidebarLeft({
     url: string
   }
 
+  // Handle main navigation item click
   const handleNavClick = (item: NavItem) => {
     if (selectedNav?.title === item.title) {
       setSelectedNav(null)
@@ -184,6 +200,7 @@ export function SidebarLeft({
     setSelectedSubsubpart(null)
   }
 
+  // Handle subpart item click and position floating panel
   const handleSubpartClick = (subpart: Subpart, event: React.MouseEvent) => {
     const rect = event.currentTarget.getBoundingClientRect()
     setSubpartPosition({
@@ -194,6 +211,7 @@ export function SidebarLeft({
     setSelectedSubsubpart(null)
   }
 
+  // Handle sub-subpart item click
   const handleSubsubpartClick = (subsubpart: Subsubpart) => {
     setSelectedSubsubpart(subsubpart)
   }
@@ -206,6 +224,7 @@ export function SidebarLeft({
           <TeamSwitcher teams={data.teams} />
         </SidebarHeader>
         <SidebarContent className='flex-col justify-between px-2'>
+          {/* Main navigation section */}
           <nav className='space-y-1'>
             {data.navMain.map((item) => (
               <div key={item.title}>
@@ -238,6 +257,7 @@ export function SidebarLeft({
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+                {/* Render subparts when main item is selected */}
                 {selectedNav?.title === item.title &&
                   item.subparts.length > 0 && (
                     <div className='space-y-1 pl-8'>
@@ -259,6 +279,7 @@ export function SidebarLeft({
               </div>
             ))}
           </nav>
+          {/* Secondary navigation section */}
           <nav className='space-y-1'>
             {data.navSecondary.map((item) => (
               <SidebarMenuButton
@@ -280,7 +301,7 @@ export function SidebarLeft({
         </SidebarContent>
       </Sidebar>
 
-      {/* Floating Panel for Subparts */}
+      {/* Floating Panel for Subparts - Shows when a subpart is selected */}
       {selectedSubpart && (
         <div
           className='fixed z-50 w-64 rounded-md border bg-background shadow-lg'
