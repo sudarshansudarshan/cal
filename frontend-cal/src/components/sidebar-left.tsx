@@ -13,6 +13,8 @@ import {
   MessageCircleQuestion,
   Settings2,
   Trash2,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react'
 
 import {
@@ -24,7 +26,6 @@ import {
 } from '@/components/ui/sidebar'
 import { TeamSwitcher } from '@/components/team-switcher'
 import { CardContent, CardHeader, CardTitle } from './ui/card'
-import { Separator } from './ui/separator'
 import {
   Tooltip,
   TooltipContent,
@@ -98,12 +99,20 @@ const data = {
         {
           title: 'General Updates',
           url: '#updates',
-          subsubparts: [],
+          subsubparts: [
+            { title: 'System Maintenance', url: '#maintenance' },
+            { title: 'New Features', url: '#features' },
+            { title: 'Important Dates', url: '#dates' },
+          ],
         },
         {
           title: 'New Policies',
           url: '#policies',
-          subsubparts: [],
+          subsubparts: [
+            { title: 'Attendance Policy', url: '#attendance' },
+            { title: 'Grading System', url: '#grading' },
+            { title: 'Code of Conduct', url: '#conduct' },
+          ],
         },
       ],
     },
@@ -124,9 +133,13 @@ export function SidebarLeft({
   const [selectedSubpart, setSelectedSubpart] = React.useState<Subpart | null>(
     null
   )
-  const { setOpen } = useSidebar() // Access setOpen to control the sidebar state
-  console.log('props')
-  console.log('setOpen', setOpen)
+  const [selectedSubsubpart, setSelectedSubsubpart] =
+    React.useState<Subsubpart | null>(null)
+  const [subpartPosition, setSubpartPosition] = React.useState({
+    top: 0,
+    left: 0,
+  })
+  const { setOpen } = useSidebar()
   const dispatch = useDispatch()
   const [logout] = useLogoutMutation()
   const navigate = useNavigate()
@@ -162,24 +175,32 @@ export function SidebarLeft({
 
   const handleNavClick = (item: NavItem) => {
     if (selectedNav?.title === item.title) {
-      setSelectedNav(null) // Toggle off if already selected
+      setSelectedNav(null)
     } else {
-      setSelectedNav(item) // Show dropdown for subparts
+      setSelectedNav(item)
       setOpen(true)
     }
-    setSelectedSubpart(null) // Reset subparts panel when switching main nav
-    setOpen(true)
+    setSelectedSubpart(null)
+    setSelectedSubsubpart(null)
   }
 
-  const handleSubpartClick = (subpart: Subpart) => {
-    setSelectedSubpart(subpart) // Show panel for subsubparts
-    setOpen(false)
-    setSelectedNav(null)
+  const handleSubpartClick = (subpart: Subpart, event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    setSubpartPosition({
+      top: rect.top,
+      left: rect.right + 8, // 8px offset from the button
+    })
+    setSelectedSubpart(subpart)
+    setSelectedSubsubpart(null)
+  }
+
+  const handleSubsubpartClick = (subsubpart: Subsubpart) => {
+    setSelectedSubsubpart(subsubpart)
   }
 
   return (
     <div className='flex h-screen'>
-      {/* Sidebar */}
+      {/* Left Sidebar */}
       <Sidebar className='w-60 border-r' {...props} collapsible='icon'>
         <SidebarHeader className='py-3 pl-2 pr-4'>
           <TeamSwitcher teams={data.teams} />
@@ -192,11 +213,24 @@ export function SidebarLeft({
                   <Tooltip>
                     <TooltipTrigger>
                       <SidebarMenuButton
-                        className={`flex w-56 items-center rounded-md py-2 pl-2 pr-4 text-left text-sm`}
+                        className={`flex w-56 items-center justify-between rounded-md py-2 pl-2 pr-4 text-left text-sm ${
+                          selectedNav?.title === item.title ? 'bg-accent' : ''
+                        }`}
                         onClick={() => handleNavClick(item)}
                       >
-                        <item.icon className='mr-3 size-5' />
-                        <span className='flex-1'>{item.title}</span>
+                        <div className='flex items-center'>
+                          <item.icon className='mr-3 size-5' />
+                          <span className='flex-1'>{item.title}</span>
+                        </div>
+                        {item.subparts.length > 0 && (
+                          <span className='ml-2'>
+                            {selectedNav?.title === item.title ? (
+                              <ChevronDown className='size-4' />
+                            ) : (
+                              <ChevronRight className='size-4' />
+                            )}
+                          </span>
+                        )}
                       </SidebarMenuButton>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -210,10 +244,12 @@ export function SidebarLeft({
                       {item.subparts.map((subpart) => (
                         <SidebarMenuButton
                           key={subpart.title}
-                          className=''
-                          onClick={() => {
-                            handleSubpartClick(subpart)
-                          }}
+                          className={`w-full text-left text-sm ${
+                            selectedSubpart?.title === subpart.title
+                              ? 'bg-accent'
+                              : ''
+                          } hover:bg-accent`}
+                          onClick={(e) => handleSubpartClick(subpart, e)}
                         >
                           {subpart.title}
                         </SidebarMenuButton>
@@ -229,7 +265,6 @@ export function SidebarLeft({
                 key={item.title}
                 onClick={() => {
                   if (item.title === 'Logout') {
-                    // Use Logout component here
                     handleLogout()
                   } else {
                     window.location.href = item.url
@@ -245,22 +280,34 @@ export function SidebarLeft({
         </SidebarContent>
       </Sidebar>
 
-      {/* Subparts Panel */}
+      {/* Floating Panel for Subparts */}
       {selectedSubpart && (
-        <div className='w-56 rounded-none border-r'>
-          <CardHeader>
+        <div
+          className='fixed z-50 w-64 rounded-md border bg-background shadow-lg'
+          style={{
+            top: `${subpartPosition.top}px`,
+            left: `${subpartPosition.left}px`,
+            maxHeight: '300px',
+            overflow: 'auto',
+          }}
+        >
+          <CardHeader className='p-4'>
             <CardTitle className='text-lg'>{selectedSubpart.title}</CardTitle>
           </CardHeader>
-          <CardContent className='space-y-2'>
-            <ul className='mt-2 w-full'>
+          <CardContent className='p-4'>
+            <ul className='space-y-2'>
               {selectedSubpart.subsubparts.map((subsubpart) => (
                 <li key={subsubpart.title}>
-                  <SidebarMenuButton>
-                    <a href={subsubpart.url} className=''>
-                      {subsubpart.title}
-                    </a>
+                  <SidebarMenuButton
+                    className={`w-full ${
+                      selectedSubsubpart?.title === subsubpart.title
+                        ? 'bg-accent'
+                        : ''
+                    }`}
+                    onClick={() => handleSubsubpartClick(subsubpart)}
+                  >
+                    {subsubpart.title}
                   </SidebarMenuButton>
-                  <Separator />
                 </li>
               ))}
             </ul>

@@ -7,12 +7,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from '@/components/ui/resizable'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { BookOpen, Clock, Award, TrendingUp } from 'lucide-react'
+import { useState } from 'react'
 
 const courses = [
   { id: 1, name: 'Introduction to AI', duration: '6 weeks' },
@@ -41,77 +39,147 @@ const ongoingCourses = [
 ]
 
 const StudentHome = () => {
+  const [showAllCourses, setShowAllCourses] = useState(false)
+  const [showAllOngoing, setShowAllOngoing] = useState(false)
+
+  const displayedCourses = showAllCourses ? courses : courses.slice(0, 5)
+  const displayedOngoing = showAllOngoing
+    ? ongoingCourses
+    : ongoingCourses.slice(0, 5)
+
   return (
-    <ResizablePanelGroup direction='vertical' className='h-full max-w-full'>
-      <ResizablePanel defaultSize={50} className=''>
-        <div className='flex items-center justify-between border-b border-gray-200 px-6 py-4'>
-          <h1 className='text-xl font-semibold'>All Courses</h1>
-          <Button variant='outline' className=''>
-            View All
-          </Button>
-        </div>
-        <div className='custom-scroll max-h-60 overflow-auto px-6 py-4'>
-          <Table>
-            <TableCaption>All available courses.</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className='w-[100px]'>ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead className='text-right'>Duration</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {courses.map((course) => (
-                <TableRow key={course.id}>
-                  <TableCell className='font-medium'>{course.id}</TableCell>
-                  <TableCell>{course.name}</TableCell>
-                  <TableCell className='text-right'>
-                    {course.duration}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </ResizablePanel>
+    <div className='h-full'>
+      <div className='grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-4'>
+        <Card>
+          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+            <CardTitle className='text-sm font-medium'>Total Courses</CardTitle>
+            <BookOpen className='size-4 text-muted-foreground' />
+          </CardHeader>
+          <CardContent>
+            <div className='text-2xl font-bold'>{courses.length}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+            <CardTitle className='text-sm font-medium'>
+              Active Courses
+            </CardTitle>
+            <Clock className='size-4 text-muted-foreground' />
+          </CardHeader>
+          <CardContent>
+            <div className='text-2xl font-bold'>{ongoingCourses.length}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+            <CardTitle className='text-sm font-medium'>
+              Average Progress
+            </CardTitle>
+            <TrendingUp className='size-4 text-muted-foreground' />
+          </CardHeader>
+          <CardContent>
+            <div className='text-2xl font-bold'>
+              {Math.round(
+                ongoingCourses.reduce(
+                  (acc, course) => acc + parseInt(course.progression),
+                  0
+                ) / ongoingCourses.length
+              )}
+              %
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+            <CardTitle className='text-sm font-medium'>Completed</CardTitle>
+            <Award className='size-4 text-muted-foreground' />
+          </CardHeader>
+          <CardContent>
+            <div className='text-2xl font-bold'>
+              {
+                ongoingCourses.filter(
+                  (course) => parseInt(course.progression) === 100
+                ).length
+              }
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-      <ResizableHandle className='cursor-pointer bg-gray-300' />
-
-      {/* On-Going Courses Block */}
-      <ResizablePanel defaultSize={50} className=''>
-        <div className='flex items-center justify-between border-b px-6 py-4'>
-          <h1 className='text-xl font-semibold'>On-Going Courses</h1>
-          <Button variant='outline' className=''>
-            View All
-          </Button>
-        </div>
-        <div className='custom-scroll max-h-60 overflow-auto px-6 py-4'>
-          <Table>
-            <TableCaption>
-              Your ongoing courses and their progress.
-            </TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className='w-[100px]'>ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead className='text-right'>Progress</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {ongoingCourses.map((course) => (
-                <TableRow key={course.id}>
-                  <TableCell className='font-medium'>{course.id}</TableCell>
-                  <TableCell>{course.name}</TableCell>
-                  <TableCell className='text-right'>
-                    {course.progression}
-                  </TableCell>
+      <div className='grid h-[calc(100%-140px)] grid-cols-2 gap-4 p-4'>
+        <div className='flex h-full flex-col rounded-lg border'>
+          <div className='flex items-center justify-between border-b border-gray-200 px-6 py-4'>
+            <h1 className='text-xl font-semibold'>All Courses</h1>
+            <Button
+              variant='outline'
+              onClick={() => setShowAllCourses(!showAllCourses)}
+            >
+              {showAllCourses ? 'Show Less' : 'View All'}
+            </Button>
+          </div>
+          <div className='flex-1 px-6 py-4'>
+            <Table>
+              <TableCaption>All available courses.</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className='w-[100px]'>ID</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead className='text-right'>Duration</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {displayedCourses.map((course) => (
+                  <TableRow key={course.id}>
+                    <TableCell className='font-medium'>{course.id}</TableCell>
+                    <TableCell>{course.name}</TableCell>
+                    <TableCell className='text-right'>
+                      {course.duration}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
-      </ResizablePanel>
-    </ResizablePanelGroup>
+
+        <div className='flex h-full flex-col rounded-lg border'>
+          <div className='flex items-center justify-between border-b px-6 py-4'>
+            <h1 className='text-xl font-semibold'>On-Going Courses</h1>
+            <Button
+              variant='outline'
+              onClick={() => setShowAllOngoing(!showAllOngoing)}
+            >
+              {showAllOngoing ? 'Show Less' : 'View All'}
+            </Button>
+          </div>
+          <div className='flex-1 px-6 py-4'>
+            <Table>
+              <TableCaption>
+                Your ongoing courses and their progress.
+              </TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className='w-[100px]'>ID</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead className='text-right'>Progress</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {displayedOngoing.map((course) => (
+                  <TableRow key={course.id}>
+                    <TableCell className='font-medium'>{course.id}</TableCell>
+                    <TableCell>{course.name}</TableCell>
+                    <TableCell className='text-right'>
+                      {course.progression}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
