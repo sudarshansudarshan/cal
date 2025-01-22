@@ -1,3 +1,28 @@
+/**
+ * StudentHome Page
+ * 
+ * This page serves as the main dashboard for students, displaying an overview of their courses
+ * and learning progress. It shows key metrics and two main tables for course management.
+ *
+ * Features:
+ * - Dashboard cards showing summary statistics:
+ *   - Total number of available courses
+ *   - Number of active courses
+ *   - Average progress across all courses
+ *   - Number of completed courses
+ * - Interactive tables for:
+ *   - All available courses with duration
+ *   - Ongoing courses with progress tracking
+ * - View all/Show less functionality for both tables
+ * - Responsive grid layout
+ *
+ * Key Components:
+ * - Card components for metrics display
+ * - Table components for course listings
+ * - Button components for table expansion control
+ * - Icons from lucide-react library
+ */
+
 import {
   Table,
   TableBody,
@@ -12,6 +37,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BookOpen, Clock, Award, TrendingUp } from 'lucide-react'
 import { useState } from 'react'
 
+// Mock data for available courses
 const courses = [
   { id: 1, name: 'Introduction to AI', duration: '6 weeks' },
   { id: 2, name: 'Data Science Basics', duration: '8 weeks' },
@@ -25,6 +51,7 @@ const courses = [
   { id: 10, name: 'Big Data Analytics', duration: '13 weeks' },
 ]
 
+// Mock data for student's ongoing courses
 const ongoingCourses = [
   { id: 101, name: 'Introduction to Python', progression: '50%' },
   { id: 102, name: 'Advanced JavaScript', progression: '75%' },
@@ -39,9 +66,11 @@ const ongoingCourses = [
 ]
 
 const StudentHome = () => {
+  // State for controlling table expansion
   const [showAllCourses, setShowAllCourses] = useState(false)
   const [showAllOngoing, setShowAllOngoing] = useState(false)
 
+  // Limit displayed courses based on show all state
   const displayedCourses = showAllCourses ? courses : courses.slice(0, 5)
   const displayedOngoing = showAllOngoing
     ? ongoingCourses
@@ -49,6 +78,7 @@ const StudentHome = () => {
 
   return (
     <div className='h-full'>
+      {/* Dashboard metrics cards */}
       <div className='grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-4'>
         <Card>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
@@ -106,7 +136,9 @@ const StudentHome = () => {
         </Card>
       </div>
 
+      {/* Course tables section */}
       <div className='grid h-[calc(100%-140px)] grid-cols-2 gap-4 p-4'>
+        {/* All Courses table */}
         <div className='flex h-full flex-col rounded-lg border'>
           <div className='flex items-center justify-between border-b border-gray-200 px-6 py-4'>
             <h1 className='text-xl font-semibold'>All Courses</h1>
@@ -142,6 +174,7 @@ const StudentHome = () => {
           </div>
         </div>
 
+        {/* Ongoing Courses table */}
         <div className='flex h-full flex-col rounded-lg border'>
           <div className='flex items-center justify-between border-b px-6 py-4'>
             <h1 className='text-xl font-semibold'>On-Going Courses</h1>

@@ -1,3 +1,23 @@
+/**
+ * VideoMain Page
+ *
+ * This page implements a video player interface with assessment capabilities for students.
+ * It allows students to watch educational videos and take assessments in an integrated learning experience.
+ *
+ * Key Features:
+ * - Video playback with custom controls (play/pause, volume, speed, fullscreen)
+ * - Assessment integration with multiple choice questions
+ * - Progress tracking and navigation between content frames
+ * - Proctoring features like keyboard lock and right-click disable
+ * - Responsive layout with resizable panels
+ *
+ * The page handles:
+ * - YouTube video embedding and control
+ * - Assessment state management and submission
+ * - Navigation between different content types (video, article, assessment)
+ * - User interaction tracking and validation
+ */
+
 import React, { useEffect, useState } from 'react'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { useSidebar } from '@/components/ui/sidebar'
@@ -34,23 +54,32 @@ const VideoMain = () => {
   const moduleId = location.state?.moduleId // Access the moduleId from state
   console.log('Section ID:', sectionId)
   console.log('Assignment:', assignment)
+
+  // UI State Management
   const { setOpen } = useSidebar()
   const [currentFrame, setCurrentFrame] = useState(assignment.sequence - 1)
   const [isPlaying, setIsPlaying] = useState(false)
+
+  // Assessment State Management
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState(null)
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false)
   const [selectedOption, setSelectedOption] = useState(null)
   console.log('Selected Answer : ', selectedAnswer)
+
+  // Video Player State Management
   const [currentTime, setCurrentTime] = useState(0)
   const [totalDuration, setTotalDuration] = useState(0)
   const [volume, setVolume] = useState(50) // Default volume at 50%
   const [playbackSpeed, setPlaybackSpeed] = useState(1) // Default speed is 1x
+
+  // Assessment Data Management
   const [assessmentId, setAssessmentId] = useState(1)
   const [startAssessment] = useStartAssessmentMutation()
   const [submitAssessment] = useSubmitAssessmentMutation()
   const [gradingData, setGradingData] = useState(null)
 
+  // API Data Fetching
   const {
     data: assignmentsData,
     isLoading,
@@ -63,6 +92,7 @@ const VideoMain = () => {
   console.log('Hello', assessmentData?.results)
   const AssessmentData = assessmentData?.results
 
+  // YouTube Player Initialization
   useEffect(() => {
     setOpen(false)
 
@@ -90,6 +120,7 @@ const VideoMain = () => {
     }
   }, [currentFrame, setOpen])
 
+  // Assessment Management Functions
   const fetchAssessment = (currentFrame) => {
     console.log(content[currentFrame].item_type)
     if (content[currentFrame + 1].item_type === 'assessment') {
@@ -117,6 +148,7 @@ const VideoMain = () => {
   }
   console.log('Response Data:', responseData)
 
+  // Video Player Event Handlers
   const onPlayerReady = (event) => {
     // Player is ready
     setTotalDuration(event.target.getDuration())
@@ -152,6 +184,7 @@ const VideoMain = () => {
     }
   }
 
+  // Video Control Functions
   const togglePlayPause = () => {
     console.log('lelelelel', window.player)
     if (!window.player) return
@@ -162,6 +195,7 @@ const VideoMain = () => {
     }
   }
 
+  // Navigation Functions
   const handleNextFrame = async () => {
     setCurrentFrame((prevFrame) => (prevFrame + 1) % content.length)
     setSelectedOption(null)
@@ -194,6 +228,7 @@ const VideoMain = () => {
     }
   }
 
+  // Assessment Submission Handler
   const handleSubmit = () => {
     setSelectedAnswer(selectedOption)
     const question = AssessmentData[currentQuestionIndex]
@@ -240,6 +275,7 @@ const VideoMain = () => {
     // Optionally, reset or handle state as needed after submission
   }
 
+  // Question Navigation Handlers
   const handleOptionClick = (optionId) => {
     setSelectedOption(optionId) // Just select, don't commit yet
   }
@@ -260,6 +296,7 @@ const VideoMain = () => {
     window.location.reload()
   }
 
+  // Video Playback Control Functions
   const changePlaybackSpeed = (speed) => {
     window.player.setPlaybackRate(speed)
     setPlaybackSpeed(speed)
@@ -296,6 +333,7 @@ const VideoMain = () => {
     }
   }
 
+  // Frame Restoration Effect
   useEffect(() => {
     // Check if there's a frame index stored in local storage
     const savedFrame = localStorage.getItem('nextFrame')
@@ -305,6 +343,7 @@ const VideoMain = () => {
     }
   }, []) // This effect runs only once when the component mounts
 
+  // Assessment Rendering Function
   const renderAssessment = (question) => {
     if (!AssessmentData || AssessmentData.length === 0) {
       // Return an error message or placeholder if there are no questions
@@ -375,6 +414,7 @@ const VideoMain = () => {
     )
   }
 
+  // YouTube URL Parser
   const getYouTubeVideoId = (url) => {
     console.log('URL:', url)
     try {
@@ -400,6 +440,7 @@ const VideoMain = () => {
     }
   }
 
+  // Content Type Renderer
   const renderdataByType = (frame, index) => {
     const videoId = getYouTubeVideoId(frame.source)
 
@@ -418,6 +459,7 @@ const VideoMain = () => {
           ></iframe>
         )
       case 'article':
+        // Render article content with a scroll area and next button
         return (
           <div>
             <ScrollArea>{frame.content}</ScrollArea>
@@ -427,6 +469,7 @@ const VideoMain = () => {
           </div>
         )
       case 'assessment':
+        // Render assessment questions if data is available
         if (AssessmentData && AssessmentData.length > 0) {
           return renderAssessment(AssessmentData[currentQuestionIndex])
         } else {
@@ -434,22 +477,28 @@ const VideoMain = () => {
         }
 
       default:
+        // Fallback for unknown content types
         return <p>No specific type assigned</p>
     }
   }
 
   return (
+    // Main layout with resizable panels
     <ResizablePanelGroup direction='vertical' className='bg-gray-200 p-2'>
+      {/* Proctoring components */}
       <KeyboardLock />
       <RightClickDisabler />
+
+      {/* Main content panel - 90% height */}
       <ResizablePanel defaultSize={90}>
         <div className='flex h-full flex-col'>
-          {/* Frame Display Section */}
+          {/* Frame display section with overflow handling */}
           <div className='relative h-full overflow-hidden'>
             <div
               className='absolute size-full transition-transform duration-300'
               style={{ transform: `translateY(-${currentFrame * 100}%)` }}
             >
+              {/* Map through content frames and render based on type */}
               {content.map((frame, index) => (
                 <div
                   key={index}
@@ -462,11 +511,16 @@ const VideoMain = () => {
           </div>
         </div>
       </ResizablePanel>
+
+      {/* Resizable handle between panels */}
       <ResizableHandle className='p-1' />
+
+      {/* Controls panel - 10% height */}
       <ResizablePanel defaultSize={10} className=''>
         <div className='controls-container flex w-full justify-center'>
           <div className='w-full border border-white bg-white shadow'>
             <div className='flex items-center justify-between'>
+              {/* Left section: Play/Pause, Next, Time slider, Volume */}
               <div className='flex w-1/2 items-center justify-between'>
                 <button
                   onClick={togglePlayPause}
@@ -503,6 +557,8 @@ const VideoMain = () => {
                   />
                 </div>
               </div>
+
+              {/* Center section: Playback speed controls */}
               <div className='flex items-center'>
                 {[0.5, 1, 1.5, 2].map((speed) => (
                   <button
@@ -519,6 +575,8 @@ const VideoMain = () => {
                   </button>
                 ))}
               </div>
+
+              {/* Right section: Fullscreen toggle */}
               <div>
                 <button
                   onClick={toggleFullscreen}
