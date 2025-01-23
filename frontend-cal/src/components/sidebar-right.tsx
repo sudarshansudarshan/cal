@@ -71,8 +71,8 @@ export function SidebarRight({
       {/* Footer section with proctoring tools and new schedule button */}
       <SidebarFooter>
         <SidebarMenu>
-          <ParentComponent />
-          <CameraAndMicCheck />
+          {/* <ParentComponent /> */}
+          {/* <CameraAndMicCheck /> */}
           <SidebarMenuItem>
             <SidebarMenuButton>
               <Plus />

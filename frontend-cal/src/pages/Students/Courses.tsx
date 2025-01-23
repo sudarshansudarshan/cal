@@ -9,6 +9,7 @@ import KeyboardLock from '@/components/proctoring-components/KeyboardLock'
 import RightClickDisabler from '@/components/proctoring-components/RightClickDisable'
 import { Fullscreen, Pause, Play } from 'lucide-react'
 import { Slider } from '@/components/ui/slider'
+import { toast } from 'sonner'
 
 interface Question {
   question_id: number
@@ -236,7 +237,7 @@ const Courses: React.FC = () => {
       player.seekTo(newTime, true)
       setCurrentTime(newTime)
     } else {
-      alert('Skipping forward is not allowed.')
+      toast('Skipping forward is not allowed.')
     }
   }
 

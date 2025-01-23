@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { useSidebar } from '@/components/ui/sidebar'
-import { useLocation } from 'react-router-dom' // Import useLocation
+import { useLocation } from 'react-router-dom'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -9,11 +9,18 @@ import {
 } from '@/components/ui/resizable'
 import { Cookie, Fullscreen, Pause, Play } from 'lucide-react'
 import { Slider } from '@/components/ui/slider'
+
+//This the dummy Data used for testing the questions funtionality it provides all the questions according to the exact format
 import { questions } from '../DummyDatas/Questions'
+
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+
+// These are the proctoring components comming form proctoring components folder which ensures the keyboard is disabled for this page as well as right rightclick is also disabled
 import KeyboardLock from '@/components/proctoring-components/KeyboardLock'
 import RightClickDisabler from '@/components/proctoring-components/RightClickDisable'
+
+//These are the imports comming from redux using RTK for fetching and posting the data to the backend
 import {
   useFetchItemsWithAuthQuery,
   useFetchSolutionWithAuthQuery,
@@ -22,76 +29,95 @@ import {
   useUpdateSectionItemProgressMutation,
 } from '@/store/apiService'
 import { useFetchQuestionsWithAuthQuery } from '@/store/apiService'
+
 import Cookies from 'js-cookie'
 
 const VideoMain = () => {
-  const location = useLocation() // Use useLocation to access the router state
+  const location = useLocation()
   const [responseData, setResponseData] = useState(null)
-  console.log('Location:', responseData)
-  const assignment = location.state?.assignment // Access the assignment from state
-  const sectionId = location.state?.sectionId // Access the sectionId from state
-  const courseId = location.state?.courseId // Access the courseId from state
-  const moduleId = location.state?.moduleId // Access the moduleId from state
-  console.log('Section ID:', sectionId)
-  console.log('Assignment:', assignment)
+  const playerIntervalRef = useRef(null)
+  const playerRef = useRef(null) // Add ref for player instance
+
+  // This is the data which is stored in the local State when the user goes from one page to another using routing
+  const assignment = location.state?.assignment
+  const sectionId = location.state?.sectionId
+  const courseId = location.state?.courseId
+  const moduleId = location.state?.moduleId
+
+  // This ensures that the sidebar is open or not
   const { setOpen } = useSidebar()
+
   const [currentFrame, setCurrentFrame] = useState(assignment.sequence - 1)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState(null)
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false)
   const [selectedOption, setSelectedOption] = useState(null)
-  console.log('Selected Answer : ', selectedAnswer)
   const [currentTime, setCurrentTime] = useState(0)
   const [totalDuration, setTotalDuration] = useState(0)
-  const [volume, setVolume] = useState(50) // Default volume at 50%
-  const [playbackSpeed, setPlaybackSpeed] = useState(1) // Default speed is 1x
+  const [volume, setVolume] = useState(50)
+  const [playbackSpeed, setPlaybackSpeed] = useState(1)
   const [assessmentId, setAssessmentId] = useState(1)
   const [startAssessment] = useStartAssessmentMutation()
   const [submitAssessment] = useSubmitAssessmentMutation()
   const [gradingData, setGradingData] = useState(null)
+  const [isPlayerReady, setIsPlayerReady] = useState(false) // Add state for player ready status
 
-  const {
-    data: assignmentsData,
-    isLoading,
-    isError,
-  } = useFetchItemsWithAuthQuery(sectionId)
+  //Responsible for fetching Items using RTK Query
+  const { data: assignmentsData } = useFetchItemsWithAuthQuery(sectionId)
   const content = assignmentsData || []
-  console.log('New Content:', content)
 
+  //Responsible for fetching the questions using RTK Query
   const { data: assessmentData } = useFetchQuestionsWithAuthQuery(assessmentId)
-  console.log('Hello', assessmentData?.results)
   const AssessmentData = assessmentData?.results
 
+  // UseEffect to create player for each frame and to close the sidebar
   useEffect(() => {
     setOpen(false)
-
     const tag = document.createElement('script')
     tag.src = 'https://www.youtube.com/iframe_api'
     const firstScriptTag = document.getElementsByTagName('script')[0]
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
 
     tag.onload = () => {
-      console.log('YouTube API Ready')
-      window.player = new window.YT.Player(`player-${currentFrame}`, {
-        events: {
-          onReady: onPlayerReady,
-          onStateChange: onPlayerStateChange,
-        },
-      })
+      // Initialize player with retry mechanism
+      const initPlayer = () => {
+        if (!window.YT || !window.YT.Player) {
+          setTimeout(initPlayer, 100) // Retry after 100ms
+          return
+        }
+
+        playerRef.current = new window.YT.Player(`player-${currentFrame}`, {
+          events: {
+            onReady: (event) => {
+              setIsPlayerReady(true)
+              onPlayerReady(event)
+            },
+            onStateChange: onPlayerStateChange,
+          },
+        })
+      }
+
+      initPlayer()
     }
 
     return () => {
-      // Clean up the player if the component is unmounted
-      if (window.player) {
-        window.player.destroy()
-        window.player = null
+      if (playerRef.current) {
+        playerRef.current.destroy()
+        playerRef.current = null
       }
+      // Clear interval to prevent memory leaks
+      if (playerIntervalRef.current) {
+        clearInterval(playerIntervalRef.current)
+      }
+      setIsPlayerReady(false)
     }
   }, [currentFrame, setOpen])
 
+  //Funtion to fetch the assessment prior to a frame
   const fetchAssessment = (currentFrame) => {
     console.log(content[currentFrame].item_type)
+    // Only Fetches the assessment when the next frame is assessment
     if (content[currentFrame + 1].item_type === 'assessment') {
       setAssessmentId(content[currentFrame + 1].id)
       startAssessment({
@@ -117,51 +143,87 @@ const VideoMain = () => {
   }
   console.log('Response Data:', responseData)
 
+  // When player Get ready this fucntion is called to make things happen in player
   const onPlayerReady = (event) => {
-    // Player is ready
-    setTotalDuration(event.target.getDuration())
+    console.log('Window player is ready : ', playerRef.current)
+    const duration = event.target.getDuration()
+    setTotalDuration(duration)
     event.target.setVolume(volume)
+
     if (content[currentFrame + 1].item_type === 'video') {
-      setCurrentTime(content[currentFrame].start_time)
-      event.target.seekTo(content[currentFrame].start_time, true)
-      console.log('Current Time:', content[currentFrame].start_time)
-      setTotalDuration(content[currentFrame].end_time)
-      console.log('Total Duration:', content[currentFrame].end_time)
+      const startTime = content[currentFrame].start_time
+      const endTime = content[currentFrame].end_time
+
+      setCurrentTime(startTime)
+      event.target.seekTo(startTime, true)
+      setTotalDuration(endTime - startTime)
+    }
+
+    // Start interval to update current time
+    playerIntervalRef.current = setInterval(() => {
+      if (
+        playerRef.current &&
+        playerRef.current.getPlayerState() === window.YT.PlayerState.PLAYING
+      ) {
+        const currentPlayerTime = playerRef.current.getCurrentTime()
+        setCurrentTime(currentPlayerTime)
+      }
+    }, 1000)
+  }
+
+  // This funtion is used to change the current time using slider of youtube video progress bar
+  const handleTimeChange = (value) => {
+    if (!isPlayerReady) return
+    const newTime = value[0]
+    setCurrentTime(newTime)
+    if (playerRef.current) {
+      playerRef.current.seekTo(newTime, true)
     }
   }
 
-  const handleTimeChange = (value) => {
-    setCurrentTime(value[0])
-    window.player.seekTo(value[0], true)
-  }
-
+  // Funtion responsible in changing the volume of the video
   const handleVolumeChange = (value) => {
+    if (!isPlayerReady) return
     setVolume(value[0])
-    window.player.setVolume(value[0])
+    playerRef.current.setVolume(value[0])
   }
 
+  // Whenever the state of video changed like pause , play , ended this funtion is called
   const onPlayerStateChange = (event) => {
     if (event.data === window.YT.PlayerState.PLAYING) {
       setIsPlaying(true)
-      console.log('Playing', isPlaying)
-    } else if (event.data === window.YT.PlayerState.ENDED) {
-      handleNextFrame() // Automatically switch to the next frame when video ends
-    } else {
+      // Start updating time
+      playerIntervalRef.current = setInterval(() => {
+        const currentPlayerTime = playerRef.current.getCurrentTime()
+        setCurrentTime(currentPlayerTime)
+      }, 1000)
+    } else if (
+      event.data === window.YT.PlayerState.PAUSED ||
+      event.data === window.YT.PlayerState.ENDED
+    ) {
       setIsPlaying(false)
-      console.log('Not Playing', isPlaying)
+      // Clear interval when paused or ended
+      if (playerIntervalRef.current) {
+        clearInterval(playerIntervalRef.current)
+      }
+
+      if (event.data === window.YT.PlayerState.ENDED) {
+        handleNextFrame()
+      }
     }
   }
 
+  // This funtion is responsible in for working of play/pause toggle button
   const togglePlayPause = () => {
-    console.log('lelelelel', window.player)
-    if (!window.player) return
+    if (!isPlayerReady || !playerRef.current) return
     if (isPlaying) {
-      window.player.pauseVideo()
+      playerRef.current.pauseVideo()
     } else {
-      window.player.playVideo()
+      playerRef.current.playVideo()
     }
   }
 
+  // This funtion is to go forward to the next frame
   const handleNextFrame = async () => {
     setCurrentFrame((prevFrame) => (prevFrame + 1) % content.length)
     setSelectedOption(null)
@@ -172,10 +234,10 @@ const VideoMain = () => {
     fetchAssessment(currentFrame)
   }
 
+  // This funtion is to move to the next question
   const handleNextQuestion = () => {
-    if (selectedOption === null) return // No option selected, do nothing
+    if (selectedOption === null) return
 
-    // Commit the selected option as the answer
     setSelectedAnswer(selectedOption)
     console.log('Selected Answer:', selectedAnswer)
     const question = questions[0].results[currentQuestionIndex]
@@ -184,9 +246,8 @@ const VideoMain = () => {
 
     if (!isCorrect) {
       toast('Incorrect Answer! Please try again.', { type: 'error' })
-      handlePrevFrame() // Trigger handlePrevFrame if the answer is not correct
+      handlePrevFrame()
     } else {
-      // Clear the selection and move to the next question
       setSelectedOption(null)
       setCurrentQuestionIndex(
         (prevIndex) => (prevIndex + 1) % AssessmentData.length
@@ -194,6 +255,7 @@ const VideoMain = () => {
     }
   }
 
+  // This funtion called when user submits the assessment
   const handleSubmit = () => {
     setSelectedAnswer(selectedOption)
     const question = AssessmentData[currentQuestionIndex]
@@ -201,23 +263,23 @@ const VideoMain = () => {
     submitAssessment({
       courseInstanceId: courseId,
       assessmentId: assessmentId.toString(),
-      attemptId: responseData, // Replace with actual attemptId
+      attemptId: responseData,
       answers: {
-        natAnswers: [], // Replace with actual data
+        natAnswers: [],
         mcqAnswers: [
           {
             questionId: question.id.toString(),
             choiceId: selectedOption.toString(),
           },
-        ], // Replace with actual data
-        msqAnswers: [], // Replace with actual data
-        descriptiveAnswers: [], // Replace with actual data
+        ],
+        msqAnswers: [],
+        descriptiveAnswers: [],
       },
     })
       .then((response) => {
         if (response.data) {
           Cookies.set('gradingData', response.data.assessmentGradingStatus)
-          setGradingData(response.data.assessmentGradingStatus) // Store the data in state
+          setGradingData(response.data.assessmentGradingStatus)
           toast('Assessment started successfully!', { type: 'success' })
         }
       })
@@ -230,20 +292,19 @@ const VideoMain = () => {
 
     if (Cookies.get('gradingData') === 'PASSED') {
       toast('Assessment Complete!', { type: 'success' })
-      handleNextFrame() // Trigger handleNextFrame if the answer is correct
-      // Here, you can add further actions, such as navigating away or showing a summary.
+      handleNextFrame()
     } else if (Cookies.get('gradingData') === 'FAILED') {
       toast('Incorrect Answer! Please try again.', { type: 'error' })
       handlePrevFrame()
     }
-
-    // Optionally, reset or handle state as needed after submission
   }
 
+  // This funtion is responsible to set the selected option after click on any option of question by user
   const handleOptionClick = (optionId) => {
-    setSelectedOption(optionId) // Just select, don't commit yet
+    setSelectedOption(optionId)
   }
 
+  // This funtion is responsible to go backward to the previous question
   const handlePrevQuestion = () => {
     setCurrentQuestionIndex(
       (prevIndex) =>
@@ -251,74 +312,68 @@ const VideoMain = () => {
     )
   }
 
+  // This funtion is responsible to go backward to the last frame
   const handlePrevFrame = () => {
-    // Store the next frame index in local storage or another persistent state storage
     const nextFrameIndex = (currentFrame - 1 + content.length) % content.length
     localStorage.setItem('nextFrame', nextFrameIndex)
 
-    // Reload the page
     window.location.reload()
   }
 
+  // This funtion is for changing the speed of Video
   const changePlaybackSpeed = (speed) => {
-    window.player.setPlaybackRate(speed)
+    if (!isPlayerReady) return
+    playerRef.current.setPlaybackRate(speed)
     setPlaybackSpeed(speed)
   }
 
+  // This funtion is to chnage the player to full screen mode
   const toggleFullscreen = () => {
     const player = document.getElementById(`player-${currentFrame}`)
     if (!document.fullscreenElement) {
       if (player.requestFullscreen) {
         player.requestFullscreen()
       } else if (player.mozRequestFullScreen) {
-        /* Firefox */
         player.mozRequestFullScreen()
       } else if (player.webkitRequestFullscreen) {
-        /* Chrome, Safari & Opera */
         player.webkitRequestFullscreen()
       } else if (player.msRequestFullscreen) {
-        /* IE/Edge */
         player.msRequestFullscreen()
       }
     } else {
       if (document.exitFullscreen) {
         document.exitFullscreen()
       } else if (document.mozCancelFullScreen) {
-        /* Firefox */
         document.mozCancelFullScreen()
       } else if (document.webkitExitFullscreen) {
-        /* Chrome, Safari and Opera */
         document.webkitExitFullscreen()
       } else if (document.msExitFullscreen) {
-        /* IE/Edge */
         document.msExitFullscreen()
       }
     }
   }
 
+  // This useeffect ensures that whenever the page reloads the currentframe should not be change
   useEffect(() => {
-    // Check if there's a frame index stored in local storage
     const savedFrame = localStorage.getItem('nextFrame')
     if (savedFrame !== null) {
-      setCurrentFrame(parseInt(savedFrame)) // Set the frame from stored value
-      localStorage.removeItem('nextFrame') // Clean up the local storage
+      setCurrentFrame(parseInt(savedFrame))
+      localStorage.removeItem('nextFrame')
     }
-  }, []) // This effect runs only once when the component mounts
+  }, [])
 
+  // This funtion create the interface of assessment that exactly how the assessment will look like
   const renderAssessment = (question) => {
     if (!AssessmentData || AssessmentData.length === 0) {
-      // Return an error message or placeholder if there are no questions
       return <div>No assessment data available.</div>
     }
 
-    // Check if the current question index is valid
     if (
       currentQuestionIndex < 0 ||
       currentQuestionIndex >= AssessmentData.length
     ) {
       return <div>Invalid question index.</div>
     }
-    // Check if the current question is the last one
     const isLastQuestion = currentQuestionIndex === AssessmentData.length - 1
 
     return (
@@ -355,8 +410,8 @@ const VideoMain = () => {
           </button>
           {isLastQuestion ? (
             <button
-              onClick={handleSubmit} // Call submit function when the last question is reached
-              disabled={!selectedOption} // Disable if no option is selected
+              onClick={handleSubmit}
+              disabled={!selectedOption}
               className='rounded-lg bg-green-500 px-6 py-2 text-white shadow'
             >
               Submit
@@ -364,7 +419,7 @@ const VideoMain = () => {
           ) : (
             <button
               onClick={handleNextQuestion}
-              disabled={!selectedOption} // Disable if no option is selected
+              disabled={!selectedOption}
               className='rounded-lg bg-green-500 px-6 py-2 text-white shadow'
             >
               Next
@@ -375,6 +430,7 @@ const VideoMain = () => {
     )
   }
 
+  // As we are getting url from the backend and need VideoId for the player so this funtion convert the url to videoId
   const getYouTubeVideoId = (url) => {
     console.log('URL:', url)
     try {
@@ -382,10 +438,8 @@ const VideoMain = () => {
       console.log('Parsed URL:', parsedUrl)
       let videoId
       if (parsedUrl.hostname === 'youtu.be') {
-        // Handle shortened YouTube URL format
-        videoId = parsedUrl.pathname.slice(1) // Remove the leading '/'
+        videoId = parsedUrl.pathname.slice(1)
       } else {
-        // Handle standard YouTube URL format
         videoId = parsedUrl.searchParams.get('v')
       }
 
@@ -400,8 +454,13 @@ const VideoMain = () => {
     }
   }
 
+  // This funtion is used for switch case according to the data that whenever the data type is video , assessment or article it will display the frame according to the type
   const renderdataByType = (frame, index) => {
-    const videoId = getYouTubeVideoId(frame.source)
+    let videoId = null
+    if (frame?.item_type === 'video') {
+      videoId = getYouTubeVideoId(frame.source)
+      console.log('I am Video Id : ', videoId)
+    }
 
     switch (frame.item_type) {
       case 'video':
@@ -439,12 +498,12 @@ const VideoMain = () => {
   }
 
   return (
+    //These are the resizable panels with can be resized by dragging the resizable handle
     <ResizablePanelGroup direction='vertical' className='bg-gray-200 p-2'>
       <KeyboardLock />
       <RightClickDisabler />
       <ResizablePanel defaultSize={90}>
         <div className='flex h-full flex-col'>
-          {/* Frame Display Section */}
           <div className='relative h-full overflow-hidden'>
             <div
               className='absolute size-full transition-transform duration-300'
@@ -471,6 +530,7 @@ const VideoMain = () => {
                 <button
                   onClick={togglePlayPause}
                   className='rounded-full p-2 text-2xl'
+                  disabled={!isPlayerReady}
                 >
                   {isPlaying ? <Pause /> : <Play />}
                 </button>
@@ -483,11 +543,11 @@ const VideoMain = () => {
                 <Slider
                   value={[currentTime]}
                   onValueChange={handleTimeChange}
-                  min={0}
+                  min={1}
                   max={totalDuration}
                   step={1}
                   className='w-48'
-                  disabled={true} // Disable the slider to prevent forwarding
+                  disabled={!isPlayerReady}
                 />
                 <div className='ml-6 flex items-center'>
                   <label htmlFor='volume' className='mr-2 text-sm font-medium'>
@@ -500,6 +560,7 @@ const VideoMain = () => {
                     max={100}
                     step={1}
                     className='w-24'
+                    disabled={!isPlayerReady}
                   />
                 </div>
               </div>
@@ -514,6 +575,7 @@ const VideoMain = () => {
                       setPlaybackSpeed(speed)
                       changePlaybackSpeed(speed)
                     }}
+                    disabled={!isPlayerReady}
                   >
                     {speed}x
                   </button>

@@ -1,3 +1,30 @@
+/**
+ * LoginForm Component
+ * 
+ * A React component that renders a login form with the following features:
+ * 
+ * - Email and password authentication
+ * - Google OAuth login option
+ * - Form validation and error handling
+ * - Forgot password functionality (placeholder)
+ * - Toggle between login and signup views
+ * - Redux integration for state management
+ * - RTK Query for API calls
+ * - Responsive design with Tailwind CSS
+ * 
+ * The component handles user authentication by:
+ * 1. Collecting email and password from form inputs
+ * 2. Making API calls using RTK Query's useLoginMutation
+ * 3. Storing authentication data in Redux on successful login
+ * 4. Redirecting to courses page after successful authentication
+ * 5. Displaying error messages if login fails
+ * 
+ * Props:
+ * - className: Optional CSS classes to apply to form
+ * - toggleCover: Function to switch between login/signup views
+ * - ...props: Additional form props
+ */
+
 // Import required dependencies
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
@@ -27,7 +54,7 @@ export function LoginForm({
   const [login, { isLoading, error }] = useLoginMutation()
 
   // Client ID for API authentication
-  const client_id = 'vgkais5eGt2s7QlNyxeL1z9NbPsnqCp81eXPlSMj'
+  const client_id = 'zekmfjFilNrCOaS2dEUzjlBkGEX2IE9P9Dr49gJj'
 
   // Redux dispatch and navigation hooks
   const dispatch = useDispatch()
