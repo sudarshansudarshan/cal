@@ -1,4 +1,28 @@
+<<<<<<< HEAD
 import React, { useEffect, useRef, useState } from 'react'
+=======
+/**
+ * VideoMain Page
+ *
+ * This page implements a video player interface with assessment capabilities for students.
+ * It allows students to watch educational videos and take assessments in an integrated learning experience.
+ *
+ * Key Features:
+ * - Video playback with custom controls (play/pause, volume, speed, fullscreen)
+ * - Assessment integration with multiple choice questions
+ * - Progress tracking and navigation between content frames
+ * - Proctoring features like keyboard lock and right-click disable
+ * - Responsive layout with resizable panels
+ *
+ * The page handles:
+ * - YouTube video embedding and control
+ * - Assessment state management and submission
+ * - Navigation between different content types (video, article, assessment)
+ * - User interaction tracking and validation
+ */
+
+import React, { useEffect, useState } from 'react'
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { useSidebar } from '@/components/ui/sidebar'
 import { useLocation } from 'react-router-dom'
@@ -35,6 +59,7 @@ import Cookies from 'js-cookie'
 const VideoMain = () => {
   const location = useLocation()
   const [responseData, setResponseData] = useState(null)
+<<<<<<< HEAD
   const playerIntervalRef = useRef(null)
   const playerRef = useRef(null) // Add ref for player instance
 
@@ -45,33 +70,71 @@ const VideoMain = () => {
   const moduleId = location.state?.moduleId
 
   // This ensures that the sidebar is open or not
+=======
+  console.log('Location:', responseData)
+  const assignment = location.state?.assignment // Access the assignment from state
+  const sectionId = location.state?.sectionId // Access the sectionId from state
+  const courseId = location.state?.courseId // Access the courseId from state
+  const moduleId = location.state?.moduleId // Access the moduleId from state
+  console.log('Section ID:', sectionId)
+  console.log('Assignment:', assignment)
+
+  // UI State Management
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const { setOpen } = useSidebar()
 
   const [currentFrame, setCurrentFrame] = useState(assignment.sequence - 1)
   const [isPlaying, setIsPlaying] = useState(false)
+
+  // Assessment State Management
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState(null)
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false)
   const [selectedOption, setSelectedOption] = useState(null)
+<<<<<<< HEAD
   const [currentTime, setCurrentTime] = useState(0)
   const [totalDuration, setTotalDuration] = useState(0)
   const [volume, setVolume] = useState(50)
   const [playbackSpeed, setPlaybackSpeed] = useState(1)
+=======
+  console.log('Selected Answer : ', selectedAnswer)
+
+  // Video Player State Management
+  const [currentTime, setCurrentTime] = useState(0)
+  const [totalDuration, setTotalDuration] = useState(0)
+  const [volume, setVolume] = useState(50) // Default volume at 50%
+  const [playbackSpeed, setPlaybackSpeed] = useState(1) // Default speed is 1x
+
+  // Assessment Data Management
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const [assessmentId, setAssessmentId] = useState(1)
   const [startAssessment] = useStartAssessmentMutation()
   const [submitAssessment] = useSubmitAssessmentMutation()
   const [gradingData, setGradingData] = useState(null)
   const [isPlayerReady, setIsPlayerReady] = useState(false) // Add state for player ready status
 
+<<<<<<< HEAD
   //Responsible for fetching Items using RTK Query
   const { data: assignmentsData } = useFetchItemsWithAuthQuery(sectionId)
+=======
+  // API Data Fetching
+  const {
+    data: assignmentsData,
+    isLoading,
+    isError,
+  } = useFetchItemsWithAuthQuery(sectionId)
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const content = assignmentsData || []
 
   //Responsible for fetching the questions using RTK Query
   const { data: assessmentData } = useFetchQuestionsWithAuthQuery(assessmentId)
   const AssessmentData = assessmentData?.results
 
+<<<<<<< HEAD
   // UseEffect to create player for each frame and to close the sidebar
+=======
+  // YouTube Player Initialization
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   useEffect(() => {
     setOpen(false)
     const tag = document.createElement('script')
@@ -114,7 +177,11 @@ const VideoMain = () => {
     }
   }, [currentFrame, setOpen])
 
+<<<<<<< HEAD
   //Funtion to fetch the assessment prior to a frame
+=======
+  // Assessment Management Functions
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const fetchAssessment = (currentFrame) => {
     console.log(content[currentFrame].item_type)
     // Only Fetches the assessment when the next frame is assessment
@@ -143,7 +210,11 @@ const VideoMain = () => {
   }
   console.log('Response Data:', responseData)
 
+<<<<<<< HEAD
   // When player Get ready this fucntion is called to make things happen in player
+=======
+  // Video Player Event Handlers
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const onPlayerReady = (event) => {
     console.log('Window player is ready : ', playerRef.current)
     const duration = event.target.getDuration()
@@ -213,7 +284,11 @@ const VideoMain = () => {
     }
   }
 
+<<<<<<< HEAD
   // This funtion is responsible in for working of play/pause toggle button
+=======
+  // Video Control Functions
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const togglePlayPause = () => {
     if (!isPlayerReady || !playerRef.current) return
     if (isPlaying) {
@@ -223,7 +298,11 @@ const VideoMain = () => {
     }
   }
 
+<<<<<<< HEAD
   // This funtion is to go forward to the next frame
+=======
+  // Navigation Functions
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const handleNextFrame = async () => {
     setCurrentFrame((prevFrame) => (prevFrame + 1) % content.length)
     setSelectedOption(null)
@@ -255,7 +334,11 @@ const VideoMain = () => {
     }
   }
 
+<<<<<<< HEAD
   // This funtion called when user submits the assessment
+=======
+  // Assessment Submission Handler
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const handleSubmit = () => {
     setSelectedAnswer(selectedOption)
     const question = AssessmentData[currentQuestionIndex]
@@ -299,7 +382,11 @@ const VideoMain = () => {
     }
   }
 
+<<<<<<< HEAD
   // This funtion is responsible to set the selected option after click on any option of question by user
+=======
+  // Question Navigation Handlers
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const handleOptionClick = (optionId) => {
     setSelectedOption(optionId)
   }
@@ -320,7 +407,11 @@ const VideoMain = () => {
     window.location.reload()
   }
 
+<<<<<<< HEAD
   // This funtion is for changing the speed of Video
+=======
+  // Video Playback Control Functions
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const changePlaybackSpeed = (speed) => {
     if (!isPlayerReady) return
     playerRef.current.setPlaybackRate(speed)
@@ -353,7 +444,11 @@ const VideoMain = () => {
     }
   }
 
+<<<<<<< HEAD
   // This useeffect ensures that whenever the page reloads the currentframe should not be change
+=======
+  // Frame Restoration Effect
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   useEffect(() => {
     const savedFrame = localStorage.getItem('nextFrame')
     if (savedFrame !== null) {
@@ -362,7 +457,11 @@ const VideoMain = () => {
     }
   }, [])
 
+<<<<<<< HEAD
   // This funtion create the interface of assessment that exactly how the assessment will look like
+=======
+  // Assessment Rendering Function
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const renderAssessment = (question) => {
     if (!AssessmentData || AssessmentData.length === 0) {
       return <div>No assessment data available.</div>
@@ -430,7 +529,11 @@ const VideoMain = () => {
     )
   }
 
+<<<<<<< HEAD
   // As we are getting url from the backend and need VideoId for the player so this funtion convert the url to videoId
+=======
+  // YouTube URL Parser
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const getYouTubeVideoId = (url) => {
     console.log('URL:', url)
     try {
@@ -454,7 +557,11 @@ const VideoMain = () => {
     }
   }
 
+<<<<<<< HEAD
   // This funtion is used for switch case according to the data that whenever the data type is video , assessment or article it will display the frame according to the type
+=======
+  // Content Type Renderer
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const renderdataByType = (frame, index) => {
     let videoId = null
     if (frame?.item_type === 'video') {
@@ -477,6 +584,7 @@ const VideoMain = () => {
           ></iframe>
         )
       case 'article':
+        // Render article content with a scroll area and next button
         return (
           <div>
             <ScrollArea>{frame.content}</ScrollArea>
@@ -486,6 +594,7 @@ const VideoMain = () => {
           </div>
         )
       case 'assessment':
+        // Render assessment questions if data is available
         if (AssessmentData && AssessmentData.length > 0) {
           return renderAssessment(AssessmentData[currentQuestionIndex])
         } else {
@@ -493,22 +602,35 @@ const VideoMain = () => {
         }
 
       default:
+        // Fallback for unknown content types
         return <p>No specific type assigned</p>
     }
   }
 
   return (
+<<<<<<< HEAD
     //These are the resizable panels with can be resized by dragging the resizable handle
+=======
+    // Main layout with resizable panels
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
     <ResizablePanelGroup direction='vertical' className='bg-gray-200 p-2'>
+      {/* Proctoring components */}
       <KeyboardLock />
       <RightClickDisabler />
+
+      {/* Main content panel - 90% height */}
       <ResizablePanel defaultSize={90}>
         <div className='flex h-full flex-col'>
+<<<<<<< HEAD
+=======
+          {/* Frame display section with overflow handling */}
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
           <div className='relative h-full overflow-hidden'>
             <div
               className='absolute size-full transition-transform duration-300'
               style={{ transform: `translateY(-${currentFrame * 100}%)` }}
             >
+              {/* Map through content frames and render based on type */}
               {content.map((frame, index) => (
                 <div
                   key={index}
@@ -521,11 +643,16 @@ const VideoMain = () => {
           </div>
         </div>
       </ResizablePanel>
+
+      {/* Resizable handle between panels */}
       <ResizableHandle className='p-1' />
+
+      {/* Controls panel - 10% height */}
       <ResizablePanel defaultSize={10} className=''>
         <div className='controls-container flex w-full justify-center'>
           <div className='w-full border border-white bg-white shadow'>
             <div className='flex items-center justify-between'>
+              {/* Left section: Play/Pause, Next, Time slider, Volume */}
               <div className='flex w-1/2 items-center justify-between'>
                 <button
                   onClick={togglePlayPause}
@@ -564,6 +691,8 @@ const VideoMain = () => {
                   />
                 </div>
               </div>
+
+              {/* Center section: Playback speed controls */}
               <div className='flex items-center'>
                 {[0.5, 1, 1.5, 2].map((speed) => (
                   <button
@@ -581,6 +710,8 @@ const VideoMain = () => {
                   </button>
                 ))}
               </div>
+
+              {/* Right section: Fullscreen toggle */}
               <div>
                 <button
                   onClick={toggleFullscreen}

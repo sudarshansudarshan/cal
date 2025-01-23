@@ -1,3 +1,46 @@
+/**
+ * SidebarLeft Component
+ *
+ * This component provides a left sidebar interface with the following features:
+ * - Team switching functionality
+ * - Multi-level navigation menu (main items, subparts, sub-subparts)
+ * - Secondary navigation items
+ * - Responsive design with collapsible sidebar
+ * - Floating panels for deeper navigation levels
+ * - Integrated tooltips for better UX
+ * - Logout functionality
+ *
+ * Layout Structure:
+ * - Header: Contains team switcher
+ * - Content:
+ *   - Main navigation with expandable items
+ *   - Secondary navigation at bottom
+ * - Floating Panel: Shows additional navigation levels
+ *
+ * Navigation Features:
+ * - Hierarchical menu structure (up to 3 levels deep)
+ * - Visual indicators for selected items
+ * - Smooth transitions and animations
+ * - Tooltip support for collapsed state
+ *
+ * State Management:
+ * - Tracks selected navigation items at each level
+ * - Manages floating panel positioning
+ * - Handles sidebar collapse state
+ * - Integrates with Redux for auth state
+ *
+ * Props:
+ * - Extends React.ComponentProps<typeof Sidebar>
+ * - Allows passing through additional sidebar properties
+ *
+ * Dependencies:
+ * - React for component architecture
+ * - Lucide icons for UI elements
+ * - Redux for state management
+ * - React Router for navigation
+ * - Custom UI components (Sidebar, Tooltip, etc.)
+ */
+
 // Indicates this is a client-side component
 'use client'
 

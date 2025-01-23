@@ -1,6 +1,7 @@
 /**
  * LoginForm Component
  * 
+<<<<<<< HEAD
  * A React component that renders a login form with the following features:
  * 
  * - Email and password authentication
@@ -23,6 +24,32 @@
  * - className: Optional CSS classes to apply to form
  * - toggleCover: Function to switch between login/signup views
  * - ...props: Additional form props
+=======
+ * This component renders a login form that allows users to log into their account.
+ * It provides email and password input fields, a login button, and error handling.
+ * 
+ * Features:
+ * - Collects email and password inputs and manages their state.
+ * - Handles login submission via an API call using RTK Query's `useLoginMutation` hook.
+ * - Displays loading state on the login button to prevent multiple submissions.
+ * - Handles errors and displays an error message if the login attempt fails.
+ * - Includes a "Forgot your password?" button (logic for it can be added later).
+ * - A Google login button is available for users to log in via their Google account.
+ * - A "Sign up" link redirects users to a sign-up form if they don't have an account.
+ * - After successful login, user data is stored in Redux, and the user is redirected to the `/allCourses` page.
+ * 
+ * Props:
+ * - `className`: A string that can be passed to customize the form's CSS classes.
+ * - `toggleCover`: A function that toggles between the login and sign-up forms.
+ * 
+ * State:
+ * - `email`: Tracks the value of the email input field.
+ * - `password`: Tracks the value of the password input field.
+ * - `isLoading`: Indicates whether the login request is in progress (disables the login button).
+ * - `error`: Stores any error returned by the login request and displays it if the login fails.
+ * 
+ * This form also utilizes Tailwind CSS for styling, and includes responsive design for mobile compatibility.
+>>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
  */
 
 // Import required dependencies

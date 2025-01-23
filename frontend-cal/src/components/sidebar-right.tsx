@@ -1,3 +1,35 @@
+/**
+ * SidebarRight Component
+ *
+ * This component provides a right sidebar interface with the following features:
+ * - User profile display and management
+ * - Calendar sections and schedules
+ * - Proctoring tools integration
+ * - New schedule creation
+ *
+ * Layout Structure:
+ * - Header: Contains user profile information
+ * - Content: Displays calendar sections and items
+ * - Footer: Houses proctoring tools and schedule creation
+ *
+ * Features:
+ * - Responsive design (hidden on mobile, visible on large screens)
+ * - Sticky positioning at the top
+ * - Non-collapsible sidebar
+ * - Integrated proctoring tools for exam monitoring
+ * - Calendar management interface
+ *
+ * Props:
+ * - Extends React.ComponentProps<typeof Sidebar>
+ * - Allows passing through additional sidebar properties
+ *
+ * Dependencies:
+ * - React for component architecture
+ * - Lucide icons for UI elements
+ * - Custom UI components (Sidebar, NavUser, Calendars)
+ * - Proctoring components for exam monitoring
+ */
+
 // Import React and required icons
 import * as React from 'react'
 import { Plus } from 'lucide-react'
