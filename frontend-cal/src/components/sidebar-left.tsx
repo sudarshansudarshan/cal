@@ -111,7 +111,9 @@ const data = {
   navSecondary: [
     { title: 'Calendar', url: '#', icon: Calendar },
     { title: 'Settings', url: '#', icon: Settings2 },
-    { title: 'Logout', url: '#', icon: LogOut },
+    { title: 'Logout', url: '#', icon: LogOut, onclick: () => {
+      handleLogout();
+    } },
     { title: 'Trash', url: '#', icon: Trash2 },
     { title: 'Help', url: '#', icon: MessageCircleQuestion },
   ],

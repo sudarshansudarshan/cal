@@ -64,8 +64,11 @@ export const apiService = createApi({
 
     logout: builder.mutation<void, void>({
       query: () => ({
-        url: '/userLogout',
+        url: '/auth/logout/',
         method: 'POST',
+        body: {
+          "token" : Cookies.get('access_token')
+        },
         headers: {
           Authorization: `Bearer ${Cookies.get('access_token')}`,
           'Content-Type': 'application/json',
