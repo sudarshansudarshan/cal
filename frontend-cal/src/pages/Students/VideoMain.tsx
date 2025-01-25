@@ -1,6 +1,4 @@
-<<<<<<< HEAD
-import React, { useEffect, useRef, useState } from 'react'
-=======
+
 /**
  * VideoMain Page
  *
@@ -21,8 +19,8 @@ import React, { useEffect, useRef, useState } from 'react'
  * - User interaction tracking and validation
  */
 
-import React, { useEffect, useState } from 'react'
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
+import React, { useEffect, useState, useRef } from 'react'
+
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { useSidebar } from '@/components/ui/sidebar'
 import { useLocation } from 'react-router-dom'
@@ -59,7 +57,6 @@ import Cookies from 'js-cookie'
 const VideoMain = () => {
   const location = useLocation()
   const [responseData, setResponseData] = useState(null)
-<<<<<<< HEAD
   const playerIntervalRef = useRef(null)
   const playerRef = useRef(null) // Add ref for player instance
 
@@ -70,17 +67,6 @@ const VideoMain = () => {
   const moduleId = location.state?.moduleId
 
   // This ensures that the sidebar is open or not
-=======
-  console.log('Location:', responseData)
-  const assignment = location.state?.assignment // Access the assignment from state
-  const sectionId = location.state?.sectionId // Access the sectionId from state
-  const courseId = location.state?.courseId // Access the courseId from state
-  const moduleId = location.state?.moduleId // Access the moduleId from state
-  console.log('Section ID:', sectionId)
-  console.log('Assignment:', assignment)
-
-  // UI State Management
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const { setOpen } = useSidebar()
 
   const [currentFrame, setCurrentFrame] = useState(assignment.sequence - 1)
@@ -91,77 +77,39 @@ const VideoMain = () => {
   const [selectedAnswer, setSelectedAnswer] = useState(null)
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false)
   const [selectedOption, setSelectedOption] = useState(null)
-<<<<<<< HEAD
   const [currentTime, setCurrentTime] = useState(0)
   const [totalDuration, setTotalDuration] = useState(0)
   const [volume, setVolume] = useState(50)
   const [playbackSpeed, setPlaybackSpeed] = useState(1)
-=======
-  console.log('Selected Answer : ', selectedAnswer)
-
-  // Video Player State Management
-  const [currentTime, setCurrentTime] = useState(0)
-  const [totalDuration, setTotalDuration] = useState(0)
-  const [volume, setVolume] = useState(50) // Default volume at 50%
-  const [playbackSpeed, setPlaybackSpeed] = useState(1) // Default speed is 1x
-
-  // Assessment Data Management
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const [assessmentId, setAssessmentId] = useState(1)
   const [startAssessment] = useStartAssessmentMutation()
   const [submitAssessment] = useSubmitAssessmentMutation()
   const [gradingData, setGradingData] = useState(null)
   const [isPlayerReady, setIsPlayerReady] = useState(false) // Add state for player ready status
+  const [ytApiReady, setYtApiReady] = useState(false) // Add state to track YT API readiness
 
-<<<<<<< HEAD
   //Responsible for fetching Items using RTK Query
   const { data: assignmentsData } = useFetchItemsWithAuthQuery(sectionId)
-=======
-  // API Data Fetching
-  const {
-    data: assignmentsData,
-    isLoading,
-    isError,
-  } = useFetchItemsWithAuthQuery(sectionId)
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const content = assignmentsData || []
 
   //Responsible for fetching the questions using RTK Query
   const { data: assessmentData } = useFetchQuestionsWithAuthQuery(assessmentId)
   const AssessmentData = assessmentData?.results
 
-<<<<<<< HEAD
   // UseEffect to create player for each frame and to close the sidebar
-=======
-  // YouTube Player Initialization
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   useEffect(() => {
-    setOpen(false)
-    const tag = document.createElement('script')
-    tag.src = 'https://www.youtube.com/iframe_api'
-    const firstScriptTag = document.getElementsByTagName('script')[0]
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
+    // Only load YT API once
+    if (!window.YT) {
+      const tag = document.createElement('script')
+      tag.src = 'https://www.youtube.com/iframe_api'
+      const firstScriptTag = document.getElementsByTagName('script')[0]
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
 
-    tag.onload = () => {
-      // Initialize player with retry mechanism
-      const initPlayer = () => {
-        if (!window.YT || !window.YT.Player) {
-          setTimeout(initPlayer, 100) // Retry after 100ms
-          return
-        }
-
-        playerRef.current = new window.YT.Player(`player-${currentFrame}`, {
-          events: {
-            onReady: (event) => {
-              setIsPlayerReady(true)
-              onPlayerReady(event)
-            },
-            onStateChange: onPlayerStateChange,
-          },
-        })
+      window.onYouTubeIframeAPIReady = () => {
+        setYtApiReady(true)
       }
-
-      initPlayer()
+    } else {
+      setYtApiReady(true) 
     }
 
     return () => {
@@ -169,19 +117,42 @@ const VideoMain = () => {
         playerRef.current.destroy()
         playerRef.current = null
       }
-      // Clear interval to prevent memory leaks
       if (playerIntervalRef.current) {
         clearInterval(playerIntervalRef.current)
       }
       setIsPlayerReady(false)
     }
-  }, [currentFrame, setOpen])
+  }, [])
 
-<<<<<<< HEAD
+  // Initialize player when API is ready and frame changes
+  useEffect(() => {
+    if (!ytApiReady) return
+
+    const initPlayer = () => {
+      if (!window.YT || !window.YT.Player) {
+        setTimeout(initPlayer, 100)
+        return
+      }
+
+      if (playerRef.current) {
+        playerRef.current.destroy()
+      }
+
+      playerRef.current = new window.YT.Player(`player-${currentFrame}`, {
+        events: {
+          onReady: (event) => {
+            setIsPlayerReady(true)
+            onPlayerReady(event)
+          },
+          onStateChange: onPlayerStateChange,
+        },
+      })
+    }
+
+    initPlayer()
+  }, [ytApiReady, currentFrame])
+
   //Funtion to fetch the assessment prior to a frame
-=======
-  // Assessment Management Functions
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const fetchAssessment = (currentFrame) => {
     console.log(content[currentFrame].item_type)
     // Only Fetches the assessment when the next frame is assessment
@@ -210,11 +181,7 @@ const VideoMain = () => {
   }
   console.log('Response Data:', responseData)
 
-<<<<<<< HEAD
   // When player Get ready this fucntion is called to make things happen in player
-=======
-  // Video Player Event Handlers
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const onPlayerReady = (event) => {
     console.log('Window player is ready : ', playerRef.current)
     const duration = event.target.getDuration()
@@ -284,11 +251,7 @@ const VideoMain = () => {
     }
   }
 
-<<<<<<< HEAD
   // This funtion is responsible in for working of play/pause toggle button
-=======
-  // Video Control Functions
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const togglePlayPause = () => {
     if (!isPlayerReady || !playerRef.current) return
     if (isPlaying) {
@@ -298,11 +261,7 @@ const VideoMain = () => {
     }
   }
 
-<<<<<<< HEAD
   // This funtion is to go forward to the next frame
-=======
-  // Navigation Functions
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const handleNextFrame = async () => {
     setCurrentFrame((prevFrame) => (prevFrame + 1) % content.length)
     setSelectedOption(null)
@@ -334,11 +293,7 @@ const VideoMain = () => {
     }
   }
 
-<<<<<<< HEAD
   // This funtion called when user submits the assessment
-=======
-  // Assessment Submission Handler
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const handleSubmit = () => {
     setSelectedAnswer(selectedOption)
     const question = AssessmentData[currentQuestionIndex]
@@ -382,11 +337,7 @@ const VideoMain = () => {
     }
   }
 
-<<<<<<< HEAD
   // This funtion is responsible to set the selected option after click on any option of question by user
-=======
-  // Question Navigation Handlers
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const handleOptionClick = (optionId) => {
     setSelectedOption(optionId)
   }
@@ -407,11 +358,7 @@ const VideoMain = () => {
     window.location.reload()
   }
 
-<<<<<<< HEAD
   // This funtion is for changing the speed of Video
-=======
-  // Video Playback Control Functions
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const changePlaybackSpeed = (speed) => {
     if (!isPlayerReady) return
     playerRef.current.setPlaybackRate(speed)
@@ -444,11 +391,7 @@ const VideoMain = () => {
     }
   }
 
-<<<<<<< HEAD
   // This useeffect ensures that whenever the page reloads the currentframe should not be change
-=======
-  // Frame Restoration Effect
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   useEffect(() => {
     const savedFrame = localStorage.getItem('nextFrame')
     if (savedFrame !== null) {
@@ -457,11 +400,7 @@ const VideoMain = () => {
     }
   }, [])
 
-<<<<<<< HEAD
   // This funtion create the interface of assessment that exactly how the assessment will look like
-=======
-  // Assessment Rendering Function
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const renderAssessment = (question) => {
     if (!AssessmentData || AssessmentData.length === 0) {
       return <div>No assessment data available.</div>
@@ -529,11 +468,7 @@ const VideoMain = () => {
     )
   }
 
-<<<<<<< HEAD
   // As we are getting url from the backend and need VideoId for the player so this funtion convert the url to videoId
-=======
-  // YouTube URL Parser
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const getYouTubeVideoId = (url) => {
     console.log('URL:', url)
     try {
@@ -557,11 +492,7 @@ const VideoMain = () => {
     }
   }
 
-<<<<<<< HEAD
   // This funtion is used for switch case according to the data that whenever the data type is video , assessment or article it will display the frame according to the type
-=======
-  // Content Type Renderer
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
   const renderdataByType = (frame, index) => {
     let videoId = null
     if (frame?.item_type === 'video') {
@@ -608,11 +539,7 @@ const VideoMain = () => {
   }
 
   return (
-<<<<<<< HEAD
     //These are the resizable panels with can be resized by dragging the resizable handle
-=======
-    // Main layout with resizable panels
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
     <ResizablePanelGroup direction='vertical' className='bg-gray-200 p-2'>
       {/* Proctoring components */}
       <KeyboardLock />
@@ -621,10 +548,6 @@ const VideoMain = () => {
       {/* Main content panel - 90% height */}
       <ResizablePanel defaultSize={90}>
         <div className='flex h-full flex-col'>
-<<<<<<< HEAD
-=======
-          {/* Frame display section with overflow handling */}
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
           <div className='relative h-full overflow-hidden'>
             <div
               className='absolute size-full transition-transform duration-300'
@@ -665,12 +588,12 @@ const VideoMain = () => {
                   onClick={handleNextFrame}
                   className='rounded-full p-2 text-2xl'
                 >
-                  Hello
+                  Next
                 </button>
                 <Slider
                   value={[currentTime]}
                   onValueChange={handleTimeChange}
-                  min={1}
+                  min={0}
                   max={totalDuration}
                   step={1}
                   className='w-48'
