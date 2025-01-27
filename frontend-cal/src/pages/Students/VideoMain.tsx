@@ -53,11 +53,42 @@ import { useFetchQuestionsWithAuthQuery } from '@/store/apiService'
 
 import Cookies from 'js-cookie'
 
+// Define interfaces for state and props
+interface AssessmentOption {
+  id: number;
+  option_text: string;
+}
+
+interface AssessmentQuestion {
+  id: number;
+  text: string;
+  options: AssessmentOption[];
+  hint?: string;
+}
+
+interface ContentFrame {
+  id: number;
+  item_type: 'video' | 'article' | 'assessment';
+  source?: string;
+  title?: string;
+  content?: string;
+  start_time?: number;
+  end_time?: number;
+}
+
+interface PlayerState {
+  isPlaying: boolean;
+  volume: number;
+  currentTime: number;
+  totalDuration: number;
+  playbackSpeed: number;
+}
+
 const VideoMain = () => {
   const location = useLocation()
-  const [responseData, setResponseData] = useState(null)
-  const playerIntervalRef = useRef(null)
-  const playerRef = useRef(null) // Add ref for player instance
+  const [responseData, setResponseData] = useState<string | null>(null)
+  const playerIntervalRef = useRef<number | null>(null)
+  const playerRef = useRef<YT.Player | null>(null)
 
   // This is the data which is stored in the local State when the user goes from one page to another using routing
   const assignment = location.state?.assignment
@@ -73,9 +104,9 @@ const VideoMain = () => {
 
   // Assessment State Management
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [selectedAnswer, setSelectedAnswer] = useState(null)
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false)
-  const [selectedOption, setSelectedOption] = useState(null)
+  const [selectedOption, setSelectedOption] = useState<number | null>(null)
   const [currentTime, setCurrentTime] = useState(0)
   const [totalDuration, setTotalDuration] = useState(0)
   const [volume, setVolume] = useState(50)
@@ -83,9 +114,9 @@ const VideoMain = () => {
   const [assessmentId, setAssessmentId] = useState(1)
   const [startAssessment] = useStartAssessmentMutation()
   const [submitAssessment] = useSubmitAssessmentMutation()
-  const [gradingData, setGradingData] = useState(null)
-  const [isPlayerReady, setIsPlayerReady] = useState(false) // Add state for player ready status
-  const [ytApiReady, setYtApiReady] = useState(false) // Add state to track YT API readiness
+  const [gradingData, setGradingData] = useState<boolean | null>(null)
+  const [isPlayerReady, setIsPlayerReady] = useState(false)
+  const [ytApiReady, setYtApiReady] = useState(false)
 
   //Responsible for fetching Items using RTK Query
   const { data: assignmentsData } = useFetchItemsWithAuthQuery(sectionId)
@@ -102,7 +133,7 @@ const VideoMain = () => {
       const tag = document.createElement('script')
       tag.src = 'https://www.youtube.com/iframe_api'
       const firstScriptTag = document.getElementsByTagName('script')[0]
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag)
 
       window.onYouTubeIframeAPIReady = () => {
         setYtApiReady(true)
@@ -128,7 +159,7 @@ const VideoMain = () => {
     if (!ytApiReady) return
 
     const initPlayer = () => {
-      if (!window.YT || !window.YT.Player) {
+      if (!window.YT?.Player) {
         setTimeout(initPlayer, 100)
         return
       }
@@ -137,7 +168,14 @@ const VideoMain = () => {
         playerRef.current.destroy()
       }
 
+      const currentContent = content[currentFrame]
+      if (currentContent?.item_type !== 'video') return
+
+      const videoId = getYouTubeVideoId(currentContent.source)
+      if (!videoId) return
+
       playerRef.current = new window.YT.Player(`player-${currentFrame}`, {
+        videoId,
         events: {
           onReady: (event) => {
             setIsPlayerReady(true)
@@ -145,11 +183,17 @@ const VideoMain = () => {
           },
           onStateChange: onPlayerStateChange,
         },
+        playerVars: {
+          controls: 0,
+          rel: 0,
+          modestbranding: 1,
+          fs: 1
+        }
       })
     }
 
     initPlayer()
-  }, [ytApiReady, currentFrame])
+  }, [ytApiReady, currentFrame, content])
 
   //Funtion to fetch the assessment prior to a frame
   const fetchAssessment = (currentFrame) => {
@@ -507,7 +551,7 @@ const VideoMain = () => {
             frameBorder='0'
             allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
             allowFullScreen
-            className='size-full'
+            className='size-full pointer-events-none cursor-none'
           ></iframe>
         )
       case 'article':
