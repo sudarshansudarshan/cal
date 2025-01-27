@@ -61,7 +61,7 @@ const AllCourses = () => {
 
   // Default image URL
   const defaultImage =
-    'https://i.pinimg.com/originals/24/12/bc/2412bc5c012e7360f602c13a92901055.jpg'
+    'https://excellentia.org.in/images/courses.jpg'
 
   // Map API response to match the expected structure
   interface Course {

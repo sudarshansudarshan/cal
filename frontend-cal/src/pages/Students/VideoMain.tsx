@@ -55,33 +55,33 @@ import Cookies from 'js-cookie'
 
 // Define interfaces for state and props
 interface AssessmentOption {
-  id: number;
-  option_text: string;
+  id: number
+  option_text: string
 }
 
 interface AssessmentQuestion {
-  id: number;
-  text: string;
-  options: AssessmentOption[];
-  hint?: string;
+  id: number
+  text: string
+  options: AssessmentOption[]
+  hint?: string
 }
 
 interface ContentFrame {
-  id: number;
-  item_type: 'video' | 'article' | 'assessment';
-  source?: string;
-  title?: string;
-  content?: string;
-  start_time?: number;
-  end_time?: number;
+  id: number
+  item_type: 'video' | 'article' | 'assessment'
+  source?: string
+  title?: string
+  content?: string
+  start_time?: number
+  end_time?: number
 }
 
 interface PlayerState {
-  isPlaying: boolean;
-  volume: number;
-  currentTime: number;
-  totalDuration: number;
-  playbackSpeed: number;
+  isPlaying: boolean
+  volume: number
+  currentTime: number
+  totalDuration: number
+  playbackSpeed: number
 }
 
 const VideoMain = () => {
@@ -98,6 +98,7 @@ const VideoMain = () => {
 
   // This ensures that the sidebar is open or not
   const { setOpen } = useSidebar()
+  setOpen(false)
 
   const [currentFrame, setCurrentFrame] = useState(assignment.sequence - 1)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -187,8 +188,8 @@ const VideoMain = () => {
           controls: 0,
           rel: 0,
           modestbranding: 1,
-          fs: 1
-        }
+          fs: 1,
+        },
       })
     }
 
@@ -197,7 +198,6 @@ const VideoMain = () => {
 
   //Funtion to fetch the assessment prior to a frame
   const fetchAssessment = (currentFrame) => {
-    console.log(content[currentFrame].item_type)
     // Only Fetches the assessment when the next frame is assessment
     if (content[currentFrame + 1].item_type === 'assessment') {
       setAssessmentId(content[currentFrame + 1].id)
@@ -206,7 +206,6 @@ const VideoMain = () => {
         assessmentId: assessmentId.toString(),
       })
         .then((response) => {
-          console.log('Response:', response.data.attemptId)
           if (response.data && response.data.attemptId) {
             setResponseData(response.data.attemptId)
             toast('Assessment started successfully!', { type: 'success' })
@@ -215,23 +214,20 @@ const VideoMain = () => {
           }
         })
         .catch((error) => {
-          console.error('Failed to start assessment:', error)
           toast('Failed to start assessment. Please try again.', {
             type: 'error',
           })
         })
     }
   }
-  console.log('Response Data:', responseData)
 
   // When player Get ready this fucntion is called to make things happen in player
   const onPlayerReady = (event) => {
-    console.log('Window player is ready : ', playerRef.current)
     const duration = event.target.getDuration()
     setTotalDuration(duration)
     event.target.setVolume(volume)
 
-    if (content[currentFrame + 1].item_type === 'video') {
+    if (content[currentFrame].item_type === 'video') {
       const startTime = content[currentFrame].start_time
       const endTime = content[currentFrame].end_time
 
@@ -273,10 +269,31 @@ const VideoMain = () => {
   const onPlayerStateChange = (event) => {
     if (event.data === window.YT.PlayerState.PLAYING) {
       setIsPlaying(true)
+      // Clear any existing intervals to avoid duplicates
+      if (playerIntervalRef.current) {
+        clearInterval(playerIntervalRef.current)
+      }
       // Start updating time
       playerIntervalRef.current = setInterval(() => {
+        if (!playerRef.current) return
         const currentPlayerTime = playerRef.current.getCurrentTime()
-        setCurrentTime(currentPlayerTime)
+        const endTime = content[currentFrame].end_time
+
+        // Log to debug
+        console.log('Current Time:', currentPlayerTime, 'End Time:', endTime)
+
+        if (currentPlayerTime > endTime) {
+          playerRef.current.pauseVideo() // Pause at end time
+          clearInterval(playerIntervalRef.current) // Clear interval
+          setCurrentFrame((prevFrame) => (prevFrame + 1) % content.length)
+          setSelectedOption(null)
+          setSelectedOption(null)
+          setCurrentQuestionIndex(0)
+          setIsPlaying(false)
+          fetchAssessment(currentFrame)
+        } else {
+          setCurrentTime(currentPlayerTime)
+        }
       }, 1000)
     } else if (
       event.data === window.YT.PlayerState.PAUSED ||
@@ -287,13 +304,8 @@ const VideoMain = () => {
       if (playerIntervalRef.current) {
         clearInterval(playerIntervalRef.current)
       }
-
-      if (event.data === window.YT.PlayerState.ENDED) {
-        handleNextFrame()
-      }
     }
   }
-
   // This funtion is responsible in for working of play/pause toggle button
   const togglePlayPause = () => {
     if (!isPlayerReady || !playerRef.current) return
@@ -320,7 +332,6 @@ const VideoMain = () => {
     if (selectedOption === null) return
 
     setSelectedAnswer(selectedOption)
-    console.log('Selected Answer:', selectedAnswer)
     const question = questions[0].results[currentQuestionIndex]
     const isCorrect = selectedOption === question.answer
     setIsAnswerCorrect(isCorrect)
@@ -370,7 +381,6 @@ const VideoMain = () => {
         }
       })
       .catch((error) => {
-        console.error('Failed to submit assessment:', error)
         toast('Failed to submit assessment. Please try again.', {
           type: 'error',
         })
@@ -510,10 +520,8 @@ const VideoMain = () => {
 
   // As we are getting url from the backend and need VideoId for the player so this funtion convert the url to videoId
   const getYouTubeVideoId = (url) => {
-    console.log('URL:', url)
     try {
       const parsedUrl = new URL(url)
-      console.log('Parsed URL:', parsedUrl)
       let videoId
       if (parsedUrl.hostname === 'youtu.be') {
         videoId = parsedUrl.pathname.slice(1)
@@ -522,12 +530,10 @@ const VideoMain = () => {
       }
 
       if (!videoId) {
-        console.error('Invalid YouTube URL:', url)
         return null
       }
       return videoId
     } catch (error) {
-      console.error('Error parsing URL:', url, error)
       return null
     }
   }
@@ -537,7 +543,6 @@ const VideoMain = () => {
     let videoId = null
     if (frame?.item_type === 'video') {
       videoId = getYouTubeVideoId(frame.source)
-      console.log('I am Video Id : ', videoId)
     }
 
     switch (frame.item_type) {
@@ -624,17 +629,11 @@ const VideoMain = () => {
                 >
                   {isPlaying ? <Pause /> : <Play />}
                 </button>
-                <button
-                  onClick={handleNextFrame}
-                  className='rounded-full p-2 text-2xl'
-                >
-                  Next
-                </button>
                 <Slider
                   value={[currentTime]}
                   onValueChange={handleTimeChange}
-                  min={0}
-                  max={totalDuration}
+                  min={content[currentFrame]?.start_time || 0}
+                  max={content[currentFrame]?.end_time || totalDuration}
                   step={1}
                   className='w-48'
                   disabled={!isPlayerReady}
