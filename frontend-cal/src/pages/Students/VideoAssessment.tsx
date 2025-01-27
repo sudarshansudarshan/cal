@@ -74,7 +74,7 @@ export default function VideoAssessment() {
   const [currentPart, setCurrentPart] = useState(0)
   const [showThumbnail, setShowThumbnail] = useState(true) // State to show/hide the thumbnail
   const thumbnailUrl =
-    'https://i.pinimg.com/originals/24/12/bc/2412bc5c012e7360f602c13a92901055.jpg'
+    'https://excellentia.org.in/images/courses.jpg'
 
   useEffect(() => {
     setCurrentPart(0)
