@@ -1,4 +1,3 @@
-
 /**
  * VideoMain Page
  *
@@ -109,7 +108,7 @@ const VideoMain = () => {
         setYtApiReady(true)
       }
     } else {
-      setYtApiReady(true) 
+      setYtApiReady(true)
     }
 
     return () => {
@@ -299,42 +298,39 @@ const VideoMain = () => {
     const question = AssessmentData[currentQuestionIndex]
 
     submitAssessment({
-      courseInstanceId: courseId,
-      assessmentId: assessmentId.toString(),
+      assessmentId: assessmentId,
+      courseId: courseId,
       attemptId: responseData,
-      answers: {
-        natAnswers: [],
-        mcqAnswers: [
-          {
-            questionId: question.id.toString(),
-            choiceId: selectedOption.toString(),
-          },
-        ],
-        msqAnswers: [],
-        descriptiveAnswers: [],
-      },
+      questionId: question.id,
+      answers: selectedOption.toString(),
     })
       .then((response) => {
         if (response.data) {
-          Cookies.set('gradingData', response.data.assessmentGradingStatus)
-          setGradingData(response.data.assessmentGradingStatus)
-          toast('Assessment started successfully!', { type: 'success' })
+          Cookies.set('gradingData', response.data.isAnswerCorrect)
+          setGradingData(response.data.isAnswerCorrect)
+          if (response.data.isAnswerCorrect === false) {
+            const nextFrameIndex =
+              (currentFrame - 1 + content.length) % content.length
+            localStorage.setItem('nextFrame', nextFrameIndex)
+            window.location.reload()
+          } else {
+            setCurrentFrame((prevFrame) => (prevFrame + 1) % content.length)
+            setSelectedOption(null)
+            setSelectedOption(null)
+            setCurrentQuestionIndex(0)
+            setCurrentTime(0)
+            setIsPlaying(false)
+            fetchAssessment(currentFrame)
+          }
+          toast('Assessment Submitted successfully!', { type: 'success' })
         }
       })
       .catch((error) => {
-        console.error('Failed to start assessment:', error)
-        toast('Failed to start assessment. Please try again.', {
+        console.error('Failed to submit assessment:', error)
+        toast('Failed to submit assessment. Please try again.', {
           type: 'error',
         })
       })
-
-    if (Cookies.get('gradingData') === 'PASSED') {
-      toast('Assessment Complete!', { type: 'success' })
-      handleNextFrame()
-    } else if (Cookies.get('gradingData') === 'FAILED') {
-      toast('Incorrect Answer! Please try again.', { type: 'error' })
-      handlePrevFrame()
-    }
   }
 
   // This funtion is responsible to set the selected option after click on any option of question by user

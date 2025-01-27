@@ -297,7 +297,7 @@ export const anotherApiService = createApi({
       { courseInstanceId: string; assessmentId: string }
     >({
       query: (assessmentData) => ({
-        url: '/assessment/start',
+        url: '/startAssessment',
         method: 'POST',
         body: {
           ...assessmentData,
@@ -323,19 +323,15 @@ export const anotherApiService = createApi({
     submitAssessment: builder.mutation<
       void,
       {
-        courseInstanceId: string
-        assessmentId: string
-        attemptId: string
-        answers: {
-          natAnswers: { questionId: string; value: string }[]
-          mcqAnswers: { questionId: string; choiceId: string }[]
-          msqAnswers: { questionId: string; choiceIds: string[] }[]
-          descriptiveAnswers: { questionId: string; value: string }[]
-        }
+        assessmentId: number
+        courseId: number
+        attemptId: number
+        answers: string
+        questionId:number
       }
     >({
       query: (submissionData) => ({
-        url: '/assessment/submit',
+        url: '/submitAssessment',
         method: 'POST',
         body: {
           ...submissionData,
