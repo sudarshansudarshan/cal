@@ -1,5 +1,5 @@
 /**
- * VideoMain Page
+ * Content Scroll View Page
  *
  * This page implements a video player interface with assessment capabilities for students.
  * It allows students to watch educational videos and take assessments in an integrated learning experience.
@@ -31,8 +31,6 @@ import {
 import { Cookie, Fullscreen, Pause, Play } from 'lucide-react'
 import { Slider } from '@/components/ui/slider'
 
-//This the dummy Data used for testing the questions funtionality it provides all the questions according to the exact format
-import { questions } from '../DummyDatas/Questions'
 
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -84,7 +82,7 @@ interface PlayerState {
   playbackSpeed: number
 }
 
-const VideoMain = () => {
+const ContentScrollView = () => {
   const location = useLocation()
   const [responseData, setResponseData] = useState<string | null>(null)
   const playerIntervalRef = useRef<number | null>(null)
@@ -690,4 +688,4 @@ const VideoMain = () => {
   )
 }
 
-export default VideoMain
+export default ContentScrollView

@@ -1,5 +1,5 @@
 /**
- * Section Page
+ * Section Detail Page
  *
  * This page displays the content items within a specific section of a course module.
  * It shows a list of content items like videos and assessments with their details
@@ -64,7 +64,7 @@ const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
           {assignment.item_type === 'video' && assignment.id === 1 && (
             <Button
               onClick={() =>
-                navigate('/videoMain', {
+                navigate('/content-scroll-view', {
                   state: { assignment, sectionId, courseId, moduleId },
                 })
               }
@@ -82,7 +82,7 @@ const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
  * Main Section Component
  * Manages fetching content items and rendering the complete section view
  */
-const Section = () => {
+const SectionDetails = () => {
   const { sectionId } = useParams()
   const location = useLocation()
   const courseId = location.state?.courseId // Access the sectionId from state
@@ -129,4 +129,4 @@ const Section = () => {
   )
 }
 
-export default Section
+export default SectionDetails

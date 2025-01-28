@@ -1,5 +1,5 @@
 /**
- * StudentHome Page
+ * Student Dashboard Page
  * 
  * This page serves as the main dashboard for students, displaying an overview of their courses
  * and learning progress. It shows key metrics and two main tables for course management.
@@ -65,7 +65,7 @@ const ongoingCourses = [
   { id: 110, name: 'Agile Methodologies', progression: '55%' },
 ]
 
-const StudentHome = () => {
+const StudentDashboard = () => {
   // State for controlling table expansion
   const [showAllCourses, setShowAllCourses] = useState(false)
   const [showAllOngoing, setShowAllOngoing] = useState(false)
@@ -216,4 +216,4 @@ const StudentHome = () => {
   )
 }
 
-export default StudentHome
+export default StudentDashboard

@@ -1,5 +1,5 @@
 /**
- * AllCourses
+ * Course View Page
  *
  * This component displays a grid of available courses for students with filtering capabilities.
  * It fetches course data from an API and allows filtering between ongoing and completed courses.
@@ -37,7 +37,7 @@ import {
 import { useFetchCoursesWithAuthQuery } from '../../store/apiService'
 import { Link } from 'react-router-dom'
 
-const AllCourses = () => {
+const CourseView = () => {
   // State for filtering courses (default to Completed)
   const [filter, setFilter] = useState('Completed')
 
@@ -148,7 +148,7 @@ const AllCourses = () => {
             </CardContent>
             <div className='p-4 text-center'>
               <Link
-                to={`/singleCourse/${course.id}`}
+                to={`/module-view/${course.id}`}
                 className='inline-block w-full rounded bg-gray-800 px-4 py-2 text-center text-white'
               >
                 View
@@ -161,4 +161,4 @@ const AllCourses = () => {
   )
 }
 
-export default AllCourses
+export default CourseView
