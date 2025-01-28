@@ -108,6 +108,12 @@ Below is a summary of the file locations for quick reference:
 | components          | `\frontend-cal\src\components`|
 |                    | ├── login-form|
 |                    | ├── mode-toggle|
+|                    | ├── sidebar-left|
+|                    | ├── sidebar-right|
+|                    | ├── signup-form|
+|                    | ├── login-form|
+|                    | ├── logout|
+|                    | ├── mode-toggle|
 |                    | ├── proctoring-components|
 |                    | │   ├── BlurDetection.tsx|
 |                    | │   ├── ParentComponent.tsx|
@@ -117,9 +123,19 @@ Below is a summary of the file locations for quick reference:
 |                    | │   ├── MouseDetection.tsx|
 |                    | │   ├── TabSwitchDetection.tsx|
 |                    | │   └── WindowResizeDetection.tsx|
-|                    | ├── sidebar-left|
-|                    | ├── sidebar-right|
 |                    | └── ui|
+|                    |     ├── breadcrumb.tsx|
+|                    |     ├── button.tsx|
+|                    |     ├── card.tsx|
+|                    |     ├── dialog.tsx|
+|                    |     ├── dropdown-menu.tsx|
+|                    |     ├── form.tsx|
+|                    |     ├── input.tsx|
+|                    |     ├── label.tsx|
+|                    |     ├── separator.tsx|
+|                    |     ├── sidebar.tsx|
+|                    |     ├── sonner.tsx|
+|                    |     └── theme-provider.tsx|
 | pages              | `\frontend-cal\src\pages`|
 |                    | ├── Home.tsx|
 |                    | ├── LoginPage.tsx|
