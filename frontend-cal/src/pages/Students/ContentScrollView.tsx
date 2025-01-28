@@ -89,7 +89,7 @@ const ContentScrollView = () => {
   const playerRef = useRef<YT.Player | null>(null)
 
   // This is the data which is stored in the local State when the user goes from one page to another using routing
-  const assignment = location.state?.assignment
+  const assignment = location.state?.assignment || {}
   const sectionId = location.state?.sectionId
   const courseId = location.state?.courseId
   const moduleId = location.state?.moduleId
@@ -98,7 +98,10 @@ const ContentScrollView = () => {
   const { setOpen } = useSidebar()
   setOpen(false)
 
-  const [currentFrame, setCurrentFrame] = useState(assignment.sequence - 1)
+  // Initialize currentFrame with a default value if assignment.sequence is undefined
+  const [currentFrame, setCurrentFrame] = useState(
+    assignment?.sequence ? assignment.sequence - 1 : 0
+  )
   const [isPlaying, setIsPlaying] = useState(false)
 
   // Assessment State Management
@@ -628,8 +631,13 @@ const ContentScrollView = () => {
                   {isPlaying ? <Pause /> : <Play />}
                 </button>
                 <Slider
-                  value={[currentTime]}
-                  onValueChange={handleTimeChange}
+                  value={[currentTime]} 
+                  onValueChange={(value) => {
+                    const newTime = value[0];
+                    if (newTime <= currentTime) {
+                      handleTimeChange(value);
+                    }
+                  }}
                   min={content[currentFrame]?.start_time || 0}
                   max={content[currentFrame]?.end_time || totalDuration}
                   step={1}
