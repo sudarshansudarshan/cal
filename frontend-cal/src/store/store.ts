@@ -20,8 +20,8 @@
  */
 
 import { configureStore } from '@reduxjs/toolkit'
-import { apiService } from './apiServices'
-import { anotherApiService } from './apiServices'
+import { apiService } from './apiServices/apiServicesLMS'
+import { anotherApiService } from './apiServices/apiServicesActivity'
 import authReducer from './slices/authSlice'
 import instituteReducer from './slices/instituteSlice'
 import userReducer from './slices/usersSlice'
@@ -41,10 +41,11 @@ const store = configureStore({
     module: moduleReducer,
     // Add API service reducers with their dynamic paths
     [apiService.reducerPath]: apiService.reducer,
+    [anotherApiService.reducerPath]: anotherApiService.reducer,
   },
   // Configure middleware - combine default middleware with API service middleware
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(apiService.middleware) .concat(anotherApiService.middleware),
+    getDefaultMiddleware().concat(apiService.middleware, anotherApiService.middleware),
 })
 
 export default store

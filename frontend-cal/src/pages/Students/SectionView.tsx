@@ -19,7 +19,7 @@
 import React from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { useFetchSectionsWithAuthQuery } from '@/store/apiServices'
+import { useFetchSectionsWithAuthQuery } from '@/store/apiServices/apiServicesLMS'
 
 // Status styles mapping for different section states
 const statusClasses = {

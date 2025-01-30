@@ -34,7 +34,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-import { useFetchCoursesWithAuthQuery } from '../../store/apiServices'
+import { useFetchCoursesWithAuthQuery } from '@/store/apiServices/apiServicesLMS'
 import { Link } from 'react-router-dom'
 
 const CourseView = () => {

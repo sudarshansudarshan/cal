@@ -31,7 +31,7 @@
 
 // Import required dependencies
 import React, { useState } from 'react'
-import { useSignupMutation } from '../store/apiServices'
+import { useSignupMutation } from '@/store/apiServices/apiServicesLMS'
 
 // Main Signup component
 const Signup: React.FC = () => {

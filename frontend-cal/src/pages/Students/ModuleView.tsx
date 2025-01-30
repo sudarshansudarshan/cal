@@ -33,7 +33,7 @@ import {
 import {
   useFetchCoursesWithAuthQuery,
   useFetchModulesWithAuthQuery,
-} from '../../store/apiServices'
+} from '@/store/apiServices/apiServicesLMS'
 
 // Interface defining the structure of module data
 interface Module {

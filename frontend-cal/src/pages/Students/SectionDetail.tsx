@@ -21,7 +21,7 @@
 
 import React from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { useFetchItemsWithAuthQuery } from '@/store/apiServices'
+import { useFetchItemsWithAuthQuery } from '@/store/apiServices/apiServicesLMS'
 import { Button } from '@/components/ui/button'
 
 // Tailwind classes for different status badges

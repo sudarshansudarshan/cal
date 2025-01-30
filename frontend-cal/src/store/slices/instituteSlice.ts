@@ -20,7 +20,7 @@
 
 // src/store/slices/instituteSlice.ts
 import { createSlice } from '@reduxjs/toolkit'
-import { apiService } from '../apiServices'
+import { apiService } from '../apiServices/apiServicesLMS'
 
 // Type definition for institute state
 interface InstituteState {

@@ -22,7 +22,7 @@
  */
 
 import { createSlice } from '@reduxjs/toolkit'
-import { apiService } from '../apiServices'
+import { apiService } from '../apiServices/apiServicesLMS'
 
 // Type definition for course state
 interface CourseState {

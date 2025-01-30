@@ -41,13 +41,15 @@ import RightClickDisabler from '@/components/proctoring-components/RightClickDis
 
 //These are the imports comming from redux using RTK for fetching and posting the data to the backend
 import {
-  useFetchItemsWithAuthQuery,
-  useFetchSolutionWithAuthQuery,
   useStartAssessmentMutation,
   useSubmitAssessmentMutation,
+} from '@/store/apiServices/apiServicesActivity'
+
+import { useFetchQuestionsWithAuthQuery,
+  useFetchItemsWithAuthQuery,
+  useFetchSolutionWithAuthQuery, 
   useUpdateSectionItemProgressMutation,
-} from '@/store/apiServices'
-import { useFetchQuestionsWithAuthQuery } from '@/store/apiServices'
+} from '@/store/apiServices/apiServicesLMS'
 
 import Cookies from 'js-cookie'
 

@@ -18,7 +18,7 @@
  */
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { apiService, AuthResponse } from '../apiServices'
+import { apiService, AuthResponse } from '../apiServices/apiServicesLMS'
 
 // Type definition for authentication state
 interface AuthState {
@@ -45,7 +45,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false
     },
     // Action to set user data on manual login
-    setUser: (state, action: PayloadAction<AuthResponse>) => {
+    setUser: (state, action: PayloadAction<AuthResponse & { access_token: string }>) => {
       const { role, email, full_name, access_token } = action.payload
       state.user = { role, email, name: full_name }
       state.token = access_token
@@ -58,7 +58,7 @@ const authSlice = createSlice({
       // Update state on successful login
       .addMatcher(
         apiService.endpoints.login.matchFulfilled,
-        (state, { payload }) => {
+        (state, { payload }: { payload: AuthResponse & { access_token: string } }) => {
           state.user = {
             role: payload.role,
             email: payload.email,
@@ -71,7 +71,7 @@ const authSlice = createSlice({
       // Update state on successful signup
       .addMatcher(
         apiService.endpoints.signup.matchFulfilled,
-        (state, { payload }) => {
+        (state, { payload }: { payload: AuthResponse & { access_token: string } }) => {
           state.user = {
             role: payload.role,
             email: payload.email,

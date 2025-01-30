@@ -80,7 +80,7 @@ import {
 } from '@/components/ui/tooltip'
 
 // Import Redux and routing related hooks
-import { useLogoutMutation } from '@/store/apiServices'
+import { useLogoutMutation } from '@/store/apiServices/apiServicesLMS'
 import { useDispatch } from 'react-redux'
 import { logoutState } from '@/store/slices/authSlice'
 import { useNavigate } from 'react-router-dom'

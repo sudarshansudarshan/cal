@@ -150,7 +150,9 @@ Below is a summary of the file locations for quick reference:
 |                    | └── index.ts|
 | store              | `\frontend-cal\src\store`|
 |                    | ├── Slices|
-|                    | ├── apiService.ts|
+|                    | ├── apiService|
+|                    |     ├── apiServicesActivity.tsx|
+|                    |     ├── apiServicesLMS.tsx|
 |                    | └── store.ts|
 | App.tsx            | `\frontend-cal\src\App.tsx`|
 | index.tsx          | `\frontend-cal\src\index.tsx`|
