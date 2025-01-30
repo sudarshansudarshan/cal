@@ -21,7 +21,7 @@
 
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { useLoginMutation } from '../store/apiService'
+import { useLoginMutation } from '../store/apiServices'
 import { setUser } from '../store/slices/authSlice'
 
 const Login: React.FC = () => {

@@ -6,13 +6,13 @@
  * 
  * Features:
  * - Collects email and password inputs and manages their state.
- * - Handles login submission via an API call using RTK Query's `useLoginMutation` hook.
+ * - Handles login submission using Firebase Authentication
  * - Displays loading state on the login button to prevent multiple submissions.
  * - Handles errors and displays an error message if the login attempt fails.
  * - Includes a "Forgot your password?" button (logic for it can be added later).
  * - A Google login button is available for users to log in via their Google account.
  * - A "Sign up" link redirects users to a sign-up form if they don't have an account.
- * - After successful login, user data is stored in Redux, and the user is redirected to the `/allCourses` page.
+ * - After successful login, user data is stored in Redux, and the user is redirected to the `/course-view` page.
  * 
  * Props:
  * - `className`: A string that can be passed to customize the form's CSS classes.
@@ -22,22 +22,20 @@
  * - `email`: Tracks the value of the email input field.
  * - `password`: Tracks the value of the password input field.
  * - `isLoading`: Indicates whether the login request is in progress (disables the login button).
- * - `error`: Stores any error returned by the login request and displays it if the login fails.
- * 
- * This form also utilizes Tailwind CSS for styling, and includes responsive design for mobile compatibility.
->>>>>>> 87567266f044fd6a81156946b496faf7eec9a668
+ * - `error`: Stores any error message if the login fails.
  */
 
-// Import required dependencies
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { useLoginMutation } from '../store/apiService'
 import { setUser } from '../store/slices/authSlice'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useNavigate } from 'react-router-dom'
+import { auth } from '../firebase'
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
+import Cookies from 'js-cookie'
 
 // Props interface for LoginForm component
 interface LoginFormProps extends React.ComponentPropsWithoutRef<'form'> {
@@ -52,12 +50,8 @@ export function LoginForm({
   // State management for form inputs
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
-
-  // RTK Query hook for login mutation
-  const [login, { isLoading, error }] = useLoginMutation()
-
-  // Client ID for API authentication
-  const client_id = 'zekmfjFilNrCOaS2dEUzjlBkGEX2IE9P9Dr49gJj'
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Redux dispatch and navigation hooks
   const dispatch = useDispatch()
@@ -66,16 +60,72 @@ export function LoginForm({
   // Handle form submission
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsLoading(true)
+    setError(null)
+    
+    if (!email || !password) {
+      setError('Please enter both email and password')
+      setIsLoading(false)
+      return
+    }
+    
     try {
-      // Attempt login and unwrap response
-      const response = await login({ email, password, client_id }).unwrap()
-      console.log(email, password, client_id)
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      console.log('User credential:', userCredential)
+      const user = userCredential.user
+      console.log('User:', user)
+      console.log('User email:', user.accessToken)
+      Cookies.set('idToken', user.accessToken)
+      
+
+      if (!user.email) {
+        throw new Error('No email found')
+      }
+      
       // Update Redux store with user data
-      dispatch(setUser(response))
+      dispatch(setUser({
+        id: user.uid,
+        email: user.email,
+        name: user.displayName || user.email.split('@')[0] // Fallback to email username if no display name
+      }))
+      
       // Redirect to courses page on success
-      navigate('/allCourses')
-    } catch (err) {
+      navigate('/course-view')
+    } catch (err: any) {
+      setError('Invalid email or password. Please try again.')
       console.error('Login failed:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Handle Google Sign In
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const provider = new GoogleAuthProvider()
+      const result = await signInWithPopup(auth, provider)
+      const user = result.user
+      
+      if (!user.email) {
+        throw new Error('No email found from Google login')
+      }
+      
+      // Update Redux store with user data
+      dispatch(setUser({
+        id: user.uid,
+        email: user.email,
+        name: user.displayName || user.email.split('@')[0]
+      }))
+      
+      navigate('/course-view')
+    } catch (err: any) {
+      setError('Failed to login with Google. Please try again.')
+      console.error('Google login failed:', err)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -104,6 +154,7 @@ export function LoginForm({
             placeholder='example@example.com'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
         </div>
 
@@ -126,18 +177,19 @@ export function LoginForm({
             type='password'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
         </div>
 
         {/* Login button */}
         <Button type='submit' className='w-full' disabled={isLoading}>
-          Login
+          {isLoading ? 'Logging in...' : 'Login'}
         </Button>
 
         {/* Error message display */}
         {error && (
-          <p className='text-red-500'>
-            Error: {'status' in error ? error.status : error.message}
+          <p className='text-sm text-red-500'>
+            {error}
           </p>
         )}
 
@@ -149,7 +201,13 @@ export function LoginForm({
         </div>
 
         {/* Google login button */}
-        <Button variant='outline' className='w-full'>
+        <Button 
+          type="button"
+          variant='outline' 
+          className='w-full'
+          onClick={handleGoogleSignIn}
+          disabled={isLoading}
+        >
           <svg
             xmlns='http://www.w3.org/2000/svg'
             viewBox='0 0 48 48'

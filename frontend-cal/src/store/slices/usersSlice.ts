@@ -21,7 +21,7 @@
 
 // src/store/slices/usersSlice.ts
 import { createSlice } from '@reduxjs/toolkit'
-import { apiService } from '../apiService'
+import { apiService } from '../apiServices'
 
 // Type definition for user state
 interface UserState {

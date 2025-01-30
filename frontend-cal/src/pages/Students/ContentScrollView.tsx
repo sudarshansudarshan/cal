@@ -1,5 +1,5 @@
 /**
- * VideoMain Page
+ * Content Scroll View Page
  *
  * This page implements a video player interface with assessment capabilities for students.
  * It allows students to watch educational videos and take assessments in an integrated learning experience.
@@ -31,8 +31,6 @@ import {
 import { Cookie, Fullscreen, Pause, Play } from 'lucide-react'
 import { Slider } from '@/components/ui/slider'
 
-//This the dummy Data used for testing the questions funtionality it provides all the questions according to the exact format
-import { questions } from '../DummyDatas/Questions'
 
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -48,8 +46,8 @@ import {
   useStartAssessmentMutation,
   useSubmitAssessmentMutation,
   useUpdateSectionItemProgressMutation,
-} from '@/store/apiService'
-import { useFetchQuestionsWithAuthQuery } from '@/store/apiService'
+} from '@/store/apiServices'
+import { useFetchQuestionsWithAuthQuery } from '@/store/apiServices'
 
 import Cookies from 'js-cookie'
 
@@ -83,15 +81,14 @@ interface PlayerState {
   totalDuration: number
   playbackSpeed: number
 }
-
-const VideoMain = () => {
+const ContentScrollView = () => {
   const location = useLocation()
   const [responseData, setResponseData] = useState<string | null>(null)
   const playerIntervalRef = useRef<number | null>(null)
   const playerRef = useRef<YT.Player | null>(null)
 
   // This is the data which is stored in the local State when the user goes from one page to another using routing
-  const assignment = location.state?.assignment
+  const assignment = location.state?.assignment || {}
   const sectionId = location.state?.sectionId
   const courseId = location.state?.courseId
   const moduleId = location.state?.moduleId
@@ -100,7 +97,10 @@ const VideoMain = () => {
   const { setOpen } = useSidebar()
   setOpen(false)
 
-  const [currentFrame, setCurrentFrame] = useState(assignment.sequence - 1)
+  // Initialize currentFrame with a default value if assignment.sequence is undefined
+  const [currentFrame, setCurrentFrame] = useState(
+    assignment?.sequence ? assignment.sequence - 1 : 0
+  )
   const [isPlaying, setIsPlaying] = useState(false)
 
   // Assessment State Management
@@ -630,8 +630,13 @@ const VideoMain = () => {
                   {isPlaying ? <Pause /> : <Play />}
                 </button>
                 <Slider
-                  value={[currentTime]}
-                  onValueChange={handleTimeChange}
+                  value={[currentTime]} 
+                  onValueChange={(value) => {
+                    const newTime = value[0];
+                    if (newTime <= currentTime) {
+                      handleTimeChange(value);
+                    }
+                  }}
                   min={content[currentFrame]?.start_time || 0}
                   max={content[currentFrame]?.end_time || totalDuration}
                   step={1}
@@ -690,4 +695,4 @@ const VideoMain = () => {
   )
 }
 
-export default VideoMain
+export default ContentScrollView

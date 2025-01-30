@@ -20,7 +20,7 @@
  */
 
 import { createSlice } from '@reduxjs/toolkit'
-import { apiService } from '../apiService'
+import { apiService } from '../apiServices'
 
 // Type definition for module state
 interface ModuleState {

@@ -10,11 +10,12 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import API_URL, { ACTIVITY_URL } from '../../constant'
 import Cookies from 'js-cookie'
+import { getAuth, signOut } from 'firebase/auth'
 
 // Response type for authentication endpoints
 export interface AuthResponse {
   refresh_token: string
-  access_token: string
+  idToken: string
   role: string
   email: string
   full_name: string
@@ -48,10 +49,10 @@ export const apiService = createApi({
       onQueryStarted: async (arg, { queryFulfilled }) => {
         try {
           const { data } = await queryFulfilled
-          Cookies.set('access_token', data.access_token) // Store the correct access token
-          Cookies.set('user_id', data.user_id)
+          console.log('Locnvmnxmvsdnvjdfvdf:', data)
+          Cookies.set('idToken', data.idToken) // Store the correct idToken
         } catch (error) {
-          console.error('Failed to store access token in cookies', error)
+          console.error('Failed to store idToken in cookies', error)
         }
       },
     }),
@@ -79,26 +80,21 @@ export const apiService = createApi({
 
     // Logout endpoint
     logout: builder.mutation<void, void>({
-      query: () => ({
-        url: '/auth/logout/',
-        method: 'POST',
-        body: {
-          "token" : Cookies.get('access_token')
-        },
-        headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
-          'Content-Type': 'application/json',
-        },
-      }),
-      // Remove authentication tokens from cookies after logout
-      onQueryStarted: async (arg, { queryFulfilled }) => {
+      queryFn: async () => {
         try {
-          await queryFulfilled
-          Cookies.remove('access_token') // Remove the token after logout
+          const auth = getAuth();
+          await signOut(auth);
+          
+          // Clear cookies and local storage
+          Cookies.remove('idToken');
+          localStorage.clear();
+          sessionStorage.clear();
+          
+          return { data: undefined };
         } catch (error) {
-          console.error('Failed to remove access token from cookies', error)
+          return { error: 'Failed to logout' };
         }
-      },
+      }
     }),
 
     // Institute management endpoints
@@ -107,7 +103,7 @@ export const apiService = createApi({
         url: '/institutes/',
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          Authorization: `Bearer ${Cookies.get('idToken')}`,
         },
       }),
     }),
@@ -121,7 +117,7 @@ export const apiService = createApi({
         url: '/users/',
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          Authorization: `Bearer ${Cookies.get('idToken')}`,
         },
       }),
     }),
@@ -135,7 +131,7 @@ export const apiService = createApi({
         url: '/videos/',
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          Authorization: `Bearer ${Cookies.get('idToken')}`,
         },
       }),
     }),
@@ -146,7 +142,7 @@ export const apiService = createApi({
         method: 'POST',
         body: videoData,
         headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          Authorization: `Bearer ${Cookies.get('idToken')}`,
           'Content-Type': 'application/json',
         },
       }),
@@ -169,7 +165,7 @@ export const apiService = createApi({
         url: '/course/courses/',
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          Authorization: `Bearer ${Cookies.get('idToken')}`,
         },
       }),
     }),
@@ -180,7 +176,7 @@ export const apiService = createApi({
         url: `/course/modules/?course_id=${courseId}`,
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          Authorization: `Bearer ${Cookies.get('idToken')}`,
           'Content-Type': 'application/json',
         },
       }),
@@ -195,7 +191,7 @@ export const apiService = createApi({
         url: `/assessment/questions/${assessmentId}/`,
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          Authorization: `Bearer ${Cookies.get('idToken')}`,
         },
       }),
     }),
@@ -209,7 +205,7 @@ export const apiService = createApi({
         url: `/course/sections/?course_id=${courseId}&module_id=${moduleId}`,
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          Authorization: `Bearer ${Cookies.get('idToken')}`,
         },
       }),
     }),
@@ -223,7 +219,7 @@ export const apiService = createApi({
         url: `/course/items/?section_id=${sectionId}`,
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          Authorization: `Bearer ${Cookies.get('idToken')}`,
         },
       }),
     }),
@@ -237,7 +233,7 @@ export const apiService = createApi({
         url: `/assessment/questions/?assessment_id=${assessmentId}`,
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          Authorization: `Bearer ${Cookies.get('idToken')}`,
         },
       }),
     }),
@@ -257,7 +253,7 @@ export const apiService = createApi({
         method: 'POST',
         body: progressData,
         headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          Authorization: `Bearer ${Cookies.get('idToken')}`,
           'Content-Type': 'application/json',
         },
       }),
@@ -304,17 +300,17 @@ export const anotherApiService = createApi({
           studentId: Cookies.get('user_id'), // Get studentId from cookies
         },
         headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          Authorization: `Bearer ${Cookies.get('idToken')}`,
           'Content-Type': 'application/json',
         },
       }),
       onQueryStarted: async (arg, { queryFulfilled }) => {
         try {
           const { data } = await queryFulfilled
-          Cookies.set('attemptId', data.attemptId) // Store the correct access token
+          Cookies.set('attemptId', data.attemptId) // Store the correct idToken
           Cookies.remove('gradingData')
         } catch (error) {
-          console.error('Failed to store access token in cookies', error)
+          console.error('Failed to store idToken in cookies', error)
         }
       },
     }),
@@ -338,7 +334,7 @@ export const anotherApiService = createApi({
           studentId: Cookies.get('user_id'), // Get studentId from cookies
         },
         headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
+          Authorization: `Bearer ${Cookies.get('idToken')}`,
           'Content-Type': 'application/json',
         },
       }),

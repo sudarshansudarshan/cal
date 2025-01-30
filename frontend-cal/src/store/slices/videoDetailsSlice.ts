@@ -21,7 +21,7 @@
 
 // src/store/slices/videoDetailsSlice.ts
 import { createSlice } from '@reduxjs/toolkit'
-import { apiService } from '../apiService'
+import { apiService } from '../apiServices'
 
 // Type definition for video details state
 interface VideoDetailsState {

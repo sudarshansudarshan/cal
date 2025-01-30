@@ -65,7 +65,7 @@ const ongoingCourses = [
   { id: 110, name: 'Agile Methodologies', progression: '55%' },
 ]
 
-const StudentHome = () => {
+const StudentDashboard = () => {
   // State for controlling table expansion
   const [showAllCourses, setShowAllCourses] = useState(false)
   const [showAllOngoing, setShowAllOngoing] = useState(false)
@@ -216,4 +216,4 @@ const StudentHome = () => {
   )
 }
 
-export default StudentHome
+export default StudentDashboard

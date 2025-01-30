@@ -1,5 +1,5 @@
 /**
- * AllSections
+ * Section View Page
  *
  * This component displays a list of sections within a module for students to view and access.
  * It includes section details like title, content, status and navigation capabilities.
@@ -19,7 +19,7 @@
 import React from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { useFetchSectionsWithAuthQuery } from '@/store/apiService'
+import { useFetchSectionsWithAuthQuery } from '@/store/apiServices'
 
 // Status styles mapping for different section states
 const statusClasses = {
@@ -66,7 +66,7 @@ const AssignmentRow: React.FC<AssignmentRowProps> = ({
         <StatusBadge status={status} />
         <Button
           onClick={() =>
-            navigate(`/section/${sectionId}`, {
+            navigate(`/section-details/${sectionId}`, {
               state: { courseId, moduleId },
             })
           }
@@ -79,7 +79,7 @@ const AssignmentRow: React.FC<AssignmentRowProps> = ({
 }
 
 // Main component to display all sections
-const AllSections = () => {
+const SectionView = () => {
   // Get route parameters
   const { courseId, moduleId } = useParams()
 
@@ -138,4 +138,4 @@ const AllSections = () => {
   )
 }
 
-export default AllSections
+export default SectionView

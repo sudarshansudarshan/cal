@@ -18,7 +18,7 @@
  */
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { apiService, AuthResponse } from '../apiService'
+import { apiService, AuthResponse } from '../apiServices'
 
 // Type definition for authentication state
 interface AuthState {
