@@ -9,6 +9,7 @@ import ModuleView from '@/pages/Students/ModuleView'
 import ContentScrollView from '@/pages/Students/ContentScrollView'
 import SectionDetails from '@/pages/Students/SectionDetail'
 import SectionView from '@/pages/Students/SectionView'
+import AuthWrapper from '@/components/proctoring-components/AuthWrapper';
 
 const router = createBrowserRouter([
   {
@@ -17,7 +18,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: '',
-        element: React.createElement(Home),
+        element: React.createElement(AuthWrapper, {}, React.createElement(Home)),
         children: [
           {
             path: '',
