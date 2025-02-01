@@ -122,4 +122,22 @@ const SnapshotRecorder: React.FC<{ anomalies: Anomalies }> = ({
   )
 }
 
+// Explain what this component does
+// This component records snapshots from the webcam feed based on detected anomalies.
+// It uses the `handleSaveSnapshot` function to save snapshots with anomaly information.
+// The component uploads snapshots to the cloud storage after a certain number of frames.
+// It checks for active anomalies based on the anomaly data received as props.
+// The component initializes the webcam and starts capturing snapshots at regular intervals.
+// It updates the counter to control the upload frequency of snapshots.
+// The component clears snapshots from the local storage when it mounts.
+// The recorded snapshots include information about the detected anomalies.
+// The component is used to capture snapshots of anomalies detected during proctored activities.
+// It helps in monitoring and recording user behavior during online activities.
+// The snapshots can be used for further analysis or review of user activity.
+// The component provides real-time feedback on detected anomalies in the webcam feed.
+// It leverages cloud storage to store and manage the captured snapshots.
+// The component can be customized to adjust the snapshot capture frequency and upload behavior.
+// It demonstrates how to integrate snapshot recording functionality with anomaly detection.
+// The component ensures that snapshots are captured and uploaded based on the specified criteria.
+
 export default SnapshotRecorder

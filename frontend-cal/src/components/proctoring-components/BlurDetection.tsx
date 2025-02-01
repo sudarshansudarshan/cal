@@ -170,4 +170,12 @@ const BlurDetection: React.FC<BlurDetectionProps> = ({ isBlur, setIsBlur }) => {
   )
 }
 
+// Explain the working of this component
+// This component uses the webcam to capture frames and check for blurriness in the captured images.
+// It uses the getUserMedia API to access the webcam and capture frames at regular intervals.
+// The captured frames are converted to grayscale, and a Laplacian filter is applied to compute the variance.
+// If the variance is below a certain threshold, the image is considered blurry.
+// The component sets the isBlur state based on the blur detection results and displays the webcam feed.
+// If the image is blurry for a certain duration, it shows a toast message indicating the blur status.
+
 export default BlurDetection

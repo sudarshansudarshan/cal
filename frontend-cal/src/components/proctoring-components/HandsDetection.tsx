@@ -220,4 +220,28 @@ const HandLandmarkerComponent: React.FC<HandLandmarkerComponentProps> = ({ files
     );
 };
 
+// Explain what this component does
+// This component uses the HandLandmarker from the MediaPipe library to detect hands in a webcam feed.
+// It initializes the HandLandmarker and starts the webcam feed using the getUserMedia API.
+// The component detects the number of hands present in the webcam feed and updates the hand count.
+// It also determines the gesture made by the hands based on the landmarks detected.
+// The component checks for raised fingers, extended thumb, and thumb position to identify gestures.
+// It displays the detected gesture and the number of hands detected in the webcam feed.
+// If more than 2 hands are detected, it displays a toast message and logs a warning.
+// The component is used to monitor hand gestures in real-time for interactive applications.
+// It provides feedback on the user's hand movements and can be used for gesture-based interactions.
+// The component can be customized with additional gestures and alerts based on the use case.
+// It helps enhance user experience and engagement in applications that require hand tracking.
+// The component can be integrated into various applications such as virtual reality, gaming, and interactive interfaces.
+// It enables users to interact with digital content using natural hand movements.
+// The component leverages machine learning models to accurately detect and analyze hand gestures.
+// It demonstrates the capabilities of real-time hand tracking and gesture recognition in web applications.
+// The component can be extended with additional features and functionalities to support diverse hand gestures.
+// It showcases the integration of computer vision technologies for interactive user experiences.
+// The component contributes to creating immersive and engaging applications that respond to hand gestures.
+// It highlights the potential of gesture-based interactions in enhancing user interfaces and experiences.
+// The component can be further optimized for performance and accuracy in production environments.
+// It serves as a building block for developing interactive and intuitive user interfaces.
+// The component demonstrates the seamless integration of machine learning models for hand tracking in web applications.
+
 export default HandLandmarkerComponent;
