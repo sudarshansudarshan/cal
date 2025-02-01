@@ -39,7 +39,11 @@ To set up the development environment, the following tools are required:
    cd cal
    ```
 
-2. **Run Backend Services by opening the Dev Containers from their Doc**
+2. **Set Up Dev Containers**
+   - Open the repository in VSCode with Docker enabled.
+   - Select the relevant DevContainer configuration based on the `.devcontainer` folder.
+
+3. **Run Backend Services by opening the Dev Containers**
    - For LMS Engine:
      ```bash
      cd backend/lms_engine
@@ -78,7 +82,7 @@ To set up the development environment, the following tools are required:
 │   ├── .vscode/               # VSCode-specific settings for backend development
 │   ├── ai_engine/             # AI Engine: Handles AI-related tasks (e.g., question generation, proctoring)
 │   ├── activity_engine/ # Handles student-generated  data
-│   │   └── doc/         # Doc for Activity Engine Setup
+│   │   └── .devcontainer/     # DevContainer setup for Activity Engine
 │   └── lms_engine/            # Core LMS engine
 │       ├── .devcontainer/     # DevContainer setup for LMS engine
 │       └── cal_engine/        # Main LMS engine code
