@@ -1,31 +1,24 @@
 {
-  "name": "my-express-app",
-  "version": "1.0.0",
-  "main": "dist/server.js",
+  "name": "content_engine",
+  "version": "0.0.1",
+  "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx ts-node src/server.ts",
-    "dev": "npx nodemon src/server.ts",
-    "build": "tsc"
+    "dev": "nodemon src/index.ts",
+    "migrate": "prisma migrate dev"
   },
-  "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "description": "",
   "dependencies": {
-    "@prisma/client": "^6.2.1",
-    "@types/express": "^5.0.0",
-    "@types/node": "^22.10.10",
-    "axios": "^1.7.9",
-    "cors": "^2.8.5",
-    "express": "^4.21.2",
-    "nodemon": "^3.1.9",
-    "pg": "^8.13.1",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.7.3"
+    "@prisma/client": "^6.0.1",
+    "@scalar/express-api-reference": "^0.4.171",
+    "express": "^4.21.2"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
-    "prisma": "^6.2.1"
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.2",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
   }
 }
