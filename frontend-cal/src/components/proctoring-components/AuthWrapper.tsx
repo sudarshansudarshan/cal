@@ -1,8 +1,11 @@
-import React from 'react';
+//import React from 'react';
+//Author Akash Kumar
 import { Navigate, useLocation } from 'react-router-dom';
 import { useIsAuthenticated } from '../../store/selector'; // adjust the import path as necessary
 
-function AuthWrapper({ children }) {
+import { ReactNode } from 'react';
+
+function AuthWrapper({ children }: { children: ReactNode }) {
   const isAuthenticated = useIsAuthenticated();
   const location = useLocation();
 

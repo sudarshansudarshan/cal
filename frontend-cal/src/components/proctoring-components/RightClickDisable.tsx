@@ -1,9 +1,10 @@
+// Akash Kumar
 import React, { useEffect } from "react";
 
 const RightClickDisabler = () => {
   useEffect(() => {
     // Disable right-click functionality
-    const handleContextMenu = (e) => {
+    const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
     };
 

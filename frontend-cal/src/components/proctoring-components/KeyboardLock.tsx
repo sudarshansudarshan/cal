@@ -1,3 +1,4 @@
+// Author Akash Kumar
 import { useEffect, useState } from "react";
 
 const KeyboardLock = () => {
