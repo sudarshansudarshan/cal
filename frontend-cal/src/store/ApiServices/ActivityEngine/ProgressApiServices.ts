@@ -27,6 +27,7 @@ export const anotherApiService = createApi({
             Authorization: `Bearer ${Cookies.get('access_token')}`,
           },
         }),
+        keepUnusedDataFor: 86400
       }),
   
       fetchModuleProgress: builder.query<
@@ -45,6 +46,7 @@ export const anotherApiService = createApi({
             Authorization: `Bearer ${Cookies.get('access_token')}`,
           },
         }),
+        keepUnusedDataFor: 86400
       }),
   
       fetchSectionProgress: builder.query<
@@ -63,6 +65,7 @@ export const anotherApiService = createApi({
             Authorization: `Bearer ${Cookies.get('access_token')}`,
           },
         }),
+        keepUnusedDataFor: 86400
       }),
   
       fetchSectionItemsProgress: builder.query<
@@ -81,6 +84,7 @@ export const anotherApiService = createApi({
             Authorization: `Bearer ${Cookies.get('access_token')}`,
           },
         }),
+        keepUnusedDataFor: 86400
       }),
     }),
   })
