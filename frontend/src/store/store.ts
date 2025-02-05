@@ -4,27 +4,23 @@ import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage'; // This uses local storage as the default storage engine
 import { anotherApiService, apiService } from './apiService';
 import authReducer from './slices/authSlice';
-import instituteReducer from './slices/instituteSlice';
-import userReducer from './slices/usersSlice';
-import videoDetailsReducer from './slices/videoDetailsSlice';
-import courseReducer from './slices/courseSlice';
-import moduleReducer from './slices/fetchModulesSlice';
+import coursesReducer from './slices/courseSlice';
+import modulesReducer from './slices/fetchModulesSlice';
+import sectionsReducer from './slices/fetchSections';
 
 // Set up the configuration for redux-persist
 const persistConfig = {
   key: 'root', // The key is used for the storage key prefix.
   storage,     // Specify which storage to use.
-  whitelist: ['auth'] // Only 'auth' slice of the state will be persisted.
+  whitelist: ['auth', 'api','courses', 'modules', 'sections'] // Only 'auth' slice of the state will be persisted.
 };
 
 // Combine all reducers into a single root reducer
 const rootReducer = combineReducers({
   auth: authReducer,
-  institute: instituteReducer,
-  user: userReducer,
-  videoDetails: videoDetailsReducer,
-  course: courseReducer,
-  module: moduleReducer,
+  courses: coursesReducer,
+  modules: modulesReducer,
+  sections: sectionsReducer,
   // Add API service reducers with their dynamic paths
   [apiService.reducerPath]: apiService.reducer,
   [anotherApiService.reducerPath]: anotherApiService.reducer,
@@ -39,7 +35,7 @@ const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ['persist/PERSIST'], // Ensuring the persistence actions are allowed
+        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'], // Ensuring the persistence actions are allowed
       }
     }).concat(apiService.middleware).concat(anotherApiService.middleware),
 });

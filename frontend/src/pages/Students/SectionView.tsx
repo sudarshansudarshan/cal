@@ -19,7 +19,8 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useFetchSectionsWithAuthQuery, useFetchSectionItemsProgressQuery } from '@/store/apiService';
+import { useFetchSectionsWithAuthQuery} from '@/store/ApiServices/LmsEngine/DataFetchApiServices';
+import { useFetchSectionItemsProgressQuery } from '@/store/ApiServices/ActivityEngine/ProgressApiServices';
 import Cookies from 'js-cookie';
 
 // Status styles mapping for different section states

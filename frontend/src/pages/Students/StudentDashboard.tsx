@@ -37,7 +37,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   useFetchCoursesWithAuthQuery,
   useFetchModulesWithAuthQuery,
-} from '@/store/apiService'
+} from '@/store/ApiServices/LmsEngine/DataFetchApiServices'
 import { BookOpen, Clock, Award, TrendingUp } from 'lucide-react'
 import { useState } from 'react'
 

@@ -101,57 +101,6 @@ export const apiService = createApi({
       },
     }),
 
-    // Institute management endpoints
-    fetchInstitutesWithAuth: builder.query<{ institutes: Institute[] }, void>({
-      query: () => ({
-        url: '/institutes/',
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
-        },
-      }),
-    }),
-
-    // User management endpoints
-    fetchUsersWithAuth: builder.query<
-      { users: { id: number; name: string; email: string }[] },
-      void
-    >({
-      query: () => ({
-        url: '/users/',
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
-        },
-      }),
-    }),
-
-    // Video management endpoints
-    fetchVideoDetailsWithAuth: builder.query<
-      { videoDetails: { id: number; title: string; url: string }[] },
-      void
-    >({
-      query: () => ({
-        url: '/videos/',
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
-        },
-      }),
-    }),
-
-    createVideoDetails: builder.mutation({
-      query: (videoData) => ({
-        url: '/videos',
-        method: 'POST',
-        body: videoData,
-        headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
-          'Content-Type': 'application/json',
-        },
-      }),
-    }),
-
     // Course management endpoints
     fetchCoursesWithAuth: builder.query<
       {
@@ -251,10 +200,6 @@ export const {
   useFetchAssessmentWithAuthQuery,
   useSignupMutation,
   useLogoutMutation,
-  useFetchInstitutesWithAuthQuery,
-  useFetchUsersWithAuthQuery,
-  useFetchVideoDetailsWithAuthQuery,
-  useCreateVideoDetailsMutation,
   useFetchCoursesWithAuthQuery,
   useFetchModulesWithAuthQuery,
   useFetchSectionsWithAuthQuery,

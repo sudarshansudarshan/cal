@@ -39,13 +39,13 @@ import KeyboardLock from '@/components/proctoring-components/KeyboardLock'
 import RightClickDisabler from '@/components/proctoring-components/RightClickDisable'
 
 //These are the imports comming from redux using RTK for fetching and posting the data to the backend
+import { useFetchItemsWithAuthQuery } from '@/store/ApiServices/LmsEngine/DataFetchApiServices'
 import {
-  useFetchItemsWithAuthQuery,
   useStartAssessmentMutation,
   useSubmitAssessmentMutation,
-  useUpdateSectionItemProgressMutation,
-} from '@/store/apiService'
-import { useFetchQuestionsWithAuthQuery } from '@/store/apiService'
+} from '@/store/ApiServices/ActivityEngine/GradingApiServices'
+import { useUpdateSectionItemProgressMutation } from '@/store/ApiServices/ActivityEngine/UpdatingApiServices'
+import { useFetchQuestionsWithAuthQuery } from '@/store/ApiServices/LmsEngine/DataFetchApiServices'
 import { Progress } from '@/components/ui/progress'
 
 import Cookies from 'js-cookie'
@@ -746,7 +746,7 @@ const ContentScrollView = () => {
       <ResizableHandle className='p-1' />
       <ResizablePanel defaultSize={5} className='z-20'>
         <div className='h-full w-full flex flex-col items-center justify-center bg-gray-100 p-2'>
-        <h4 className='mb-4 text-center text-sm font-semibold'>Progress</h4>
+          <h4 className='mb-4 text-center text-sm font-semibold'>Progress</h4>
           <span className='text-sm mb-4'>
             {Math.round(((currentFrame + 1) / content.length) * 100)}%
           </span>
