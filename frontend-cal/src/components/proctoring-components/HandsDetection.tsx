@@ -187,7 +187,7 @@ const HandLandmarkerComponent: React.FC<HandLandmarkerComponentProps> = ({ files
                     setHandCount(results.landmarks.length);
                     if(handCount>2){
                         toast(`${handCount} hands are present in the frame. Flag Notted !`)
-                        console.log("number of hands", handCount)
+                        //console.log("number of hands", handCount)
                     }
                     if(results.landmarks[0]){
                         setGesture(getGesture(results.landmarks[0]));

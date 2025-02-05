@@ -69,7 +69,7 @@ export const handleSaveSnapshot = async ({
 }: SaveSnapshotOptions): Promise<number | undefined> => {
   const base64Img = await captureFrame(video);
   const base64Screenshot = await captureScreenshot();
-  console.log("Captured snapshot", base64Img, base64Screenshot);
+  //console.log("Captured snapshot", base64Img, base64Screenshot);
   if (base64Img && base64Screenshot) {
     const newSnapshot: Snapshot = {
       image: base64Img,

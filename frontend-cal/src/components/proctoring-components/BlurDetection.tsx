@@ -3,8 +3,8 @@ import { toast } from 'sonner'
 
 // take isBlur as props
 interface BlurDetectionProps {
-  isBlur: string
-  setIsBlur: (value: string) => void
+  isBlur: boolean
+  setIsBlur: (value: boolean) => void
 }
 
 const BlurDetection: React.FC<BlurDetectionProps> = ({ isBlur, setIsBlur }) => {
@@ -21,6 +21,8 @@ const BlurDetection: React.FC<BlurDetectionProps> = ({ isBlur, setIsBlur }) => {
         })
         if (video) {
           video.srcObject = stream
+        }
+        if (video) {
           video.play()
         }
       }
@@ -52,8 +54,8 @@ const BlurDetection: React.FC<BlurDetectionProps> = ({ isBlur, setIsBlur }) => {
         }
       }
     }
-
-    const interval = setInterval(captureFrame, 200)
+    //Increased the interval to 1000ms to reduce the number of frames captured
+    const interval = setInterval(captureFrame, 1000)
     return () => clearInterval(interval)
   }, [])
 
@@ -80,9 +82,9 @@ const BlurDetection: React.FC<BlurDetectionProps> = ({ isBlur, setIsBlur }) => {
     const variance: number = computeVariance(laplacian)
 
     // Threshold for blurriness (adjust as needed)
-    const isBlurry: boolean = variance < 250
+    isBlur = variance < 250
 
-    if (isBlurry) {
+    if (isBlur) {
       if (!blurStartTime) {
         // Set blur start time if not already set
         setBlurStartTime(Date.now())
@@ -101,11 +103,11 @@ const BlurDetection: React.FC<BlurDetectionProps> = ({ isBlur, setIsBlur }) => {
           setBlurStartTime(null)
         }
       }
-      setIsBlur('Yes')
+      setIsBlur(true)
     } else {
       // If no longer blurry, reset everything
       setBlurStartTime(null)
-      setIsBlur('No')
+      setIsBlur(false)
     }
   }
 

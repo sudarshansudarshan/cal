@@ -1,4 +1,4 @@
-import { handleSaveSnapshot } from '../../lib/snapUtils.ts'
+import { handleSaveSnapshot } from '../../lib/snapUtilsNew.ts'
 import React, { useEffect, useRef } from 'react'
 import { clearSnapshots } from '../../lib/dbUtils.ts'
 import { upload } from '../../lib/cloudUtils.ts'
@@ -19,7 +19,7 @@ const SnapshotRecorder: React.FC<{ anomalies: Anomalies }> = ({
   const currentAnomaliesRef = useRef(anomalies) // Initialize with default array values
   const counterRef = useRef(0)
 
-  const counterLimit = 5 // upload capacity = 2*counterLimit+1 should be the number of frames uploaded at a time. Ensure that this is less than the memory capacity defined in snapUtils.js
+  const counterLimit = 5 // upload capacity = 2*counterLimit+1 should be the number of frames uploaded at a time. Ensure that this is less than the memory capacity defined in snapUtilsNew.js
 
   // Helper function for computing anomalies
   const getActiveAnomalies = () => {

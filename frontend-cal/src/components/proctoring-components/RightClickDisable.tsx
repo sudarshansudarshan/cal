@@ -1,5 +1,5 @@
 // Akash Kumar
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 const RightClickDisabler = () => {
   useEffect(() => {
