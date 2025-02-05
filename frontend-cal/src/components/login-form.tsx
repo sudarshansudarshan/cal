@@ -69,7 +69,7 @@ export function LoginForm({
     try {
       // Attempt login and unwrap response
       const response = await login({ email, password, client_id }).unwrap()
-      console.log(email, password, client_id)
+      //console.log(email, password, client_id)
       // Update Redux store with user data
       dispatch(setUser(response))
       // Redirect to courses page on success

@@ -1,4 +1,4 @@
-import { handleSaveSnapshot } from '../../lib/snapUtils.ts'
+import { handleSaveSnapshot } from '../../lib/snapUtilsNew.ts'
 import React, { useEffect, useRef } from 'react'
 import { clearSnapshots } from '../../lib/dbUtils.ts'
 import { upload } from '../../lib/cloudUtils.ts'
@@ -19,7 +19,7 @@ const SnapshotRecorder: React.FC<{ anomalies: Anomalies }> = ({
   const currentAnomaliesRef = useRef(anomalies) // Initialize with default array values
   const counterRef = useRef(0)
 
-  const counterLimit = 5 // upload capacity = 2*counterLimit+1 should be the number of frames uploaded at a time. Ensure that this is less than the memory capacity defined in snapUtils.js
+  const counterLimit = 5 // upload capacity = 2*counterLimit+1 should be the number of frames uploaded at a time. Ensure that this is less than the memory capacity defined in snapUtilsNew.js
 
   // Helper function for computing anomalies
   const getActiveAnomalies = () => {
@@ -121,5 +121,23 @@ const SnapshotRecorder: React.FC<{ anomalies: Anomalies }> = ({
     </div>
   )
 }
+
+// Explain what this component does
+// This component records snapshots from the webcam feed based on detected anomalies.
+// It uses the `handleSaveSnapshot` function to save snapshots with anomaly information.
+// The component uploads snapshots to the cloud storage after a certain number of frames.
+// It checks for active anomalies based on the anomaly data received as props.
+// The component initializes the webcam and starts capturing snapshots at regular intervals.
+// It updates the counter to control the upload frequency of snapshots.
+// The component clears snapshots from the local storage when it mounts.
+// The recorded snapshots include information about the detected anomalies.
+// The component is used to capture snapshots of anomalies detected during proctored activities.
+// It helps in monitoring and recording user behavior during online activities.
+// The snapshots can be used for further analysis or review of user activity.
+// The component provides real-time feedback on detected anomalies in the webcam feed.
+// It leverages cloud storage to store and manage the captured snapshots.
+// The component can be customized to adjust the snapshot capture frequency and upload behavior.
+// It demonstrates how to integrate snapshot recording functionality with anomaly detection.
+// The component ensures that snapshots are captured and uploaded based on the specified criteria.
 
 export default SnapshotRecorder
