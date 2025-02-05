@@ -21,7 +21,8 @@
 
 import React from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { useFetchItemsWithAuthQuery, useFetchSectionItemsProgressQuery } from '@/store/apiService'
+import { useFetchItemsWithAuthQuery } from '@/store/ApiServices/LmsEngine/DataFetchApiServices'
+import { useFetchSectionItemsProgressQuery } from '@/store/ApiServices/ActivityEngine/ProgressApiServices'
 import { Button } from '@/components/ui/button'
 import { Check, Lock } from 'lucide-react'
 

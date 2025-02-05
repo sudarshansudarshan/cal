@@ -1,99 +1,41 @@
-/**
- * Sections Fetch Slice
- *
- * This slice manages the state of sections fetching in the application using Redux Toolkit.
- * It handles authenticated API requests to fetch sections for a specific course and module.
- *
- * Features:
- * - Manages array of section objects with their details
- * - Handles authenticated API requests using access token
- * - Tracks loading state during fetch requests
- * - Provides error handling for failed requests
- * - Uses createAsyncThunk for async operations
- *
- * State Structure:
- * - sections: Array of section objects containing:
- *   - id: Unique identifier for the section
- *   - title: Section title
- *   - content: Section content/description
- * - loading: Boolean flag for loading state
- * - error: String containing error message if any
- */
+// src/store/slices/sectionsSlice.js
+import { createSlice } from '@reduxjs/toolkit';
+import { apiService } from '../ApiServices/LmsEngine/DataFetchApiServices'; // Adjust the path as necessary
 
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
-import Cookies from 'js-cookie'
-
-// Type definition for section object
 interface Section {
-  id: number
-  title: string
-  content: string
+  id: number;
+  title: string;
+  content: string;
 }
 
-// Type definition for fetch sections payload
-interface FetchSectionsPayload {
-  course_id: number
-  module_id: number
-}
-
-// Type definition for sections state
-interface FetchSectionsState {
-  sections: Section[]
-  loading: boolean
-  error: string | null
-}
-
-// Initial state with empty sections array
-const initialState: FetchSectionsState = {
+const initialState: {
+  sections: Section[];
+  isLoading: boolean;
+  error: string | null;
+} = {
   sections: [],
-  loading: false,
+  isLoading: false,
   error: null,
-}
+};
 
-// Async thunk for fetching sections with authentication
-export const fetchSectionsWithAuth = createAsyncThunk(
-  'sections/fetchSectionsWithAuth',
-  async (
-    { course_id, module_id }: FetchSectionsPayload,
-    { rejectWithValue }
-  ) => {
-    try {
-      const response = await axios.get(
-        `/api/sections/?course_id=${course_id}&module_id=${module_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get('access_token')}`,
-          },
-        }
-      )
-      return response.data.sections
-    } catch (error) {
-      return rejectWithValue(error.response.data)
-    }
-  }
-)
-
-// Create slice with reducers for handling async states
 const sectionsSlice = createSlice({
   name: 'sections',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchSectionsWithAuth.pending, (state) => {
-        state.loading = true
-        state.error = null
+      .addMatcher(apiService.endpoints.fetchSectionsWithAuth.matchPending, (state) => {
+        state.isLoading = true;
       })
-      .addCase(fetchSectionsWithAuth.fulfilled, (state, action) => {
-        state.loading = false
-        state.sections = action.payload
+      .addMatcher(apiService.endpoints.fetchSectionsWithAuth.matchFulfilled, (state, action) => {
+        state.isLoading = false;
+        state.sections = action.payload.sections; // Ensure this matches the payload structure
       })
-      .addCase(fetchSectionsWithAuth.rejected, (state, action) => {
-        state.loading = false
-        state.error = action.payload as string
-      })
+      .addMatcher(apiService.endpoints.fetchSectionsWithAuth.matchRejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error && action.error.message ? action.error.message : null;
+      });
   },
-})
+});
 
-export default sectionsSlice.reducer
+export default sectionsSlice.reducer;

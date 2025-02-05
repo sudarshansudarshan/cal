@@ -1,3 +1,22 @@
+/**
+ * Authentication Slice
+ *
+ * This slice manages the authentication state of the application using Redux Toolkit.
+ * It handles user authentication data, tokens, and authentication status.
+ *
+ * Features:
+ * - Manages user data (role, email, name)
+ * - Handles authentication tokens
+ * - Tracks authentication status
+ * - Provides actions for login, signup and logout
+ * - Integrates with RTK Query endpoints
+ *
+ * State Structure:
+ * - user: Object containing user role, email and name
+ * - token: Authentication access token
+ * - isAuthenticated: Boolean flag indicating auth status
+ */
+
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { apiService, AuthResponse } from '../apiService';
 

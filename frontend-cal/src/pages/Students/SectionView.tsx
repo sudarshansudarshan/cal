@@ -1,7 +1,26 @@
+/**
+ * Section View Page
+ *
+ * This component displays a list of sections within a module for students to view and access.
+ * It includes section details like title, content, status and navigation capabilities.
+ *
+ * Features:
+ * - Displays sections in a responsive grid layout
+ * - Shows status badges (Pending, In Progress, Completed) 
+ * - Allows navigation to individual section views
+ * - Handles loading and error states
+ * - Custom scrollable container with hidden scrollbars
+ *
+ * Components:
+ * - StatusBadge: Displays colored status indicators
+ * - AssignmentRow: Individual section row with details and actions
+ */
+
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useFetchSectionsWithAuthQuery, useFetchSectionItemsProgressQuery } from '@/store/apiService';
+import { useFetchSectionsWithAuthQuery} from '@/store/ApiServices/LmsEngine/DataFetchApiServices';
+import { useFetchSectionItemsProgressQuery } from '@/store/ApiServices/ActivityEngine/ProgressApiServices';
 import Cookies from 'js-cookie';
 
 // Status styles mapping for different section states

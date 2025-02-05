@@ -31,7 +31,7 @@
 // Import required dependencies
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { useLoginMutation } from '../store/apiService'
+import { useLoginMutation } from '../store/ApiServices/LmsEngine/AuthApiServices'
 import { setUser } from '../store/slices/authSlice'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'

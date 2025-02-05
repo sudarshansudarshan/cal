@@ -22,7 +22,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useFetchCoursesWithAuthQuery } from '../../store/apiService';
+import { useFetchCoursesWithAuthQuery } from '../../store/ApiServices/LmsEngine/DataFetchApiServices';
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
