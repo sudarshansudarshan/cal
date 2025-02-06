@@ -298,4 +298,5 @@ async def get_content_index():
         }
         return contents
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+        logging.error(f"Error in get_content_index endpoint: {e}", exc_info=True)
+        return JSONResponse({"error": "An internal error has occurred."}, status_code=500)
