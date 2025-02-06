@@ -63,6 +63,28 @@ To implement Google authentication, follow these steps:
 FIREBASE_ADMIN_SDK_PATH=path_to_your_credentials_file.json
 ```
 
+To create a SDK Follow this steps
+1. Go to the Firebase Console
+Open the Firebase Console at: https://console.firebase.google.com/
+Choose your project or create a new one.
+
+2. Navigate to Project Settings
+Click on the gear icon next to "Project Overview" to access "Project Settings".
+
+3. Access Service Accounts
+Click on the "Service accounts" tab within the settings.
+
+4. Generate a New Private Key
+Click on "Generate new private key" at the bottom of the Firebase Admin SDK section.
+Confirm the prompt by clicking "Generate key" which downloads a JSON file.
+
+5. Securely Store the JSON File
+Save the downloaded JSON file in a secure directory within your project but away from public access.
+
+6. Update Your Environment Variables
+Add the path to your JSON file in your .env file to keep it secure:
+FIREBASE_ADMIN_CREDENTIALS_PATH="./path/to/your/firebase-adminsdk.json"
+
 ##### Folder Structure
 
 ```

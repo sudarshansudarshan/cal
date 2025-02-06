@@ -10,7 +10,7 @@
 
 ## Introduction
 
-This backend is part of the Comprehensive Active Learning (CAL) system, designed to support a wide range of educational activities from question generation to student tracking and assessment grading. It integrates multiple services, each built with a specific set of technologies tailored to its primary functions.
+This backend is part of the Continuous Active Learning (CAL) system, designed to support a wide range of educational activities from question generation to student tracking and assessment grading. It integrates multiple services, each built with a specific set of technologies tailored to its primary functions.
 
 ## Technologies Used
 
@@ -26,7 +26,7 @@ To begin using the CAL Backend, you will need to set up each component individua
 ## Components
 
 ### LMS Engine
-- **Built on**: FastAPI and Django
+- **Built on**: Django
 - **Main Functions**:
   - Manages user authentication and session management.
   - Handles core data interactions for courses, users, and institutions.
@@ -34,7 +34,7 @@ To begin using the CAL Backend, you will need to set up each component individua
 - **For more details**: Open the [LMS Engine folder](backend/lms_engine).
 
 ### AI Engine
-- **Built on**: Flask and FastAPI
+- **Built on**: FastAPI
 - **Main Functions**:
   - Generates questions for lectures using the Gemini API.
   - Supports question generation using LLMs and includes human validation processes to ensure quality and relevance.

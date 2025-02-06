@@ -120,8 +120,8 @@ To set up the development environment, the following tools are required:
 │       │   └── ui/                    # General UI components
 │       └── pages/                     # Page components
 │           ├── Students/              # Student-specific pages
-│           ├── home.txt               # Home pages
-│           └── login.txt              # Login components
+│           ├── home.tsx               # Home pages
+│           └── login.tsx              # Login components
 ├── LICENSE                            # Project License
 └── README.md                          # Project documentation
 
