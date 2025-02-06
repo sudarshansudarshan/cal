@@ -109,9 +109,9 @@ To set up the development environment, the following tools are required:
 │   │       ├── authentication/        # Authentication system
 │   │       ├── course/                # Course management functionalities
 │   │       ├── institution/           # Institution-related functionalities
-│   │       └── users/                  # User management functionalities
+│   │       └── users/                 # User management functionalities
 ├── docs/                              # Documentation files
-├── frontend/                      # Frontend system
+├── frontend/                          # Frontend system
 │   ├── public/                        # Static assets for the frontend
 │   └── src/                           # React source code
 │       ├── assets/                    # Images and static assets
