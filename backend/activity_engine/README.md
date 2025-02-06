@@ -8,7 +8,7 @@ Follow these steps to set up and run the project:
     ```bash
     npm install
     ```
-2. Setup environment variables:
+2. (Optional) Setup environment variables:
     ```bash
     cp .env.example .env
     ```
@@ -17,10 +17,20 @@ Follow these steps to set up and run the project:
     npm run build
     ```
 4. Run database migrations:
-    ```bash
+    Make sure the .env file (located in the project root) has a proper DATABASE_URL pointing to your PostgreSQL database. Also, check your Prisma schema (prisma/schema.prisma) for accuracy. Here's the steps for the migration step:
+
+    
+    
+    Run the Prisma migration to update the database schema
+     ```bash
     npx prisma migrate dev
     ```
-    (If an error occurs, ensure your Prisma configuration is correct)
+     Generate the Prisma Client if needed
+     ```bash
+    npx prisma generate
+    ```
+     If an error occurs, double-check your Prisma configuration in the .env and prisma/schema.prisma files.
+    
 5. Start the development server:
     ```bash
     npm run dev
@@ -34,7 +44,7 @@ To set up your database in this application, you need to create a `.env` file in
 DATABASE_URL="your_postgres_database_url"
 ```
 
-### Google Authentication
+#### Google Authentication
 
 To implement Google authentication, follow these steps:
 
@@ -45,7 +55,7 @@ To implement Google authentication, follow these steps:
 FIREBASE_ADMIN_SDK_PATH=path_to_your_credentials_file.json
 ```
 
-## Folder Structure
+##### Folder Structure
 
 ```
 backened
