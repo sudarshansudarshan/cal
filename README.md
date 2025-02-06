@@ -118,9 +118,6 @@ To set up the development environment, the following tools are required:
 │       ├── components/                # Reusable UI components
 │       │   ├── proctoring-components/ # Proctoring-specific components
 │       │   └── ui/                    # General UI components
-│       ├── hooks/                     # Custom React hooks
-│       ├── lib/                       # Utility functions and libraries
-│       ├── models/                    # TypeScript models
 │       └── pages/                     # Page components
 │           ├── Students/              # Student-specific pages
 │           ├── home.txt               # Home pages
