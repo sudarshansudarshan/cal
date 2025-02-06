@@ -6,13 +6,15 @@ import subprocess
 
 # Run linting checks before executing the script
 # Remove in Production
-print("🔍 Running linting checks before execution...")
-result = subprocess.run(["flake8"], capture_output=True, text=True)
+result = subprocess.run(
+    ["flake8", "--exclude=myenv,**/__init__.py,venv,.venv,dist,build"],
+    capture_output=True, text=True
+)
 
 if result.returncode != 0:
     print("❌ Linting errors found:\n")
     print(result.stdout)
-    sys.exit(1)  # Prevent running the script if linting fails
+    sys.exit(1)
 
 
 def main():
