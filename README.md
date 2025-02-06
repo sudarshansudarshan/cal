@@ -111,7 +111,7 @@ To set up the development environment, the following tools are required:
 │   │       ├── institution/           # Institution-related functionalities
 │   │       └── users/                  # User management functionalities
 ├── docs/                              # Documentation files
-├── frontend-cal/                      # Frontend system
+├── frontend/                      # Frontend system
 │   ├── public/                        # Static assets for the frontend
 │   └── src/                           # React source code
 │       ├── assets/                    # Images and static assets
@@ -121,7 +121,7 @@ To set up the development environment, the following tools are required:
 │       └── pages/                     # Page components
 │           ├── Students/              # Student-specific pages
 │           ├── home.tsx               # Home pages
-│           └── login.tsx              # Login components
+│           └── LoginPage.tsx          # Login components
 ├── LICENSE                            # Project License
 └── README.md                          # Project documentation
 
