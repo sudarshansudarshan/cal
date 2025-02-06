@@ -113,7 +113,6 @@ To set up the development environment, the following tools are required:
 │   │       └── users/                  # User management functionalities
 ├── docs/                              # Documentation files
 ├── frontend-cal/                      # Frontend system
-│   ├── .vscode/                       # VSCode-specific settings for frontend development
 │   ├── public/                        # Static assets for the frontend
 │   └── src/                           # React source code
 │       ├── assets/                    # Images and static assets
