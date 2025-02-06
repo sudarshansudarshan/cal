@@ -88,7 +88,7 @@ To set up the development environment, the following tools are required:
 │   │   │   ├── schemas.py             # Pydantic schemas for request and response models
 │   │   │   └── services.py            # Business logic and interaction with the database
 │   │   └── faiss_index/               # Directory for storing FAISS indices for efficient similarity search
-│   ├── activity_engine/                
+│   ├── activity_engine/               # Handles activity tracking and analytics      
 │   │   ├── prisma/                    # Prisma ORM configurations
 │   │   │   ├── migrations/            # Contains all database migrations
 │   │   │   └── schema.prisma          # Contains the Prisma schema for data storage
@@ -104,7 +104,6 @@ To set up the development environment, the following tools are required:
 │   │   │   └── types/                 # TypeScript types definitions
 │   │   ├── README.md                  # Documentation for the activity engine
 │   ├── lms_engine/                    # Core LMS engine
-│   │   ├── .devcontainer/             # DevContainer configuration for isolated development
 │   │   └── core/                      # Core functionalities of the LMS engine
 │   │       ├── assessment/            # Assessment-related functionalities
 │   │       ├── authentication/        # Authentication system
