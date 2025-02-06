@@ -1,26 +1,30 @@
-# Activity Engine
-
+# Full Installation Guide
 This is the activity engine developed in Node.js using TypeScript. We are using Prisma for interaction between the backend and the database.
+Follow these steps to set up and run the project:
 
-## Installation
+## Setup Instructions
 
-To install and run the project, follow these steps:
-
-1. Install the dependencies:
+1. Install dependencies:
     ```bash
     npm install
     ```
-2. Run the development server:
+2. Setup environment variables:
+    ```bash
+    cp .env.example .env
+    ```
+3. Build the project:
+    ```bash
+    npm run build
+    ```
+4. Run database migrations:
+    ```bash
+    npx prisma migrate dev
+    ```
+    (If an error occurs, ensure your Prisma configuration is correct)
+5. Start the development server:
     ```bash
     npm run dev
     ```
-
-## Prerequisites
-
-- Node.js (latest version)
-- PostgreSQL database
-
-## Setup
 
 ### Database Configuration
 
@@ -41,19 +45,20 @@ To implement Google authentication, follow these steps:
 FIREBASE_ADMIN_SDK_PATH=path_to_your_credentials_file.json
 ```
 
-## Updated Folder Structure
+## Folder Structure
 
 ```
 activity_engine
 |- src
+   |- config (configured to log various levels of information )
 |  |- controller (contains different controllers for each API call functionality)
-|  |- middleware (contains googleAuthentication middleware responsible for authenticating the user)
-|  |- routes (contains different route files with all backend routes)
-|  |- repositories (contains all repository files)
-|  |- services (contains all services for each functionality)
-|  |- types (contains types for different elements)
-|  |- constant.ts (contains the URL of the LM engine)
-|  |- server.ts (Express server file)
+|  |- middleware (contains Google authentication middleware responsible for verifying users)
+|  |- routes (contains various route files for backend API endpoints)
+|  |- repositories (stores all repository files for database interactions)
+|  |- services (includes business logic services for each functionality,like course Progress)
+|  |- types (defines TypeScript types for various elements)
+|  |- constant.ts (stores the URL of the LM engine)
+|  |- server.ts (configures and initializes the Express server)
 |- prisma
 |  |- migrations (contains all migrations)
 |  |- schema.prisma (contains the Prisma schema or database schema for data storage)
