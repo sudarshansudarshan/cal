@@ -20,6 +20,7 @@ from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from dotenv import load_dotenv
 import os
+import logging
 
 app = APIRouter()
 
@@ -205,7 +206,8 @@ class ContentManager:
             return {"message": "No new content added."}
             
         except Exception as e:
-            return {"error": str(e)}
+            logging.error("An error occurred while uploading content", exc_info=True)
+            return {"error": "An internal error has occurred. Please try again later."}
     
     async def _filter_unique_documents(self, store, documents, main_hash):
         existing_hashes = {
