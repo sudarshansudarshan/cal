@@ -48,18 +48,20 @@ FIREBASE_ADMIN_SDK_PATH=path_to_your_credentials_file.json
 ## Folder Structure
 
 ```
-activity_engine
-|- src
-   |- config (configured to log various levels of information )
-|  |- controller (contains different controllers for each API call functionality)
-|  |- middleware (contains Google authentication middleware responsible for verifying users)
-|  |- routes (contains various route files for backend API endpoints)
-|  |- repositories (stores all repository files for database interactions)
-|  |- services (includes business logic services for each functionality,like course Progress)
-|  |- types (defines TypeScript types for various elements)
-|  |- constant.ts (stores the URL of the LM engine)
-|  |- server.ts (configures and initializes the Express server)
-|- prisma
-|  |- migrations (contains all migrations)
-|  |- schema.prisma (contains the Prisma schema or database schema for data storage)
+backened
+    └── activity_engine/  
+        ├── src/  
+        │   ├── config/              # Configured to log various levels of information  
+        │   ├── controller/          # Contains different controllers for each API call functionality  
+        │   ├── middleware/          # Contains Google authentication middleware responsible for verifying users  
+        │   ├── routes/              # Contains various route files for backend API endpoints  
+        │   ├── repositories/        # Stores all repository files for database interactions  
+        │   ├── services/            # Includes business logic services for each functionality (like course progress)  
+        │   ├── types/               # Defines TypeScript types for various elements  
+        │   ├── constant.ts          # Stores the URL of the LM engine  
+        │   └── server.ts            # Configures and initializes the Express server  
+        └── prisma/  
+            ├── migrations/          # Contains all migrations  
+            └── schema.prisma        # Contains the Prisma schema for data storage  
+
 ```
