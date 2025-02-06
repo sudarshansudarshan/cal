@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from app.routers import question
 from app.rag import app as rag_router
 
@@ -33,6 +34,7 @@ load_dotenv()
 app.include_router(question.router)
 app.include_router(rag_router, prefix="/rag", tags=["RAG"])
 
+app.mount("/static", StaticFiles(directory="app/templates"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
 def serve_homepage():
