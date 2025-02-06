@@ -20,6 +20,7 @@ import asyncio
 import aiofiles
 import aiofiles.os
 from dotenv import load_dotenv
+import requests
 
 # Initialize FastAPI application
 app = FastAPI()
@@ -27,6 +28,7 @@ app = FastAPI()
 # Load environment variables from .env
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
+OLLAMA_API_URL = os.getenv("OLLAMA_API_URL")
 
 whisper_model = whisper.load_model("base")
 os.environ["PATH"] += os.pathsep + os.getenv("FFMPEG_PATH") # Configure FFMPEG locally
@@ -36,20 +38,45 @@ print("API KEYYYY from models:", API_KEY)
 
 async def generate_from_gemini(prompt: str, user_api_key: str) -> str:
     """
-    Generates a response from the Gemini AI model based on the provided prompt.
+    Generates a response from either Gemini AI or Ollama AI based on the API key.
 
     Args:
         prompt (str): The input text prompt for the AI model.
-        user_api_key (str): The API key for accessing the Gemini model.
+        user_api_key (str): The API key for Gemini or "ollama1064" for Ollama.
 
     Returns:
-        str: The generated text response from the Gemini model.
+        str: The generated text response from the selected AI model.
     """
-    model = genai.GenerativeModel(model_name="gemini-1.5-flash")
-    genai.configure(api_key=API_KEY)
-    response = await asyncio.to_thread(model.generate_content, prompt)
-    await asyncio.sleep(10)  # Delay to prevent hitting API rate limits
-    return response.text
+
+    # ✅ If API Key is "ollama1064", Call Ollama API
+    print(user_api_key)
+    if user_api_key == "ollama1064":
+        try:
+            print("IDHER AAGAYA MAI")
+            print(OLLAMA_API_URL)
+            response = requests.post(OLLAMA_API_URL, json={
+    "model": "deepseek-r1:14b",  # Specify the correct model
+    "prompt": prompt,  # Ensure it is formatted properly
+    "raw": True,
+    "stream": False
+})
+            print(response)
+            if response.status_code == 200:
+                return response.json().get("response", "Error: No response from Ollama.")
+            else:
+                return f"Error: Ollama API request failed - {response.text}"
+        except requests.exceptions.RequestException as e:
+            return f"Error: Failed to connect to Ollama API - {str(e)}"
+
+    # ✅ Otherwise, Call Gemini API
+    try:
+        genai.configure(api_key=API_KEY)  # ✅ Uses user-provided Gemini API key
+        gemini_model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+        response = await asyncio.to_thread(gemini_model.generate_content, prompt)
+        await asyncio.sleep(10)  # Prevent hitting API rate limits
+        return response.text
+    except Exception as e:
+        return f"Error: Failed to generate response from Gemini - {str(e)}"
 
 
 def hide_urls(text: str) -> str:
@@ -123,6 +150,8 @@ def parse_llama_json(text: str) -> Dict:
 async def generate_questions_from_prompt(
     text: str, user_api_key: str, n_questions: int, q_model: str
 ) -> str:
+    print(n_questions)
+    print("PSPSPSPSPSPSPPSPSSPPS")
     """
     Generates multiple-choice questions (MCQs) from a given text using the Gemini AI model.
 
