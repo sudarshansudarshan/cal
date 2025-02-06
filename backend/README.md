@@ -41,7 +41,7 @@ To begin using the CAL Backend, you will need to set up each component individua
 - **For more details**: Open the [AI Engine folder](backend/ai_engine).
 
 ### Activity Engine
-- **Built on**: Node.js and TypeScript 
+- **Built on**: Node.js, TypeScript and PostgreSQL
 - **Main Functions**:
   - Tracks user progress and activities.
   - Handles the grading system, evaluating student submissions and providing real-time feedback.
