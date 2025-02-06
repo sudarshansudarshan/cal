@@ -96,14 +96,12 @@ To set up the development environment, the following tools are required:
 │   │   ├── README.md              # Doc for activity engine
 │   └── lms_engine/                # Core LMS engine
 │       ├── .devcontainer/         # DevContainer setup for LMS engine
-│       └── cal_engine/            # Main LMS engine code
+│       └── core/                  # Main LMS engine code
 │           ├── assessment/        # Assessment-related modules
 │           ├── authentication/    # Authentication system
 │           ├── course/            # Course management modules
 │           ├── institution/       # Institution-related modules
-│           ├── log/               # Logging modules
 │           ├── user/              # User management modules
-│           └── __pycache__/       # Compiled Python files (auto-generated)
 ├── docs/                          # Documentation files
 ├── frontend-cal/                  # Frontend system
 │   ├── .vscode/                   # VSCode-specific settings for frontend development
@@ -121,10 +119,6 @@ To set up the development environment, the following tools are required:
 │       │   ├── Students/          # Student-specific pages
 │       │   ├── home/              # Home pages
 │       │   └── login/             # Login components
-│       ├── routes/                # Application routes
-│       ├── store/                 # Redux store
-│       │   └── slices/            # Redux slices
-│       └── types/                 # Shared TypeScript types
 ├── LICENSE                        # Project License
 └── README.md                      # Project documentation
 
