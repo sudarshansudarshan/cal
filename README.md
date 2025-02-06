@@ -73,54 +73,62 @@ To set up the development environment, the following tools are required:
 
 ```
 .
-|
-├── .github/                       # GitHub-specific configuration
-│   ├── ISSUE_TEMPLATE/            # Issue templates for GitHub
-│   └── workflows/                 # CI/CD workflows for linting, testing, etc.
-├── backend/                       # Backend systems
-│   ├── ai_engine/                 # AI Engine: Handles AI-related tasks (e.g., question generation, proctoring)
-│   ├── activity_engine/
-│   │   ├── prisma/
-│   │   │   ├── migrations/        # Contains all migrations
-│   │   │   └── schema.prisma      # Contains the Prisma schema for data storage
-│   │   ├── src/
-│   │   │   ├── config/            # Configured to log various levels of information
-│   │   │   ├── constant.ts        # Stores the URL of the LM engine
-│   │   │   ├── controller/        # Contains different controllers for each API call functionality
-│   │   │   ├── middleware/        # Contains Google authentication middleware responsible for verifying users
-│   │   │   ├── repositories/      # Stores all repository files for database interactions
-│   │   │   ├── routes/            # Contains various route files for backend API endpoints
-│   │   │   ├── server.ts          # Configures and initializes the Express server
-│   │   │   ├── services/          # Includes business logic services for each functionality (like course progress)
-│   │   │   └── types/             # Defines TypeScript types for various elements
-│   │   ├── README.md              # Doc for activity engine
-│   └── lms_engine/                # Core LMS engine
-│       ├── .devcontainer/         # DevContainer setup for LMS engine
-│       └── core/                  # Main LMS engine code
-│           ├── assessment/        # Assessment-related modules
-│           ├── authentication/    # Authentication system
-│           ├── course/            # Course management modules
-│           ├── institution/       # Institution-related modules
-│           ├── user/              # User management modules
-├── docs/                          # Documentation files
-├── frontend-cal/                  # Frontend system
-│   ├── .vscode/                   # VSCode-specific settings for frontend development
-│   ├── public/                    # Static assets for the frontend
-│   └── src/                       # React source code
-│       ├── assets/                # Images and static assets
-│       ├── components/            # Reusable UI components
+├── .github/                           # GitHub-specific configuration
+│   ├── ISSUE_TEMPLATE/                # Issue templates for GitHub
+│   └── workflows/                     # CI/CD workflows for linting, testing, etc.
+├── backend/                            
+│   ├── ai_engine/                     # AI Engine: Handles AI-related tasks (e.g., question generation, proctoring)
+│   │   ├── app/                       # Application configuration and entry points
+│   │   │   ├── routers/               # Router files for API endpoints
+│   │   │   ├── templates/             # Jinja2 templates for HTML views (if used)
+│   │   │   ├── __init__.py            # Initializes Python package
+│   │   │   ├── main.py                # FastAPI app initialization
+│   │   │   ├── models.py              # Database models
+│   │   │   ├── rag.py                 # Specific module, possibly for RAG (Retrieval-Augmented Generation)
+│   │   │   ├── schemas.py             # Pydantic schemas for request and response models
+│   │   │   └── services.py            # Business logic and interaction with the database
+│   │   └── faiss_index/               # Directory for storing FAISS indices for efficient similarity search
+│   ├── activity_engine/                
+│   │   ├── prisma/                    # Prisma ORM configurations
+│   │   │   ├── migrations/            # Contains all database migrations
+│   │   │   └── schema.prisma          # Contains the Prisma schema for data storage
+│   │   ├── src/                        
+│   │   │   ├── config/                # Configurations for the engine
+│   │   │   ├── constant.ts            # Constants like URL of the LM engine
+│   │   │   ├── controller/            # Controllers for API functionalities
+│   │   │   ├── middleware/            # Middleware, including auth verification
+│   │   │   ├── repositories/          # Database interaction files
+│   │   │   ├── routes/                # API routes
+│   │   │   ├── server.ts              # Express server setup
+│   │   │   ├── services/              # Business logic services
+│   │   │   └── types/                 # TypeScript types definitions
+│   │   ├── README.md                  # Documentation for the activity engine
+│   ├── lms_engine/                    # Core LMS engine
+│   │   ├── .devcontainer/             # DevContainer configuration for isolated development
+│   │   └── core/                      # Core functionalities of the LMS engine
+│   │       ├── assessment/            # Assessment-related functionalities
+│   │       ├── authentication/        # Authentication system
+│   │       ├── course/                # Course management functionalities
+│   │       ├── institution/           # Institution-related functionalities
+│   │       └── users/                  # User management functionalities
+├── docs/                              # Documentation files
+├── frontend-cal/                      # Frontend system
+│   ├── .vscode/                       # VSCode-specific settings for frontend development
+│   ├── public/                        # Static assets for the frontend
+│   └── src/                           # React source code
+│       ├── assets/                    # Images and static assets
+│       ├── components/                # Reusable UI components
 │       │   ├── proctoring-components/ # Proctoring-specific components
-│       │   └── ui/                # General UI components
-│       ├── hooks/                 # Custom React hooks
-│       ├── lib/                   # Utility functions and libraries
-│       ├── models/                # TypeScript models
-│       ├── pages/                 # Page components
-│       │   ├── Admins/            # Admin-specific pages
-│       │   ├── Students/          # Student-specific pages
-│       │   ├── home/              # Home pages
-│       │   └── login/             # Login components
-├── LICENSE                        # Project License
-└── README.md                      # Project documentation
+│       │   └── ui/                    # General UI components
+│       ├── hooks/                     # Custom React hooks
+│       ├── lib/                       # Utility functions and libraries
+│       ├── models/                    # TypeScript models
+│       └── pages/                     # Page components
+│           ├── Students/              # Student-specific pages
+│           ├── home.txt               # Home pages
+│           └── login.txt              # Login components
+├── LICENSE                            # Project License
+└── README.md                          # Project documentation
 
 ```
 
@@ -148,4 +156,3 @@ For any inquiries, feedback, or suggestions, feel free to:
 
 - Open an issue on the repository.
 - Reach out to the maintainers at staff.aditya.bmv@iitrpr.ac.in or at sidrao2006@gmail.com.
-
