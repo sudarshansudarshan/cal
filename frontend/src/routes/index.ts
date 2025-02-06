@@ -10,6 +10,7 @@ import ContentScrollView from '@/pages/Students/ContentScrollView'
 import SectionDetails from '@/pages/Students/SectionDetail'
 import SectionView from '@/pages/Students/SectionView'
 import AuthWrapper from '@/components/proctoring-components/AuthWrapper';
+import testing from '@/pages/Students/testing'
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
           {
             path: '',
             element: React.createElement(StudentDashboard),
+          },
+          {
+            path: '/testing',
+            element: React.createElement(testing),
           },
           {
             path: '/course-view',
@@ -53,6 +58,7 @@ const router = createBrowserRouter([
         path: '/login',
         element: React.createElement(LoginPage),
       },
+
 
     ],
   },

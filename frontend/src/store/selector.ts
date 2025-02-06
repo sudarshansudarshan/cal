@@ -6,3 +6,4 @@ export const useIsAuthenticated = () => {
   // Update the path according to your actual state structure
   return useSelector((state) => state.auth.isLoggedIn);
 }
+export const selectProgressStatus = (state, sectionItemId) => state.fetchStatus.fetchStatus[sectionItemId];

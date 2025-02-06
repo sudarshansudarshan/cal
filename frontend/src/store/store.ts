@@ -7,12 +7,16 @@ import authReducer from './slices/authSlice';
 import coursesReducer from './slices/courseSlice';
 import modulesReducer from './slices/fetchModulesSlice';
 import sectionsReducer from './slices/fetchSections';
+import progressReducer from './slices/fetchStatusSlice'; 
+import sectionProgressReducer from './slices/sectionProgressSlice'; 
+import moduleProgressReducer from './slices/moduleProgressSlice'; 
+import progressUpdateReducer from './slices/updateProgressSlice'; 
 
 // Set up the configuration for redux-persist
 const persistConfig = {
   key: 'root', // The key is used for the storage key prefix.
   storage,     // Specify which storage to use.
-  whitelist: ['auth', 'api','courses', 'modules', 'sections'] // Only 'auth' slice of the state will be persisted.
+  whitelist: ['auth', 'api','courses', 'modules', 'sections', 'fetchStatus', 'progress', 'sectionProgress', 'moduleProgress'] // Only 'auth' slice of the state will be persisted.
 };
 
 // Combine all reducers into a single root reducer
@@ -21,6 +25,10 @@ const rootReducer = combineReducers({
   courses: coursesReducer,
   modules: modulesReducer,
   sections: sectionsReducer,
+  progress: progressReducer, // Adding the progress reducer here
+  sectionProgress: sectionProgressReducer, // Adding the section progress reducer
+  moduleProgress: moduleProgressReducer, // Adding the module progress reducer
+  progressUpdate: progressUpdateReducer, // Adding the progress update reducer
   // Add API service reducers with their dynamic paths
   [apiService.reducerPath]: apiService.reducer,
   [anotherApiService.reducerPath]: anotherApiService.reducer,

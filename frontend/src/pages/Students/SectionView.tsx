@@ -16,12 +16,14 @@
  * - AssignmentRow: Individual section row with details and actions
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useFetchSectionsWithAuthQuery} from '@/store/ApiServices/LmsEngine/DataFetchApiServices';
-import { useFetchSectionItemsProgressQuery } from '@/store/ApiServices/ActivityEngine/ProgressApiServices';
 import Cookies from 'js-cookie';
+import { useFetchSectionProgressQuery } from '@/store/apiService';
+import { fetchSectionProgress } from '@/store/slices/sectionProgressSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 // Status styles mapping for different section states
 const statusClasses = {
@@ -42,7 +44,7 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => (
 // Props interface for AssignmentRow component
 interface AssignmentRowProps {
   title: string;
-  module: string;
+  moduleId: string;
   sectionId: number;
   courseInstanceId: string;
 }
@@ -50,35 +52,38 @@ interface AssignmentRowProps {
 // Component to render individual section rows
 const AssignmentRow: React.FC<AssignmentRowProps> = ({
   title,
-  module,
+  moduleId,
   sectionId,
   courseInstanceId,
 }) => {
   const navigate = useNavigate();
-  const { moduleId } = useParams();
-  const { data, isLoading, error } = useFetchSectionItemsProgressQuery({
-    courseInstanceId,
-    sectionItemId: String(sectionId),
-  });
+  const dispatch = useDispatch();
+  const progressKey = `${courseInstanceId}-${sectionId}`;
+  
+  // Retrieve section progress from Redux state
+  const sectionProgress = useSelector(state => state.sectionProgress[progressKey]);
 
-  const status = isLoading ? 'Loading' : error ? 'Error' : data?.progress || 'Pending';
+  // Fetch section progress when component mounts or ids change
+  useEffect(() => {
+    if (sectionProgress === undefined) { // Check if progress is not already fetched
+      dispatch(fetchSectionProgress({ courseInstanceId, sectionId: String(sectionId) }));
+    }
+  }, [dispatch, courseInstanceId, sectionId, sectionProgress]);
+
+  const status = sectionProgress ? sectionProgress : 'Pending'; // Default to 'Pending' if not loaded
 
   return (
     <div className='grid grid-cols-2 gap-4 rounded-lg border border-gray-200 bg-white p-4'>
       <div>
         <div className='text-xl font-semibold'>{title}</div>
-        <div className='text-gray-600'>{module}</div>
+        <div className='text-gray-600'>{moduleId}</div>
       </div>
       <div className='flex items-center justify-between'>
         <span>{sectionId}</span>
         <StatusBadge status={status} />
-        <Button
-          onClick={() =>
-            navigate(`/section-details/${sectionId}`, {
-              state: { courseId: courseInstanceId, moduleId },
-            })
-          }
-        >
+        <Button onClick={() => navigate(`/section-details/${sectionId}`, {
+          state: { courseId: courseInstanceId, moduleId }
+        })}>
           View
         </Button>
       </div>

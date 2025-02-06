@@ -19,12 +19,14 @@
  * - Section: Main component managing data fetching and layout
  */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useFetchItemsWithAuthQuery } from '@/store/ApiServices/LmsEngine/DataFetchApiServices'
 import { useFetchSectionItemsProgressQuery } from '@/store/ApiServices/ActivityEngine/ProgressApiServices'
 import { Button } from '@/components/ui/button'
 import { Check, Lock } from 'lucide-react'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchProgress } from '@/store/slices/fetchStatusSlice'
 
 // Tailwind classes for different status badges
 const statusClasses = {
@@ -50,25 +52,31 @@ const StatusBadge = ({ status }) => (
  * Displays a single content item with its details and action button
  */
 const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
-  const navigate = useNavigate()
-  console.log('courseId:', courseId, moduleId)
-  let alpha = 'v'
-  if(assignment.item_type === 'video') {
-    alpha = 'v'
-  }else{
-    alpha = 'a'
-  }
-  const sectionItemId1 = `${alpha}${assignment.id}`
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const alpha = assignment.item_type === 'video' ? 'v' : 'a';
+  const sectionItemId1 = `${alpha}${assignment.id}`;
+  const progressKey = `${courseId}-${sectionItemId1}`;
+  console.log('progressKey:', progressKey);
 
-  const { data: progressData, isLoading, isError } = useFetchSectionItemsProgressQuery({
-    courseInstanceId: courseId, // Ensure this is the correct ID needed for your API
-    sectionItemId: sectionItemId1
-  });
+  // Retrieve progress from Redux state
+  const progress = useSelector(state => state.progress[progressKey]);
+  console.log("state mai ye store hai - ",useSelector(state => state.progress[progressKey]));
 
+  console.log('progress:', progress)
+
+  // Dispatch fetchProgress on component mount or when ids change
+  useEffect(() => {
+    console.log("this is progress",progress)
+    if (progress === undefined) { // Check if progress is not already fetched
+      dispatch(fetchProgress({ courseInstanceId: courseId, sectionItemId: sectionItemId1 }));
+    }
+  }, [dispatch, courseId, sectionItemId1, progress]);
+
+  // Determine what status to display
   const displayStatus = () => {
-    if (isLoading) return "Loading...";
-    if (isError) return "Error";
-    return progressData?.progress || "Unknown";
+    if (!progress) return "Loading...";
+    return progress || "Unknown";
   };
 
   return (
@@ -79,19 +87,11 @@ const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
       </div>
       <div className='flex items-center justify-between'>
         <span className='w-12 '>{assignment.item_type}</span>
-        <span className=''><StatusBadge status={displayStatus()}  /></span>
+        <span><StatusBadge status={displayStatus()} /></span>
         <span className='w-14 flex justify-center'>
-          {assignment.item_type === 'video' && progressData?.progress === 'IN_PROGRESS' ? (
-            <Button
-              onClick={() =>
-                navigate('/content-scroll-view', {
-                  state: { assignment, sectionId, courseId, moduleId },
-                })
-              }
-            >
-              Start
-            </Button>
-          ) : progressData?.progress === 'COMPLETE' ? (
+          {assignment.item_type === 'video' && progress === 'IN_PROGRESS' ? (
+            <Button onClick={() => navigate('/content-scroll-view', { state: { assignment, sectionId, courseId, moduleId }})}>Start</Button>
+          ) : progress === 'COMPLETE' ? (
             <Check />
           ) : (
             <Lock />
@@ -99,8 +99,9 @@ const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
         </span>
       </div>
     </div>
-  )
-}
+  );
+};
+
 
 /**
  * Main Section Component
