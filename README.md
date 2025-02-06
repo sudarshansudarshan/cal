@@ -73,29 +73,27 @@ To set up the development environment, the following tools are required:
 
 ```
 .
-├── .devcontainer/                 # Docker and DevContainer setup for backend development
-│   └── backend/                   # DevContainer files for backend-specific services
+|
 ├── .github/                       # GitHub-specific configuration
 │   ├── ISSUE_TEMPLATE/            # Issue templates for GitHub
 │   └── workflows/                 # CI/CD workflows for linting, testing, etc.
 ├── backend/                       # Backend systems
-│   ├── .vscode/                   # VSCode-specific settings for backend development
 │   ├── ai_engine/                 # AI Engine: Handles AI-related tasks (e.g., question generation, proctoring)
-│   ├── activity_engine/           # Activity Engine: Handles student-generated data
-│   │   ├── .devcontainer/         # DevContainer setup for Activity Engine
-│   │   ├── src/  
-│   │   │   ├── config/            # Configured to log various levels of information  
-│   │   │   ├── controller/        # Contains different controllers for each API call functionality  
-│   │   │   ├── middleware/        # Contains Google authentication middleware responsible for verifying users  
-│   │   │   ├── routes/            # Contains various route files for backend API endpoints  
-│   │   │   ├── repositories/      # Stores all repository files for database interactions  
-│   │   │   ├── services/          # Includes business logic services for each functionality (like course progress)  
-│   │   │   ├── types/             # Defines TypeScript types for various elements  
-│   │   │   ├── constant.ts        # Stores the URL of the LM engine  
-│   │   │   └── server.ts          # Configures and initializes the Express server  
-│   │   └── prisma/  
-│   │       ├── migrations/        # Contains all migrations  
-│   │       └── schema.prisma      # Contains the Prisma schema for data storage
+│   ├── activity_engine/
+│   │   ├── prisma/
+│   │   │   ├── migrations/        # Contains all migrations
+│   │   │   └── schema.prisma      # Contains the Prisma schema for data storage
+│   │   ├── src/
+│   │   │   ├── config/            # Configured to log various levels of information
+│   │   │   ├── constant.ts        # Stores the URL of the LM engine
+│   │   │   ├── controller/        # Contains different controllers for each API call functionality
+│   │   │   ├── middleware/        # Contains Google authentication middleware responsible for verifying users
+│   │   │   ├── repositories/      # Stores all repository files for database interactions
+│   │   │   ├── routes/            # Contains various route files for backend API endpoints
+│   │   │   ├── server.ts          # Configures and initializes the Express server
+│   │   │   ├── services/          # Includes business logic services for each functionality (like course progress)
+│   │   │   └── types/             # Defines TypeScript types for various elements
+│   │   ├── README.md              # Doc for activity engine
 │   └── lms_engine/                # Core LMS engine
 │       ├── .devcontainer/         # DevContainer setup for LMS engine
 │       └── cal_engine/            # Main LMS engine code
@@ -106,7 +104,6 @@ To set up the development environment, the following tools are required:
 │           ├── log/               # Logging modules
 │           ├── user/              # User management modules
 │           └── __pycache__/       # Compiled Python files (auto-generated)
-├── dev/                           # Development utilities and tools
 ├── docs/                          # Documentation files
 ├── frontend-cal/                  # Frontend system
 │   ├── .vscode/                   # VSCode-specific settings for frontend development
@@ -129,7 +126,7 @@ To set up the development environment, the following tools are required:
 │       ├── store/                 # Redux store
 │       │   └── slices/            # Redux slices
 │       └── types/                 # Shared TypeScript types
-├── LLMs/                          # Large Language Model integration for CAL
+├── LICENSE                        # Project License
 └── README.md                      # Project documentation
 
 ```
@@ -158,7 +155,4 @@ For any inquiries, feedback, or suggestions, feel free to:
 
 - Open an issue on the repository.
 - Reach out to the maintainers at staff.aditya.bmv@iitrpr.ac.in or at sidrao2006@gmail.com.
-
-
-
 
