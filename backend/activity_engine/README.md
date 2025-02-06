@@ -42,7 +42,15 @@ To set up your database in this application, you need to create a `.env` file in
 
 ```
 DATABASE_URL="your_postgres_database_url"
+
 ```
+To get PostgreSQL First, you need to get your PostgreSQL connection string from Supabase.
+
+1. Log in to your Supabase account, create a new project and remember password.
+2. Open Project, Go to the Project settings.
+3. Navigate to Database >  select connect option From top bar.
+4. Copy the PostgreSQL connection string from "Direct connection" and paste it into the URL where the password field is located.
+5. In the .env file, add the database connection string: DATABASE_URL="your_postgres_database_url"
 
 #### Google Authentication
 
