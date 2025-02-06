@@ -70,59 +70,68 @@ To set up the development environment, the following tools are required:
 ---
 
 ## Repository Structure
+
 ```
-├── .devcontainer/             # Docker and DevContainer setup for backend development
-│   └── backend/               # DevContainer files for backend-specific services
-│
-├── .github/                   # GitHub-specific configuration
-│   ├── ISSUE_TEMPLATE/        # Issue templates for GitHub
-│   └── workflows/             # CI/CD workflows for linting, testing, etc.
-│
-├── backend/               # Backend systems
-│   ├── .vscode/               # VSCode-specific settings for backend development
-│   ├── ai_engine/             # AI Engine: Handles AI-related tasks (e.g., question generation, proctoring)
-│   ├── activity_engine/ # Handles student-generated  data
-│   │   └── .devcontainer/     # DevContainer setup for Activity Engine
-│   └── lms_engine/            # Core LMS engine
-│       ├── .devcontainer/     # DevContainer setup for LMS engine
-│       └── cal_engine/        # Main LMS engine code
-│           ├── assessment/    # Assessment-related modules
-│           ├── authentication/ # Authentication system
-│           ├── course/        # Course management modules
-│           ├── institution/   # Institution-related modules
-│           ├── log/           # Logging modules
-│           ├── user/          # User management modules
-│           └── __pycache__/   # Compiled Python files (auto-generated)
-│
-├── dev/                       # Development utilities and tools
-│
-├── docs/                      # Documentation files
-│
-├── frontend-cal/              # Frontend system
-│   ├── .vscode/               # VSCode-specific settings for frontend development
-│   ├── public/                # Static assets for the frontend
-│   └── src/                   # React source code
-│       ├── app/               # Application-level components
-│       │   ├── dashboard/     # Dashboard pages
-│       │   └── login/         # Login components
-│       ├── assets/            # Images and static assets
-│       ├── components/        # Reusable UI components
+.
+├── .devcontainer/                 # Docker and DevContainer setup for backend development
+│   └── backend/                   # DevContainer files for backend-specific services
+├── .github/                       # GitHub-specific configuration
+│   ├── ISSUE_TEMPLATE/            # Issue templates for GitHub
+│   └── workflows/                 # CI/CD workflows for linting, testing, etc.
+├── backend/                       # Backend systems
+│   ├── .vscode/                   # VSCode-specific settings for backend development
+│   ├── ai_engine/                 # AI Engine: Handles AI-related tasks (e.g., question generation, proctoring)
+│   ├── activity_engine/           # Activity Engine: Handles student-generated data
+│   │   ├── .devcontainer/         # DevContainer setup for Activity Engine
+│   │   ├── src/  
+│   │   │   ├── config/            # Configured to log various levels of information  
+│   │   │   ├── controller/        # Contains different controllers for each API call functionality  
+│   │   │   ├── middleware/        # Contains Google authentication middleware responsible for verifying users  
+│   │   │   ├── routes/            # Contains various route files for backend API endpoints  
+│   │   │   ├── repositories/      # Stores all repository files for database interactions  
+│   │   │   ├── services/          # Includes business logic services for each functionality (like course progress)  
+│   │   │   ├── types/             # Defines TypeScript types for various elements  
+│   │   │   ├── constant.ts        # Stores the URL of the LM engine  
+│   │   │   └── server.ts          # Configures and initializes the Express server  
+│   │   └── prisma/  
+│   │       ├── migrations/        # Contains all migrations  
+│   │       └── schema.prisma      # Contains the Prisma schema for data storage
+│   └── lms_engine/                # Core LMS engine
+│       ├── .devcontainer/         # DevContainer setup for LMS engine
+│       └── cal_engine/            # Main LMS engine code
+│           ├── assessment/        # Assessment-related modules
+│           ├── authentication/    # Authentication system
+│           ├── course/            # Course management modules
+│           ├── institution/       # Institution-related modules
+│           ├── log/               # Logging modules
+│           ├── user/              # User management modules
+│           └── __pycache__/       # Compiled Python files (auto-generated)
+├── dev/                           # Development utilities and tools
+├── docs/                          # Documentation files
+├── frontend-cal/                  # Frontend system
+│   ├── .vscode/                   # VSCode-specific settings for frontend development
+│   ├── public/                    # Static assets for the frontend
+│   └── src/                       # React source code
+│       ├── app/                   # Application-level components
+│       │   ├── dashboard/         # Dashboard pages
+│       │   └── login/             # Login components
+│       ├── assets/                # Images and static assets
+│       ├── components/            # Reusable UI components
 │       │   ├── proctoring-components/ # Proctoring-specific components
-│       │   └── ui/            # General UI components
-│       ├── hooks/             # Custom React hooks
-│       ├── lib/               # Utility functions and libraries
-│       ├── models/            # TypeScript models
-│       ├── pages/             # Page components
-│       │   ├── Admins/        # Admin-specific pages
-│       │   └── Students/      # Student-specific pages
-│       ├── routes/            # Application routes
-│       ├── store/             # Redux store
-│       │   └── slices/        # Redux slices
-│       └── types/             # Shared TypeScript types
-│
-├── LLMs/                      # Large Language Model integration for CAL
-│
-└── README.md                  # Project documentation
+│       │   └── ui/                # General UI components
+│       ├── hooks/                 # Custom React hooks
+│       ├── lib/                   # Utility functions and libraries
+│       ├── models/                # TypeScript models
+│       ├── pages/                 # Page components
+│       │   ├── Admins/            # Admin-specific pages
+│       │   └── Students/          # Student-specific pages
+│       ├── routes/                # Application routes
+│       ├── store/                 # Redux store
+│       │   └── slices/            # Redux slices
+│       └── types/                 # Shared TypeScript types
+├── LLMs/                          # Large Language Model integration for CAL
+└── README.md                      # Project documentation
+
 ```
 
 ---
