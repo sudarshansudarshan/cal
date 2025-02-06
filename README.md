@@ -109,9 +109,6 @@ To set up the development environment, the following tools are required:
 │   ├── .vscode/                   # VSCode-specific settings for frontend development
 │   ├── public/                    # Static assets for the frontend
 │   └── src/                       # React source code
-│       ├── app/                   # Application-level components
-│       │   ├── dashboard/         # Dashboard pages
-│       │   └── login/             # Login components
 │       ├── assets/                # Images and static assets
 │       ├── components/            # Reusable UI components
 │       │   ├── proctoring-components/ # Proctoring-specific components
@@ -121,7 +118,9 @@ To set up the development environment, the following tools are required:
 │       ├── models/                # TypeScript models
 │       ├── pages/                 # Page components
 │       │   ├── Admins/            # Admin-specific pages
-│       │   └── Students/          # Student-specific pages
+│       │   ├── Students/          # Student-specific pages
+│       │   ├── home/              # Home pages
+│       │   └── login/             # Login components
 │       ├── routes/                # Application routes
 │       ├── store/                 # Redux store
 │       │   └── slices/            # Redux slices
