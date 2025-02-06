@@ -16,13 +16,17 @@ from pytubefix import Playlist
 from pytubefix.cli import on_progress
 from typing import List, Dict
 import ffmpeg
+
 import asyncio
 import aiofiles
 import aiofiles.os
 from dotenv import load_dotenv
 
 # Initialize FastAPI application
+
+
 app = FastAPI()
+
 
 # Load environment variables from .env
 load_dotenv()
