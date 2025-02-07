@@ -59,6 +59,8 @@ const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
   const progressKey = `${courseId}-${sectionItemId1}`;
   console.log('progressKey:', progressKey);
 
+  
+
   // Retrieve progress from Redux state
   const progress = useSelector(state => state.progress[progressKey]);
   console.log("state mai ye store hai - ",useSelector(state => state.progress[progressKey]));

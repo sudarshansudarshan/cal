@@ -49,6 +49,8 @@ import { useFetchQuestionsWithAuthQuery } from '@/store/ApiServices/LmsEngine/Da
 import { Progress } from '@/components/ui/progress'
 
 import Cookies from 'js-cookie'
+import { useDispatch } from 'react-redux'
+import { clearProgress } from '@/store/slices/fetchStatusSlice'
 
 // Define interfaces for state and props
 interface AssessmentOption {
@@ -92,6 +94,8 @@ const ContentScrollView = () => {
   const sectionId = location.state?.sectionId
   const courseId = location.state?.courseId
   const moduleId = location.state?.moduleId
+
+  const dispatch = useDispatch()
 
   // This ensures that the sidebar is open or not
   const { setOpen } = useSidebar()
@@ -414,6 +418,14 @@ const ContentScrollView = () => {
               .then((response) => {
                 if (response.data) {
                   console.log('Progress updated successfully!')
+                  console.log('I am response data', response.data)
+                  response.data.forEach((item) => {
+                    item.sectionItems.forEach((sectionItemId) => {
+                      const newCourseInstanceId = courseId
+                      const newSectionItemId = sectionItemId
+                      dispatch(clearProgress({ courseInstanceId: newCourseInstanceId, sectionItemId: newSectionItemId }))
+                    })
+                  })
                 } else {
                   console.error('Failed to update progress.')
                 }

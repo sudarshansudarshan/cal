@@ -39,8 +39,9 @@ const progressSlice = createSlice({
         // Properly setting the state based on fetched data
         const { courseInstanceId, sectionItemId } = action.meta.arg;
         const progressKey = `${courseInstanceId}-${sectionItemId}`;
+        console.log('state before setting : ',state[progressKey]);
         state[progressKey] = action.payload.progress;
-        console.log(`Progress fetched and set for key: ${progressKey}:`, state[progressKey]);
+        console.log(`state after setting : ${progressKey}:`, state[progressKey]);
       })
       .addCase(fetchProgress.rejected, (state, action) => {
         // Handle errors or rejections in the fetch

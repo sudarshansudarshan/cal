@@ -1,39 +1,20 @@
 
 import { clearProgress } from '@/store/slices/fetchStatusSlice';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const testing = () => {
+    
     const dispatch = useDispatch();
-    const [courseInstanceId, setCourseInstanceId] = useState('');
-    const [sectionItemId, setSectionItemId] = useState('');
-
-    const handleClearProgress = () => {
-        dispatch(clearProgress({ courseInstanceId, sectionItemId }));
+    const handleShowProgress = () => {
+        const progress = useSelector(state => state.progress['1-1']);
+        console.log(" fddddddddddddd vefvfdv: ", progress);
     };
 
     return (
         <div>
             <h1>Students Page</h1>
-            <form>
-                <div>
-                    <label>Course Instance ID:</label>
-                    <input
-                        type="text"
-                        value={courseInstanceId}
-                        onChange={(e) => setCourseInstanceId(e.target.value)}
-                    />
-                </div>
-                <div>
-                    <label>Section Item ID:</label>
-                    <input
-                        type="text"
-                        value={sectionItemId}
-                        onChange={(e) => setSectionItemId(e.target.value)}
-                    />
-                </div>
-            </form>
-            <button onClick={handleClearProgress}>
+            <button onClick={handleShowProgress}>
                 Clear Progress
             </button>
         </div>
