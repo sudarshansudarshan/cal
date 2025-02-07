@@ -1,4 +1,5 @@
 from .base import *
+import sentry_sdk
 
 DEBUG = False
 
@@ -10,6 +11,16 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
 SECURE_SSL_REDIRECT = True
+
+'''
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN"),
+    traces_sample_rate=1.0,
+    # TODO: Set this to a reasonable value
+    profiles_sample_rate=0.3,
+    send_default_pii=True
+)
+'''
 
 # TODO: Configure cache settings here
 
