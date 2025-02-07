@@ -1,9 +1,9 @@
 /**
  * Login Component
- * 
+ *
  * This component provides a user authentication interface with a login form.
  * It manages username and password inputs, handles form submission, and displays errors.
- * 
+ *
  * Features:
  * - Username and password input fields with state management
  * - Form submission handling with API integration using RTK Query
@@ -11,7 +11,7 @@
  * - Error display for failed login attempts
  * - Redux integration for user state management
  * - Responsive design with Tailwind CSS styling
- * 
+ *
  * State:
  * - username: Tracks the username input value
  * - password: Tracks the password input value
@@ -28,10 +28,10 @@ const Login: React.FC = () => {
   // State management for form inputs
   const [username, setUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
-  
+
   // RTK Query hook for login mutation
   const [login, { isLoading, error }] = useLoginMutation()
-  
+
   // Redux dispatch hook
   const dispatch = useDispatch()
 

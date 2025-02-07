@@ -34,7 +34,6 @@ export const apiService = createApi({
     baseUrl: API_URL, // Replace with your API base URL
   }),
   endpoints: (builder) => ({
-
     // Course management endpoints
     fetchCoursesWithAuth: builder.query<
       {
@@ -56,7 +55,6 @@ export const apiService = createApi({
         },
       }),
     }),
-    
 
     // Module management endpoints
     fetchModulesWithAuth: builder.query<{ modules: {}[] }, number>({
@@ -137,4 +135,3 @@ export const {
   useFetchSectionsWithAuthQuery,
   useFetchQuestionsWithAuthQuery,
 } = apiService
-

@@ -75,7 +75,7 @@ const StudentDashboard = () => {
   const [showAllCourses, setShowAllCourses] = useState(false)
   const [showAllOngoing, setShowAllOngoing] = useState(false)
 
-  const {data : newCourses} = useFetchCoursesWithAuthQuery()
+  const { data: newCourses } = useFetchCoursesWithAuthQuery()
   const CourseData = newCourses?.results
   console.log(CourseData)
 
@@ -169,10 +169,12 @@ const StudentDashboard = () => {
               <TableBody>
                 {displayedCourses?.map((course) => (
                   <TableRow key={course.course_id}>
-                    <TableCell className='font-medium'>{course.course_id}</TableCell>
+                    <TableCell className='font-medium'>
+                      {course.course_id}
+                    </TableCell>
                     <TableCell>{course.name}</TableCell>
                     <TableCell className='text-right'>
-                        {new Date(course.created_at).toLocaleDateString()}
+                      {new Date(course.created_at).toLocaleDateString()}
                     </TableCell>
                   </TableRow>
                 ))}

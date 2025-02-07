@@ -104,8 +104,5 @@ export const apiService = createApi({
 })
 
 // Export hooks for using the API endpoints
-export const {
-  useLoginMutation,
-  useSignupMutation,
-  useLogoutMutation,
-} = apiService
+export const { useLoginMutation, useSignupMutation, useLogoutMutation } =
+  apiService

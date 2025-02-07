@@ -67,13 +67,16 @@ const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
   )
 
   console.log('progress:', progress)
-  console.log('i am items............',useSelector((state) => state.items))
+  console.log(
+    'i am items............',
+    useSelector((state) => state.items)
+  )
 
   // Dispatch fetchProgress on component mount or when ids change
   useEffect(() => {
     console.log('this is progress', progress)
-    
-    if(!progress){
+
+    if (!progress) {
       dispatch(
         fetchProgress({
           courseInstanceId: courseId,
@@ -104,7 +107,7 @@ const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
         <span>
           <StatusBadge status={displayStatus()} />
         </span>
-        <span className='w-14 flex justify-center'>
+        <span className='flex w-14 justify-center'>
           {assignment.item_type === 'video' && progress === 'IN_PROGRESS' ? (
             <Button
               onClick={() =>

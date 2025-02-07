@@ -1,43 +1,47 @@
 // src/store/slices/sectionsSlice.js
-import { createSlice } from '@reduxjs/toolkit';
-import { apiService } from '../ApiServices/LmsEngine/DataFetchApiServices'; // Adjust the path as necessary
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { apiService } from '../ApiServices/LmsEngine/DataFetchApiServices'
 
-interface Section {
-  id: number;
-  title: string;
-  content: string;
-}
-
-const initialState: {
-  sections: Section[];
-  isLoading: boolean;
-  error: string | null;
-} = {
-  sections: [],
-  isLoading: false,
-  error: null,
-};
+// Define async thunk using RTK Query endpoint initiation
+export const fetchSectionsWithAuth = createAsyncThunk(
+  'sections/fetchSectionsWithAuth',
+  async ({ courseId, moduleId }, { dispatch, rejectWithValue }) => {
+    const response = await dispatch(
+      apiService.endpoints.fetchSectionsWithAuth.initiate({
+        courseId,
+        moduleId,
+      })
+    )
+    if (response.error) {
+      console.error('Error fetching sections:', response.error) // Log the error for better debugging
+      return rejectWithValue('Failed to fetch sections')
+    }
+    return response.data // This should match the expected structure in your state
+  }
+)
 
 const sectionsSlice = createSlice({
   name: 'sections',
-  initialState,
+  initialState: {
+    sections: [],
+    isLoading: false,
+    error: null,
+  },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addMatcher(apiService.endpoints.fetchSectionsWithAuth.matchPending, (state) => {
-        state.isLoading = true;
-        console.log('Fetching sections...');
+      .addCase(fetchSectionsWithAuth.pending, (state) => {
+        state.isLoading = true
       })
-      .addMatcher(apiService.endpoints.fetchSectionsWithAuth.matchFulfilled, (state, action) => {
-        state.isLoading = false;
-        state.sections = action.payload.results; // Ensure this matches the payload structure
-        console.log('Fetched sections:', action.payload.results);
+      .addCase(fetchSectionsWithAuth.fulfilled, (state, action) => {
+        state.isLoading = false
+        state.sections = action.payload.results // Adjust based on your API response structure
       })
-      .addMatcher(apiService.endpoints.fetchSectionsWithAuth.matchRejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error && action.error.message ? action.error.message : null;
-      });
+      .addCase(fetchSectionsWithAuth.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.payload || 'Failed to fetch sections'
+      })
   },
-});
+})
 
-export default sectionsSlice.reducer;
+export default sectionsSlice.reducer
