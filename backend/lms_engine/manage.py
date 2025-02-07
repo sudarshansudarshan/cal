@@ -4,23 +4,16 @@ import os
 import sys
 import subprocess
 
-# Run linting checks before executing the script
-# Remove in Production
-result = subprocess.run(
-    ["flake8", "--exclude=myenv,**/__init__.py,venv,.venv,dist,build"],
-    capture_output=True,
-    text=True,
-)
-
-if result.returncode != 0:
-    print("❌ Linting errors found:\n")
-    print(result.stdout)
-    sys.exit(1)
-
-
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
+
+    
+    # Check if DJANGO_ENVIRONMENT is set
+    django_env = os.getenv("DJANGO_ENVIRONMENT")
+
+    if django_env:
+        os.environ["DJANGO_SETTINGS_MODULE"] = f"core.settings.{django_env}"
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
