@@ -52,34 +52,42 @@ const StatusBadge = ({ status }) => (
  * Displays a single content item with its details and action button
  */
 const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const alpha = assignment.item_type === 'video' ? 'v' : 'a';
-  const sectionItemId1 = `${alpha}${assignment.id}`;
-  const progressKey = `${courseId}-${sectionItemId1}`;
-  console.log('progressKey:', progressKey);
-
-  
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const alpha = assignment.item_type === 'video' ? 'v' : 'a'
+  const sectionItemId1 = `${alpha}${assignment.id}`
+  const progressKey = `${courseId}-${sectionItemId1}`
+  console.log('progressKey:', progressKey)
 
   // Retrieve progress from Redux state
-  const progress = useSelector(state => state.progress[progressKey]);
-  console.log("state mai ye store hai - ",useSelector(state => state.progress[progressKey]));
+  const progress = useSelector((state) => state.progress[progressKey])
+  console.log(
+    'state mai ye store hai - ',
+    useSelector((state) => state.progress[progressKey])
+  )
 
   console.log('progress:', progress)
 
   // Dispatch fetchProgress on component mount or when ids change
   useEffect(() => {
-    console.log("this is progress",progress)
-    if (progress === undefined) { // Check if progress is not already fetched
-      dispatch(fetchProgress({ courseInstanceId: courseId, sectionItemId: sectionItemId1 }));
-    }
-  }, [dispatch, courseId, sectionItemId1, progress]);
+    console.log('this is progress', progress)
+    dispatch(
+      fetchProgress({
+        courseInstanceId: courseId,
+        sectionItemId: sectionItemId1,
+      })
+    ).then(() => {
+      if (!progress) {
+        window.location.reload()
+      }
+    })
+  }, [dispatch, courseId, sectionItemId1, progress])
 
   // Determine what status to display
   const displayStatus = () => {
-    if (!progress) return "Loading...";
-    return progress || "Unknown";
-  };
+    if (!progress) return 'Loading...'
+    return progress || 'Unknown'
+  }
 
   return (
     <div className='grid grid-cols-2 gap-4 rounded-lg border border-gray-200 bg-white p-4'>
@@ -89,10 +97,20 @@ const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
       </div>
       <div className='flex items-center justify-between'>
         <span className='w-12 '>{assignment.item_type}</span>
-        <span><StatusBadge status={displayStatus()} /></span>
+        <span>
+          <StatusBadge status={displayStatus()} />
+        </span>
         <span className='w-14 flex justify-center'>
           {assignment.item_type === 'video' && progress === 'IN_PROGRESS' ? (
-            <Button onClick={() => navigate('/content-scroll-view', { state: { assignment, sectionId, courseId, moduleId }})}>Start</Button>
+            <Button
+              onClick={() =>
+                navigate('/content-scroll-view', {
+                  state: { assignment, sectionId, courseId, moduleId },
+                })
+              }
+            >
+              Start
+            </Button>
           ) : progress === 'COMPLETE' ? (
             <Check />
           ) : (
@@ -101,9 +119,8 @@ const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
         </span>
       </div>
     </div>
-  );
-};
-
+  )
+}
 
 /**
  * Main Section Component

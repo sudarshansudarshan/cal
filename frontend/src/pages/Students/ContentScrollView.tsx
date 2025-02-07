@@ -417,8 +417,6 @@ const ContentScrollView = () => {
             })
               .then((response) => {
                 if (response.data) {
-                  console.log('Progress updated successfully!')
-                  console.log('I am response data', response.data)
                   response.data.forEach((item) => {
                     item.sectionItems.forEach((sectionItemId) => {
                       const newCourseInstanceId = courseId
