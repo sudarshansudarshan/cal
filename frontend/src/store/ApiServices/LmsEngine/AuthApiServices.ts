@@ -48,8 +48,8 @@ export const apiService = createApi({
       onQueryStarted: async (arg, { queryFulfilled }) => {
         try {
           const { data } = await queryFulfilled
-          Cookies.set('access_token', data.access_token) // Store the correct access token
-          Cookies.set('user_id', data.user_id)
+          Cookies.set('access_token', data.access_token, { secure: true, httpOnly: true }) // Store the correct access token
+          Cookies.set('user_id', data.user_id, { secure: true, httpOnly: true })
         } catch (error) {
           console.error('Failed to store access token in cookies', error)
         }
