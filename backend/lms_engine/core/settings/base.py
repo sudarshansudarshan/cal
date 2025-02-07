@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from decouple import config
 import os
 from pathlib import Path
+import json
+import base64
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -96,8 +98,8 @@ DATABASES = {
         "NAME": config("DATABSE_NAME", default="lms_db"),
         "USER": config("DATABASE_USER", default="lms_db_user"),
         "PASSWORD": config("DATABASE_PASSWORD", default="user1234"),
-        "HOST": config("HOST", default="127.0.0.1"),
-        "PORT": config("PORT", default="5432"),
+        "HOST": config("DATABASE_HOST", default="127.0.0.1"),
+        "PORT": config("DATABASE_PORT", default="5432"),
     }
 }
 
@@ -163,10 +165,24 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
+# Get environment variables
+FIREBASE_CREDENTIAL_BASE64 = config("FIREBASE_SERVICE_ACCOUNT_SECRET_KEY")
 FIREBASE_ADMIN_SDK_CREDENTIALS_PATH = config(
     "FIREBASE_ADMIN_SDK_CREDENTIALS_PATH", default=""
 )
+if FIREBASE_CREDENTIAL_BASE64:
+    try:
+        # Decode base64 string
+        firebase_creds = base64.b64decode(FIREBASE_CREDENTIAL_BASE64).decode("utf-8")
+
+        # Write the JSON to the expected path
+        with open(FIREBASE_ADMIN_SDK_CREDENTIALS_PATH, "w") as f:
+            f.write(firebase_creds)
+    except Exception as e:
+        raise ValueError(f"Error decoding Firebase credentials: {e}")
+else:
+    raise ValueError("Firebase credentials not found or invalid!")
+
 
 LOGGING = {
     "version": 1,
