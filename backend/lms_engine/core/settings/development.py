@@ -1,14 +1,11 @@
 from .base import *  # noqa: F401
 
-DEBUG = True
-
-SECRET_KEY = "django-insecure-a315e&x&14d_34iz$7608d81v3y)0fov--goz$j@#&w*vjib%8"
-
 INSTALLED_APPS += [
-    "django_extensions",
     "drf_spectacular",
     "core.docs",
 ]
+
+ALLOWED_HOSTS = ["localhost","192.168.1.67"]
 
 CORS_ORIGIN_ALLOW_ALL = True
 

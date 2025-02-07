@@ -3,16 +3,19 @@
 import os
 import sys
 import subprocess
+from decouple import config
 
 def main():
     """Run administrative tasks."""
 
-    
-    # Check if DJANGO_ENVIRONMENT is set
-    django_env = os.getenv("DJANGO_ENVIRONMENT")
+    django_env = config("DJANGO_ENVIRONMENT")
 
     if django_env:
+        print("PRODUCTION SERVER")
         os.environ["DJANGO_SETTINGS_MODULE"] = f"core.settings.{django_env}"
+    else:
+        print("DEVELOPMENT SERVER")
+        os.environ["DJANGO_SETTINGS_MODULE"] = "core.settings.development"
 
     try:
         from django.core.management import execute_from_command_line
