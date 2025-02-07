@@ -17,7 +17,7 @@ Follow these steps to set up and run the project:
     npm run build
     ```
 4. Run database migrations:
-    Make sure the .env file (located in the project root) has a proper DATABASE_URL pointing to your PostgreSQL database. Also, check your Prisma schema (prisma/schema.prisma) for accuracy. Here's the steps for the migration step:
+    Make sure the .env file (located in the project root) has a proper DATABASE_URL pointing to your PostgreSQL database If unsuccessful, refer to the database configuration below. Also, check your Prisma schema (prisma/schema.prisma) for accuracy. Here's the steps for the migration step:
 
     
     
