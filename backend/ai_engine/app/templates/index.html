@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Playlist Question Generator</title>
   <link rel="stylesheet" href="/static/css/styles.css">
+  <!-- Load YouTube API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
 </head>
 
 <body>
@@ -39,7 +41,7 @@
         </select>
       </div>
     </div>
-
+    
     <div class="default-settings">
       <label for="default-segments">Default Number of Segments</label>
       <input type="number" id="default-segments" min="1" placeholder="Enter default segments count" />
@@ -108,9 +110,11 @@
     </div>
 
     <button id="confirm-btn" style="display:none;">Confirm & Download</button>
-  </div> // HTML content for the page. This includes the form, buttons, and other elements. These are used for the user interface.
+   </div> 
+   <!--HTML content for the page. This includes the form, buttons, and other elements. These are used for the user interface. -->
 
-  <script src="/static/javascript/script.js"></script>
+  <!-- <script src="static/javascript/script.js"></script> -->
+  <script type="module" src="static/javascript/main.js"></script>
   <div id="temp-player" style="display: none;"></div>
 </body>
 
