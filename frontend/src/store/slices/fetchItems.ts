@@ -82,6 +82,7 @@ const fetchItemsSlice = createSlice({
       .addCase(fetchItemsWithAuth.fulfilled, (state, action) => {
         state.loading = false
         state.items = action.payload
+        console.log('Items fetched:', action.payload)
       })
       // Handle errors when fetch fails
       .addCase(fetchItemsWithAuth.rejected, (state, action) => {

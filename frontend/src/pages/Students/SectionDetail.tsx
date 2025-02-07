@@ -67,20 +67,24 @@ const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
   )
 
   console.log('progress:', progress)
+  console.log('i am items............',useSelector((state) => state.items))
 
   // Dispatch fetchProgress on component mount or when ids change
   useEffect(() => {
     console.log('this is progress', progress)
-    dispatch(
-      fetchProgress({
-        courseInstanceId: courseId,
-        sectionItemId: sectionItemId1,
+    
+    if(!progress){
+      dispatch(
+        fetchProgress({
+          courseInstanceId: courseId,
+          sectionItemId: sectionItemId1,
+        })
+      ).then(() => {
+        if (!progress) {
+          window.location.reload()
+        }
       })
-    ).then(() => {
-      if (!progress) {
-        window.location.reload()
-      }
-    })
+    }
   }, [dispatch, courseId, sectionItemId1, progress])
 
   // Determine what status to display

@@ -51,6 +51,8 @@ import { Progress } from '@/components/ui/progress'
 import Cookies from 'js-cookie'
 import { useDispatch } from 'react-redux'
 import { clearProgress } from '@/store/slices/fetchStatusSlice'
+import { clearModuleProgress } from '@/store/slices/moduleProgressSlice'
+import { clearSectionProgress } from '@/store/slices/sectionProgressSlice'
 
 // Define interfaces for state and props
 interface AssessmentOption {
@@ -423,6 +425,12 @@ const ContentScrollView = () => {
                       const newSectionItemId = sectionItemId
                       dispatch(clearProgress({ courseInstanceId: newCourseInstanceId, sectionItemId: newSectionItemId }))
                     })
+                    if(item.modules !== null){
+                      dispatch(clearModuleProgress({ courseInstanceId: courseId, moduleId: item.modules }))
+                    }
+                    else if(item.sections !== null){
+                      dispatch(clearSectionProgress({ courseInstanceId: courseId, sectionId: item.sections }))
+                    }
                   })
                 } else {
                   console.error('Failed to update progress.')

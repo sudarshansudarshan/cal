@@ -26,10 +26,12 @@ const sectionsSlice = createSlice({
     builder
       .addMatcher(apiService.endpoints.fetchSectionsWithAuth.matchPending, (state) => {
         state.isLoading = true;
+        console.log('Fetching sections...');
       })
       .addMatcher(apiService.endpoints.fetchSectionsWithAuth.matchFulfilled, (state, action) => {
         state.isLoading = false;
-        state.sections = action.payload.sections; // Ensure this matches the payload structure
+        state.sections = action.payload.results; // Ensure this matches the payload structure
+        console.log('Fetched sections:', action.payload.results);
       })
       .addMatcher(apiService.endpoints.fetchSectionsWithAuth.matchRejected, (state, action) => {
         state.isLoading = false;

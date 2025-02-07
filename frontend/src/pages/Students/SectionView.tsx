@@ -62,6 +62,7 @@ const AssignmentRow: React.FC<AssignmentRowProps> = ({
   
   // Retrieve section progress from Redux state
   const sectionProgress = useSelector(state => state.sectionProgress[progressKey]);
+  console.log('section items',useSelector(state => state.sections.sections));
 
   // Fetch section progress when component mounts or ids change
   useEffect(() => {
