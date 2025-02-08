@@ -234,45 +234,54 @@
     <div id="videos-container"></div>
 
     <form id="video-form">
-      <label for="user-api-key">Gemini API Key</label>
-      <input type="text" id="user-api-key" placeholder="Enter your Gemini API key" required />
-
+      <!-- Model Selection Dropdown -->
+      <label for="model-selection">Choose Model:</label>
+      <select id="model-selection" class="form-control">
+          <option value="gemini" selected>Gemini API</option>
+          <option value="ollama">Ollama API</option>
+      </select>
+  
+      <!-- Gemini API Key Input (Only visible if Gemini is selected) -->
+      <div id="api-key-container">
+          <label for="user-api-key">Gemini API Key</label>
+          <input type="text" id="user-api-key" placeholder="Enter your Gemini API key" required />
+      </div>
+  
       <div id="num-segments-container" style="display: none;">
-        <label for="num-segments">Number of Segments (for this video)</label>
-        <input type="number" id="num-segments" min="1" placeholder="Enter number of segments" />
+          <label for="num-segments">Number of Segments (for this video)</label>
+          <input type="number" id="num-segments" min="1" placeholder="Enter number of segments" />
       </div>
-
+  
       <div id="video-player-container">
-        <div id="player"></div>
+          <div id="player"></div>
       </div>
-
+  
       <div id="segments-container" class="segments-container"></div>
-
+  
       <div id="details-form">
-        <h3 id="form-title">Segment Details</h3>
-        <label for="timestamp">Start time of the segment</label>
-        <div style="display: flex; gap: 10px;">
-          <input type="number" id="timestamp-hr" min="0" placeholder="HH" style="width: 33%;" />
-          <input type="number" id="timestamp-min" min="0" max="59" placeholder="MM" style="width: 33%;" />
-          <input type="number" id="timestamp-sec" min="0" max="59" placeholder="SS" style="width: 33%;" />
-        </div>
-
-        <!-- Add after the timestamp div that contains hr/min/sec inputs -->
-        <button type="button" id="recalculate-timestamps" class="inline">Recalculate Timestamps</button>
-
-        <label for="questions">Number of Questions</label>
-        <input type="number" id="questions" placeholder="Enter number of questions" />
-
-        <label for="type">Type of Questions</label>
-        <select id="type">
-          <option value="">Select type</option>
-          <option value="analytical">Analytical</option>
-          <option value="case-study">Case Study</option>
-        </select>
+          <h3 id="form-title">Segment Details</h3>
+          <label for="timestamp">Start time of the segment</label>
+          <div style="display: flex; gap: 10px;">
+              <input type="number" id="timestamp-hr" min="0" placeholder="HH" style="width: 33%;" />
+              <input type="number" id="timestamp-min" min="0" max="59" placeholder="MM" style="width: 33%;" />
+              <input type="number" id="timestamp-sec" min="0" max="59" placeholder="SS" style="width: 33%;" />
+          </div>
+  
+          <button type="button" id="recalculate-timestamps" class="inline">Recalculate Timestamps</button>
+  
+          <label for="questions">Number of Questions</label>
+          <input type="number" id="questions" placeholder="Enter number of questions" />
+  
+          <label for="type">Type of Questions</label>
+          <select id="type">
+              <option value="">Select type</option>
+              <option value="analytical">Analytical</option>
+              <option value="case-study">Case Study</option>
+          </select>
       </div>
-
+  
       <button type="submit">Upload</button>
-    </form>
+  </form>  
 
     <div id="generating-sign">Generating<span class="dots"><span></span><span></span><span></span></span></div>
 
@@ -402,7 +411,7 @@ configLoaded.then(() => { // Function to fetch the course hierarchy when the pag
    
 configLoaded.then(() => { 
   // Fetch course hierarchy when page loads
-  fetch(`${config.LMS_GET_URL}courses`, {  
+  fetch(`${config.LMS_GET_URL}api/v1/course/courses/`, {  
   method: 'GET',
   headers: {
     'Content-Type': 'application/json',
@@ -470,15 +479,15 @@ function populateCourseDropdown(courses) { // Function to populate the course dr
   moduleSelect.innerHTML = '<option value="">Select Module</option>';
   moduleSelect.disabled = true;
 
-  const numericCourseId = parseInt(courseId, 10);
-  if (isNaN(numericCourseId)) {
-    console.error("⚠️ Invalid Course ID:", courseId);
-    return;
-  }
+  const numericCourseId = courseId;
+  // if (isNaN(numericCourseId)) {
+  //   console.error("⚠️ Invalid Course ID:", courseId);
+  //   return;
+  // }
 
   moduleSelect.disabled = false;
 
-  fetch(`${config.LMS_GET_URL}modules?course_id=${numericCourseId}`, {  
+  fetch(`${config.LMS_GET_URL}api/v1/course/modules/?course_id=${courseId}`, {  
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -519,15 +528,15 @@ function updateSectionDropdown(moduleId) { // Function to update the section dro
   sectionSelect.disabled = true;
 
   // Ensure moduleId is a valid number
-  const numericModuleId = parseInt(moduleId, 10);
-  if (isNaN(numericModuleId)) {
-    console.error("⚠️ Invalid module ID:", moduleId);
-    return;
-  }
+  const numericModuleId = moduleId;
+  // if (isNaN(numericModuleId)) {
+  //   console.error("⚠️ Invalid module ID:", moduleId);
+  //   return;
+  // }
 
   sectionSelect.disabled = false;
 
-  fetch(`${config.LMS_GET_URL}sections?module_id=${numericModuleId}`, {  
+  fetch(`${config.LMS_GET_URL}api/v1/course/sections/?module_id=${moduleId}`, {  
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -536,7 +545,8 @@ function updateSectionDropdown(moduleId) { // Function to update the section dro
   })
     .then(response => response.json())
     .then(data => {
-      console.log("📌 SECTION YAHAN HAI:", data); // ✅ Debugging
+      console.log("📌 SECTION YAHAN HAI:", data);
+      console.log(config.Authorization); // ✅ Debugging
 
       if (!data || !Array.isArray(data.results)) {  // ✅ Fix: Checking for `results` instead of `sections`
         throw new Error('Invalid data format received from server');
@@ -562,31 +572,56 @@ function updateSectionDropdown(moduleId) { // Function to update the section dro
 
 
 // Event listeners
-document.addEventListener("DOMContentLoaded", function () { // Event listener to load the course dropdown when the page loads.
-  const courseSelect = document.getElementById('course-select');
+document.addEventListener("DOMContentLoaded", function () {
+    // ✅ Handle Course Selection
+    const courseSelect = document.getElementById('course-select');
 
-  // ✅ Remove any existing listeners to prevent duplication
-  courseSelect.replaceWith(courseSelect.cloneNode(true));
+    // ✅ Remove any existing listeners to prevent duplication
+    courseSelect.replaceWith(courseSelect.cloneNode(true));
 
-  // ✅ Add event listener correctly
-  document.getElementById('course-select').addEventListener('change', (e) => {
-    const courseId = e.target.value;
-    
+    // ✅ Add event listener correctly
+    document.getElementById('course-select').addEventListener('change', (e) => {
+        const courseId = e.target.value;
 
-    // ✅ Debugging: Check if the selected course ID is captured
-    console.log("✅ Selected Course ID:", courseId);
+        // ✅ Debugging: Check if the selected course ID is captured
+        console.log("✅ Selected Course ID:", courseId);
 
-    if (courseId) {
-      console.log("Yahan dekho",courseId);
-      updateModuleDropdown(courseId);
+        if (courseId) {
+            console.log("Yahan dekho", courseId);
+            updateModuleDropdown(courseId);
+        }
+
+        // ✅ Reset the section dropdown
+        const sectionSelect = document.getElementById('section-select');
+        sectionSelect.disabled = true;
+        sectionSelect.innerHTML = '<option value="">Select Section</option>';
+    });
+
+    // ✅ Handle Model Selection (Gemini/Ollama)
+    const modelSelection = document.getElementById("model-selection");
+    const apiKeyContainer = document.getElementById("api-key-container");
+    const apiKeyInput = document.getElementById("user-api-key");
+
+    modelSelection.addEventListener("change", function () {
+        if (modelSelection.value === "gemini") {
+            apiKeyContainer.style.display = "block";  // ✅ Show API Key input for Gemini
+            apiKeyInput.required = true;  // ✅ Make API Key required
+        } else {
+            apiKeyContainer.style.display = "none";  // ✅ Hide API Key input for Ollama
+            apiKeyInput.required = false;  // ✅ Remove required validation
+        }
+    });
+
+    // ✅ Ensure the correct initial state on page load
+    if (modelSelection.value === "gemini") {
+        apiKeyContainer.style.display = "block";
+        apiKeyInput.required = true;
+    } else {
+        apiKeyContainer.style.display = "none";
+        apiKeyInput.required = false;
     }
-
-    // ✅ Reset the section dropdown
-    const sectionSelect = document.getElementById('section-select');
-    sectionSelect.disabled = true;
-    sectionSelect.innerHTML = '<option value="">Select Section</option>';
-  });
 });
+
 
 
 document.getElementById('module-select').addEventListener('change', (e) => { // Event listener to update the section dropdown when the module is selected.
@@ -597,7 +632,7 @@ document.getElementById('module-select').addEventListener('change', (e) => { // 
 });
 
 document.getElementById('section-select').addEventListener('change', (e) => { // Event listener to update the selected section ID.
-  selectedSectionId = e.target.value ? parseInt(e.target.value, 10) : null;
+  selectedSectionId = e.target.value ? e.target.value : null;
 });
 
     function secondsToHMS(seconds) { // Function to convert seconds to hours, minutes, and seconds.
@@ -719,8 +754,8 @@ document.getElementById('section-select').addEventListener('change', (e) => { //
 
     document.getElementById('fetch-videos').addEventListener('click', async () => { // Event listener for when the user submits the playlist URL.
       const playlistUrl = document.getElementById('playlist-url').value;
-      defaultSegments = parseInt(document.getElementById('default-segments').value) || 0;
-      defaultQuestions = parseInt(document.getElementById('default-questions').value) || 0;
+      defaultSegments = document.getElementById('default-segments').value || 0;
+      defaultQuestions = document.getElementById('default-questions').value || 0;
 
       if (!defaultSegments) {
         alert('Please enter default number of segments');
@@ -802,7 +837,7 @@ document.getElementById('section-select').addEventListener('change', (e) => { //
     numSegmentsInput.addEventListener('input', () => {
       if (currentVideo === null) return;
 
-      const numSegments = parseInt(numSegmentsInput.value) || 0;
+      const numSegments = numSegmentsInput.value || 0;
       const segmentsContainer = document.getElementById('segments-container');
       const currentSegments = videoData[currentVideo].segments;
 
@@ -880,15 +915,15 @@ document.getElementById('section-select').addEventListener('change', (e) => { //
     function saveSegmentData() {
       if (currentVideo === null || currentSegment === null) return;
 
-      const hrs = parseInt(document.getElementById('timestamp-hr').value) || 0;
-      const mins = parseInt(document.getElementById('timestamp-min').value) || 0;
-      const secs = parseInt(document.getElementById('timestamp-sec').value) || 0;
+      const hrs = document.getElementById('timestamp-hr').value || 0;
+      const mins = document.getElementById('timestamp-min').value || 0;
+      const secs = document.getElementById('timestamp-sec').value || 0;
       const questionsInput = document.getElementById('questions');
       const typeInput = document.getElementById('type');
 
       videoData[currentVideo].segments[currentSegment] = {
         timestamp: currentSegment === 1 ? 0 : hmsToSeconds(hrs, mins, secs),
-        questions: parseInt(questionsInput.value) || null,
+        questions: questionsInput.value || null,
         type: typeInput.value || ''
       };
     }
@@ -896,7 +931,7 @@ document.getElementById('section-select').addEventListener('change', (e) => { //
     function validateTimestamps() {
       for (let videoIndex in videoData) {
         const segments = videoData[videoIndex].segments;
-        const segmentNumbers = Object.keys(segments).sort((a, b) => parseInt(a) - parseInt(b));
+        const segmentNumbers = Object.keys(segments).sort((a, b) => a - b);
 
         let previousTimestamp = -1;
 
@@ -905,14 +940,14 @@ document.getElementById('section-select').addEventListener('change', (e) => { //
 
           // Check if timestamps are in order
           if (currentTimestamp <= previousTimestamp && segNum !== '1') {
-            alert(`Video ${parseInt(videoIndex) + 1}, Segment ${segNum}: Timestamp (${currentTimestamp}s) must be greater than previous segment's timestamp (${previousTimestamp}s)`);
+            alert(`Video ${videoIndex + 1}, Segment ${segNum}: Timestamp (${currentTimestamp}s) must be greater than previous segment's timestamp (${previousTimestamp}s)`);
             return false;
           }
 
           // Check if last segment timestamp is less than video duration
           if (segNum === segmentNumbers[segmentNumbers.length - 1]) {
             if (currentTimestamp >= videoDurations[videoIndex]) {
-              alert(`Video ${parseInt(videoIndex) + 1}, Segment ${segNum}: Last segment timestamp (${currentTimestamp}s) must be less than video duration (${videoDurations[videoIndex]}s)`);
+              alert(`Video ${videoIndex + 1}, Segment ${segNum}: Last segment timestamp (${currentTimestamp}s) must be less than video duration (${videoDurations[videoIndex]}s)`);
               return false;
             }
           }
@@ -962,99 +997,103 @@ document.getElementById('section-select').addEventListener('change', (e) => { //
     }
 
     async function processBatches(batches) {
-      for (let i = 0; i < batches.length; i++) {
+    for (let i = 0; i < batches.length; i++) {
         const batch = batches[i];
 
-        // Process all videos in current batch concurrently
+        // Process all videos in the current batch concurrently
         const batchPromises = batch.map(async (videoIndex) => {
-          const videoURL = videoUrls[videoIndex];
-          const segments = videoData[videoIndex].segments;
+            const videoURL = videoUrls[videoIndex];
+            const segments = videoData[videoIndex].segments;
 
-          const timestamps = [];
-          const segmentWiseQNo = [];
-          const segmentWiseQModel = [];
+            const timestamps = [];
+            const segmentWiseQNo = [];
+            const segmentWiseQModel = [];
 
-          Object.values(segments).forEach(data => {
-            if (data.timestamp !== null) timestamps.push(parseInt(data.timestamp, 10));
-            if (data.questions !== null) segmentWiseQNo.push(data.questions);
-            if (data.type !== null) segmentWiseQModel.push(data.type);
-          });
+            Object.values(segments).forEach(data => {
+                if (data.timestamp !== null) timestamps.push(parseInt(data.timestamp, 10));
+                if (data.questions !== null) segmentWiseQNo.push(data.questions);
+                if (data.type !== null) segmentWiseQModel.push(data.type);
+            });
 
-          const payload = {
-            url: videoURL,
-            user_api_key: document.getElementById('user-api-key').value,
-            timestamps,
-            segment_wise_q_no: segmentWiseQNo,
-            segment_wise_q_model: segmentWiseQModel,
-          };
+            // ✅ Get Selected Model (Gemini or Ollama)
+            const selectedModel = document.getElementById("model-selection").value;
+            const userApiKeyInput = document.getElementById('user-api-key');
 
-          console.log("SUMN SUS GOIN' ON HERE:", payload);
+            // ✅ Determine API Key to Send
+            const apiKey = (selectedModel === "gemini") ? userApiKeyInput.value : "ollama1064";
 
-          const response = await fetch('/questions/process_video', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-          })
-          const data = await response.json();
-          responseData[videoIndex] = data;
+            // ✅ Include API Key in Payload
+            const payload = {
+                url: videoURL,
+                user_api_key: apiKey,  // ✅ Now sends the correct API key dynamically
+                timestamps,
+                segment_wise_q_no: segmentWiseQNo,
+                segment_wise_q_model: segmentWiseQModel,
+            };
 
-          // Save to IndexedDB
-          await questionDB.saveVideoData({
-            ...data,
-            video_url: videoURL
-          });
+            console.log("SUMN SUS GOIN' ON HERE:", payload);
 
-          return data;
+            const response = await fetch('/questions/process_video', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await response.json();
+            responseData[videoIndex] = data;
+
+            // Save to IndexedDB
+            await questionDB.saveVideoData({
+                ...data,
+                video_url: videoURL
+            });
+
+            return data;
         });
 
         await Promise.all(batchPromises);
-
-        // Wait 90 seconds before processing next batch
-        if (i < batches.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 90000));
-        }
-      }
     }
+}
+
 
     document.getElementById('video-form').addEventListener('submit', async (event) => {
-      event.preventDefault();
+    event.preventDefault();
 
-      if (!validateTimestamps()) {
+    if (!validateTimestamps()) {
         return;
-      }
+    }
 
-      const userApiKey = document.getElementById('user-api-key').value;
-      const generatingSign = document.getElementById('generating-sign');
-      const outputDiv = document.getElementById('output');
-      const confirmButton = document.getElementById('confirm-btn');
+    const generatingSign = document.getElementById('generating-sign');
+    const outputDiv = document.getElementById('output');
+    const confirmButton = document.getElementById('confirm-btn');
 
-      generatingSign.style.display = 'block';
-      outputDiv.style.display = 'none';
-      confirmButton.style.display = 'none';
+    generatingSign.style.display = 'block';
+    outputDiv.style.display = 'none';
+    confirmButton.style.display = 'none';
 
-      try {
+    try {
         const videoIndices = Object.keys(videoData).map(Number);
         const batches = createBatches(videoIndices);
-        await processBatches(batches);
+        await processBatches(batches);  // ✅ Calls processBatches (which now handles API key logic)
 
         modifiedResponseData = deepCopy(responseData);
 
         console.log("Original responseData:", responseData);
         console.log("Modified responseData:", modifiedResponseData);
 
-
         generatingSign.style.display = 'none';
         outputDiv.style.display = 'block';
         displayOutput(modifiedResponseData[currentVideo]);
         confirmButton.style.display = 'inline-block';
-      } catch (error) {
+
+    } catch (error) {
         generatingSign.style.display = 'none';
         outputDiv.textContent = `Error processing videos: ${error.message}`;
-      }
+    }
+});
 
-    });
 
     function displayOutput(data) {
       // Add logging to track data
@@ -1115,7 +1154,7 @@ document.getElementById('section-select').addEventListener('change', (e) => { //
         if (option2El) newQuestion.option_2 = option2El.value;
         if (option3El) newQuestion.option_3 = option3El.value;
         if (option4El) newQuestion.option_4 = option4El.value;
-        if (correctAnswerEl) newQuestion.correct_answer = parseInt(correctAnswerEl.value);
+        if (correctAnswerEl) newQuestion.correct_answer = correctAnswerEl.value;
 
         return newQuestion;
       });
