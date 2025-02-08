@@ -28,7 +28,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
-import { Cookie, Fullscreen, Pause, Play } from 'lucide-react'
+import { Fullscreen, Pause, Play } from 'lucide-react'
 import { Slider } from '@/components/ui/slider'
 
 import { toast } from 'sonner'
@@ -39,47 +39,19 @@ import KeyboardLock from '@/components/proctoring-components/KeyboardLock'
 import RightClickDisabler from '@/components/proctoring-components/RightClickDisable'
 
 //These are the imports comming from redux using RTK for fetching and posting the data to the backend
+import { useFetchItemsWithAuthQuery } from '@/store/ApiServices/LmsEngine/DataFetchApiServices'
 import {
-  useFetchItemsWithAuthQuery,
   useStartAssessmentMutation,
   useSubmitAssessmentMutation,
-  useUpdateSectionItemProgressMutation,
-} from '@/store/apiService'
-import { useFetchQuestionsWithAuthQuery } from '@/store/apiService'
-import { Progress } from '@/components/ui/progress'
+} from '@/store/ApiServices/ActivityEngine/GradingApiServices'
+import { useUpdateSectionItemProgressMutation } from '@/store/ApiServices/ActivityEngine/UpdatingApiServices'
+import { useFetchQuestionsWithAuthQuery } from '@/store/ApiServices/LmsEngine/DataFetchApiServices'
 
 import Cookies from 'js-cookie'
-
-// Define interfaces for state and props
-interface AssessmentOption {
-  id: number
-  option_text: string
-}
-
-interface AssessmentQuestion {
-  id: number
-  text: string
-  options: AssessmentOption[]
-  hint?: string
-}
-
-interface ContentFrame {
-  id: number
-  item_type: 'video' | 'article' | 'assessment'
-  source?: string
-  title?: string
-  content?: string
-  start_time?: number
-  end_time?: number
-}
-
-interface PlayerState {
-  isPlaying: boolean
-  volume: number
-  currentTime: number
-  totalDuration: number
-  playbackSpeed: number
-}
+import { useDispatch } from 'react-redux'
+import { clearProgress } from '@/store/slices/fetchStatusSlice'
+import { clearModuleProgress } from '@/store/slices/moduleProgressSlice'
+import { clearSectionProgress } from '@/store/slices/sectionProgressSlice'
 
 const ContentScrollView = () => {
   const location = useLocation()
@@ -91,7 +63,8 @@ const ContentScrollView = () => {
   const assignment = location.state?.assignment || {}
   const sectionId = location.state?.sectionId
   const courseId = location.state?.courseId
-  const moduleId = location.state?.moduleId
+
+  const dispatch = useDispatch()
 
   // This ensures that the sidebar is open or not
   const { setOpen } = useSidebar()
@@ -120,10 +93,11 @@ const ContentScrollView = () => {
   const [isPlayerReady, setIsPlayerReady] = useState(false)
   const [ytApiReady, setYtApiReady] = useState(false)
 
+  console.log(selectedAnswer, isAnswerCorrect, gradingData)
+
   //Responsible for fetching Items using RTK Query
   const { data: assignmentsData } = useFetchItemsWithAuthQuery(sectionId)
   const content = assignmentsData || []
-  const contentLength = content.length
 
   //Responsible for fetching the questions using RTK Query
   const { data: assessmentData } = useFetchQuestionsWithAuthQuery(assessmentId)
@@ -215,10 +189,8 @@ const ContentScrollView = () => {
             throw new Error('No attemptId received')
           }
         })
-        .catch((error) => {
-          toast('Failed to start assessment. Please try again.', {
-            type: 'error',
-          })
+        .catch(() => {
+          toast('Failed to start assessment. Please try again.')
         })
     }
   }
@@ -334,12 +306,12 @@ const ContentScrollView = () => {
     if (selectedOption === null) return
 
     setSelectedAnswer(selectedOption)
-    const question = questions[0].results[currentQuestionIndex]
+    const question = AssessmentData[0].results[currentQuestionIndex]
     const isCorrect = selectedOption === question.answer
     setIsAnswerCorrect(isCorrect)
 
     if (!isCorrect) {
-      toast('Incorrect Answer! Please try again.', { type: 'error' })
+      toast('Incorrect Answer! Please try again.')
       handlePrevFrame()
     } else {
       setSelectedOption(null)
@@ -413,7 +385,33 @@ const ContentScrollView = () => {
             })
               .then((response) => {
                 if (response.data) {
-                  console.log('Progress updated successfully!')
+                  response.data.forEach((item) => {
+                    item.sectionItems.forEach((sectionItemId) => {
+                      const newCourseInstanceId = courseId
+                      const newSectionItemId = sectionItemId
+                      dispatch(
+                        clearProgress({
+                          courseInstanceId: newCourseInstanceId,
+                          sectionItemId: newSectionItemId,
+                        })
+                      )
+                    })
+                    if (item.modules !== null) {
+                      dispatch(
+                        clearModuleProgress({
+                          courseInstanceId: courseId,
+                          moduleId: item.modules,
+                        })
+                      )
+                    } else if (item.sections !== null) {
+                      dispatch(
+                        clearSectionProgress({
+                          courseInstanceId: courseId,
+                          sectionId: item.sections,
+                        })
+                      )
+                    }
+                  })
                 } else {
                   console.error('Failed to update progress.')
                 }
@@ -422,27 +420,17 @@ const ContentScrollView = () => {
                 console.error('Failed to update progress.', error)
               })
           }
-          toast('Assessment Submitted successfully!', { type: 'success' })
+          toast('Assessment Submitted successfully!')
         }
       })
-      .catch((error) => {
-        toast('Failed to submit assessment. Please try again.', {
-          type: 'error',
-        })
+      .catch(() => {
+        toast('Failed to submit assessment. Please try again.')
       })
   }
 
   // This funtion is responsible to set the selected option after click on any option of question by user
   const handleOptionClick = (optionId) => {
     setSelectedOption(optionId)
-  }
-
-  // This funtion is responsible to go backward to the previous question
-  const handlePrevQuestion = () => {
-    setCurrentQuestionIndex(
-      (prevIndex) =>
-        (prevIndex - 1 + AssessmentData.length) % AssessmentData.length
-    )
   }
 
   // This funtion is responsible to go backward to the last frame
@@ -601,7 +589,7 @@ const ContentScrollView = () => {
             frameBorder='0'
             allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
             allowFullScreen
-            className='size-full pointer-events-none cursor-none'
+            className='pointer-events-none size-full cursor-none'
           ></iframe>
         )
       case 'article':
@@ -745,14 +733,14 @@ const ContentScrollView = () => {
       </ResizablePanel>
       <ResizableHandle className='p-1' />
       <ResizablePanel defaultSize={5} className='z-20'>
-        <div className='h-full w-full flex flex-col items-center justify-center bg-gray-100 p-2'>
-        <h4 className='mb-4 text-center text-sm font-semibold'>Progress</h4>
-          <span className='text-sm mb-4'>
+        <div className='flex size-full flex-col items-center justify-center bg-gray-100 p-2'>
+          <h4 className='mb-4 text-center text-sm font-semibold'>Progress</h4>
+          <span className='mb-4 text-sm'>
             {Math.round(((currentFrame + 1) / content.length) * 100)}%
           </span>
           <div className='relative h-full w-4 rounded-xl bg-gray-300'>
             <div
-              className='absolute left-0 w-full bg-black rounded-xl'
+              className='absolute left-0 w-full rounded-xl bg-black'
               style={{
                 height: `${((currentFrame + 1) / content.length) * 100}%`,
               }}

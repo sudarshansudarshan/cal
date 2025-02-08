@@ -34,27 +34,11 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  useFetchCoursesWithAuthQuery,
-  useFetchModulesWithAuthQuery,
-} from '@/store/apiService'
+import { useFetchCoursesWithAuthQuery } from '@/store/ApiServices/LmsEngine/DataFetchApiServices'
 import { BookOpen, Clock, Award, TrendingUp } from 'lucide-react'
 import { useState } from 'react'
 
 // Mock data for available courses
-
-const courses = [
-  { id: 1, name: 'Introduction to AI', duration: '6 weeks' },
-  { id: 2, name: 'Data Science Basics', duration: '8 weeks' },
-  { id: 3, name: 'Web Development', duration: '10 weeks' },
-  { id: 4, name: 'Machine Learning', duration: '12 weeks' },
-  { id: 5, name: 'Deep Learning', duration: '14 weeks' },
-  { id: 6, name: 'Cloud Computing', duration: '5 weeks' },
-  { id: 7, name: 'Cyber Security', duration: '7 weeks' },
-  { id: 8, name: 'Blockchain Basics', duration: '9 weeks' },
-  { id: 9, name: 'Internet of Things', duration: '11 weeks' },
-  { id: 10, name: 'Big Data Analytics', duration: '13 weeks' },
-]
 
 // Mock data for student's ongoing courses
 const ongoingCourses = [
@@ -75,7 +59,7 @@ const StudentDashboard = () => {
   const [showAllCourses, setShowAllCourses] = useState(false)
   const [showAllOngoing, setShowAllOngoing] = useState(false)
 
-  const {data : newCourses} = useFetchCoursesWithAuthQuery()
+  const { data: newCourses } = useFetchCoursesWithAuthQuery()
   const CourseData = newCourses?.results
   console.log(CourseData)
 
@@ -169,10 +153,12 @@ const StudentDashboard = () => {
               <TableBody>
                 {displayedCourses?.map((course) => (
                   <TableRow key={course.course_id}>
-                    <TableCell className='font-medium'>{course.course_id}</TableCell>
+                    <TableCell className='font-medium'>
+                      {course.course_id}
+                    </TableCell>
                     <TableCell>{course.name}</TableCell>
                     <TableCell className='text-right'>
-                        {new Date(course.created_at).toLocaleDateString()}
+                      {new Date(course.created_at).toLocaleDateString()}
                     </TableCell>
                   </TableRow>
                 ))}

@@ -1,94 +1,44 @@
-/**
- * Items Fetch Slice
- *
- * This slice manages the state of items fetching in the application using Redux Toolkit.
- * It handles authenticated API requests to fetch items for a specific section.
- *
- * Features:
- * - Manages array of item objects with their details
- * - Handles authenticated API requests using access token
- * - Tracks loading state during fetch requests
- * - Provides error handling for failed requests
- * - Uses createAsyncThunk for async operations
- *
- * State Structure:
- * - items: Array of item objects containing:
- *   - id: Unique identifier for the item
- *   - name: Item name
- *   - description: Item description
- * - loading: Boolean flag for loading state
- * - error: String containing error message if any
- */
+// src/store/slices/sectionItemsSlice.js
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { apiService } from '../ApiServices/LmsEngine/DataFetchApiServices'
 
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
-import Cookies from 'js-cookie'
-
-// Type definition for item object
-interface Item {
-  id: number
-  name: string
-  description: string
-}
-
-// Type definition for items state
-interface FetchItemsState {
-  items: Item[]
-  loading: boolean
-  error: string | null
-}
-
-// Initial state with empty items array
-const initialState: FetchItemsState = {
-  items: [],
-  loading: false,
-  error: null,
-}
-
-// Async thunk for fetching items with authentication
-export const fetchItemsWithAuth = createAsyncThunk(
-  'items/fetchItemsWithAuth',
-  async (sectionId: number, { rejectWithValue }) => {
-    try {
-      // Make authenticated GET request to fetch items
-      const response = await axios.get<{ items: Item[] }>(
-        `/course/items/?section_id=${sectionId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${Cookies.get('access_token')}`,
-          },
-        }
-      )
-      return response.data.items
-    } catch (error) {
-      return rejectWithValue(error.response.data)
+// Define async thunk using RTK Query endpoint initiation
+export const fetchSectionItemsWithAuth = createAsyncThunk(
+  'sectionItems/fetchSectionItemsWithAuth',
+  async ({ sectionId }, { dispatch, rejectWithValue }) => {
+    const response = await dispatch(
+      apiService.endpoints.fetchSectionItemsWithAuth.initiate({ sectionId })
+    )
+    if (response.error) {
+      console.error('Error fetching section items:', response.error)
+      return rejectWithValue('Failed to fetch section items')
     }
+    return response.data // Ensure this matches the expected structure in your state
   }
 )
 
-// Create slice with reducers for handling async states
-const fetchItemsSlice = createSlice({
-  name: 'fetchItems',
-  initialState,
+const sectionItemsSlice = createSlice({
+  name: 'sectionItems',
+  initialState: {
+    items: [],
+    isLoading: false,
+    error: null,
+  },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Set loading state when fetch starts
-      .addCase(fetchItemsWithAuth.pending, (state) => {
-        state.loading = true
-        state.error = null
+      .addCase(fetchSectionItemsWithAuth.pending, (state) => {
+        state.isLoading = true
       })
-      // Update items when fetch succeeds
-      .addCase(fetchItemsWithAuth.fulfilled, (state, action) => {
-        state.loading = false
-        state.items = action.payload
+      .addCase(fetchSectionItemsWithAuth.fulfilled, (state, action) => {
+        state.isLoading = false
+        state.items = action.payload.items // Assume the payload has an 'items' array
       })
-      // Handle errors when fetch fails
-      .addCase(fetchItemsWithAuth.rejected, (state, action) => {
-        state.loading = false
-        state.error = action.payload as string
+      .addCase(fetchSectionItemsWithAuth.rejected, (state, action) => {
+        state.isLoading = false
+        state.error = action.payload || 'Failed to fetch section items'
       })
   },
 })
 
-export default fetchItemsSlice.reducer
+export default sectionItemsSlice.reducer

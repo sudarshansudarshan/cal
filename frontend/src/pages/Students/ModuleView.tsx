@@ -33,7 +33,7 @@ import {
 import {
   useFetchCoursesWithAuthQuery,
   useFetchModulesWithAuthQuery,
-} from '../../store/apiService'
+} from '../../store/ApiServices/LmsEngine/DataFetchApiServices'
 
 // Interface defining the structure of module data
 interface Module {
@@ -90,13 +90,12 @@ const ModuleView = () => {
     return <p>Course not found!</p>
   }
 
-  const defaultImage =
-    'https://excellentia.org.in/images/courses.jpg'
+  const defaultImage = 'https://excellentia.org.in/images/courses.jpg'
 
   // Modules data
   const modules = moduleData?.results || []
   console.log('modules', modules)
-  console.log("courseID",courseId)
+  console.log('courseID', courseId)
 
   return (
     <div className='flex h-full justify-between'>

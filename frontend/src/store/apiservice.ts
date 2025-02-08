@@ -101,57 +101,6 @@ export const apiService = createApi({
       },
     }),
 
-    // Institute management endpoints
-    fetchInstitutesWithAuth: builder.query<{ institutes: Institute[] }, void>({
-      query: () => ({
-        url: '/institutes/',
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
-        },
-      }),
-    }),
-
-    // User management endpoints
-    fetchUsersWithAuth: builder.query<
-      { users: { id: number; name: string; email: string }[] },
-      void
-    >({
-      query: () => ({
-        url: '/users/',
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
-        },
-      }),
-    }),
-
-    // Video management endpoints
-    fetchVideoDetailsWithAuth: builder.query<
-      { videoDetails: { id: number; title: string; url: string }[] },
-      void
-    >({
-      query: () => ({
-        url: '/videos/',
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
-        },
-      }),
-    }),
-
-    createVideoDetails: builder.mutation({
-      query: (videoData) => ({
-        url: '/videos',
-        method: 'POST',
-        body: videoData,
-        headers: {
-          Authorization: `Bearer ${Cookies.get('access_token')}`,
-          'Content-Type': 'application/json',
-        },
-      }),
-    }),
-
     // Course management endpoints
     fetchCoursesWithAuth: builder.query<
       {
@@ -175,7 +124,7 @@ export const apiService = createApi({
     }),
 
     // Module management endpoints
-    fetchModulesWithAuth: builder.query<{ modules: {}[] }, number>({
+    fetchModulesWithAuth: builder.query<{ modules: [] }, number>({
       query: (courseId) => ({
         url: `/course/modules/?course_id=${courseId}`,
         method: 'GET',
@@ -251,10 +200,6 @@ export const {
   useFetchAssessmentWithAuthQuery,
   useSignupMutation,
   useLogoutMutation,
-  useFetchInstitutesWithAuthQuery,
-  useFetchUsersWithAuthQuery,
-  useFetchVideoDetailsWithAuthQuery,
-  useCreateVideoDetailsMutation,
   useFetchCoursesWithAuthQuery,
   useFetchModulesWithAuthQuery,
   useFetchSectionsWithAuthQuery,
@@ -271,7 +216,7 @@ export const anotherApiService = createApi({
   endpoints: (builder) => ({
     // Start assessment endpoint
     startAssessment: builder.mutation<
-      void,
+      { attemptId: string },
       { courseInstanceId: string; assessmentId: string }
     >({
       query: (assessmentData) => ({
@@ -345,7 +290,7 @@ export const anotherApiService = createApi({
     }),
 
     fetchCourseProgress: builder.query<
-      { progress: any },
+      { progress: string },
       { courseInstanceId: string }
     >({
       query: ({ courseInstanceId }) => ({
@@ -362,7 +307,7 @@ export const anotherApiService = createApi({
     }),
 
     fetchModuleProgress: builder.query<
-      { progress: any },
+      { progress: string },
       { courseInstanceId: string; moduleId: string }
     >({
       query: ({ courseInstanceId, moduleId }) => ({
@@ -380,7 +325,7 @@ export const anotherApiService = createApi({
     }),
 
     fetchSectionProgress: builder.query<
-      { progress: any },
+      { progress: string },
       { courseInstanceId: string; sectionId: string }
     >({
       query: ({ courseInstanceId, sectionId }) => ({
@@ -398,7 +343,7 @@ export const anotherApiService = createApi({
     }),
 
     fetchSectionItemsProgress: builder.query<
-      { progress: any },
+      { progress: string },
       { courseInstanceId: string; sectionItemId: string }
     >({
       query: ({ courseInstanceId, sectionItemId }) => ({

@@ -172,9 +172,14 @@ const data = {
   navSecondary: [
     { title: 'Calendar', url: '#', icon: Calendar },
     { title: 'Settings', url: '#', icon: Settings2 },
-    { title: 'Logout', url: '#', icon: LogOut, onclick: () => {
-      handleLogout();
-    } },
+    {
+      title: 'Logout',
+      url: '#',
+      icon: LogOut,
+      onclick: () => {
+        handleLogout()
+      },
+    },
     { title: 'Trash', url: '#', icon: Trash2 },
     { title: 'Help', url: '#', icon: MessageCircleQuestion },
   ],
@@ -212,9 +217,7 @@ export function SidebarLeft({
     }
   }
 
-
   // Handle user logout
-
 
   // TypeScript interfaces for navigation items
   interface NavItem {
@@ -331,17 +334,17 @@ export function SidebarLeft({
           <nav className='space-y-1'>
             {data.navSecondary.map((item) => (
               <SidebarMenuButton
-              key={item.title}
-              onClick={() => {
-                if (item.title === 'Logout') {
-                  // Use Logout component here
-                  handleLogout()
-                } else {
-                  window.location.href = item.url
-                }
-              }}
-              className='flex items-center rounded-md py-2 pl-2 pr-4 text-sm'
-            >
+                key={item.title}
+                onClick={() => {
+                  if (item.title === 'Logout') {
+                    // Use Logout component here
+                    handleLogout()
+                  } else {
+                    window.location.href = item.url
+                  }
+                }}
+                className='flex items-center rounded-md py-2 pl-2 pr-4 text-sm'
+              >
                 <item.icon className='mr-3 flex size-5' />
                 <span>{item.title}</span>
               </SidebarMenuButton>
