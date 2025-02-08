@@ -13,7 +13,7 @@ export const anotherApiService = createApi({
     // Progress tracking endpoints
 
     fetchCourseProgress: builder.query<
-      { progress: string },
+      { progress: any },
       { courseInstanceId: string }
     >({
       query: ({ courseInstanceId }) => ({
@@ -31,7 +31,7 @@ export const anotherApiService = createApi({
     }),
 
     fetchModuleProgress: builder.query<
-      { progress: string },
+      { progress: any },
       { courseInstanceId: string; moduleId: string }
     >({
       query: ({ courseInstanceId, moduleId }) => ({
@@ -50,7 +50,7 @@ export const anotherApiService = createApi({
     }),
 
     fetchSectionProgress: builder.query<
-      { progress: string },
+      { progress: any },
       { courseInstanceId: string; sectionId: string }
     >({
       query: ({ courseInstanceId, sectionId }) => ({
@@ -69,7 +69,7 @@ export const anotherApiService = createApi({
     }),
 
     fetchSectionItemsProgress: builder.query<
-      { progress: string },
+      { progress: any },
       { courseInstanceId: string; sectionItemId: string }
     >({
       query: ({ courseInstanceId, sectionItemId }) => ({
