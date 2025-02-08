@@ -20,16 +20,11 @@ import base64
 BASE_DIR = Path(__file__).resolve().parent.parent
 LOG_DIR = os.path.join(BASE_DIR, "logs")
 
+ENV = config("LMSE_DJANGO_ENVIRONMENT")
+
 # Ensure the logs directory exists
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
-
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-bx)!$s-b%g@l96_e)zbsce*@db8rlw%7mvj+(za%@5loa_e&ln'
-SECRET_KEY = config("DJANGO_SECRET_KEY")
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config("DEBUG", default=1, cast=bool)
 
 # Application definition
 
@@ -41,7 +36,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     # Core LMS Engine
     "core.assessment",
     "core.authentication",
@@ -49,7 +43,6 @@ INSTALLED_APPS = [
     "core.institution",
     "core.users",
     "core.utils",
-
     # 3rd Party
     "rest_framework",
     "corsheaders",
@@ -86,35 +79,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "core.wsgi.application"
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-if config("DATABASE_ENGINE") == "sqlite3":
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.{}".format(config("DATABASE_ENGINE", default="sqlite3")),
-            "NAME": config("DATABASE_NAME", default="lms_db")
-            }
-        }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.{}".format(
-                config("DATABASE_ENGINE", default="sqlite3")
-            ),
-            "NAME": config("DATABASE_NAME", default="lms_db"),
-            "USER": config("DATABASE_USER", default="lms_db_user"),
-            "PASSWORD": config("DATABASE_PASSWORD", default="user1234"),
-            "HOST": config("DATABASE_HOST", default="127.0.0.1"),
-            "PORT": config("DATABASE_PORT", default="5432"),
-            "OPTIONS": {
-                "sslmode": "require",
-            }
-        }
-    }
-
-print(DATABASES)
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",  # Default backend
@@ -178,25 +142,6 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Get environment variables
-FIREBASE_CREDENTIAL_BASE64 = config("FIREBASE_SERVICE_ACCOUNT_SECRET_KEY")
-FIREBASE_ADMIN_SDK_CREDENTIALS_PATH = config(
-    "FIREBASE_ADMIN_SDK_CREDENTIALS_PATH", default=""
-)
-if FIREBASE_CREDENTIAL_BASE64:
-    try:
-        # Decode base64 string
-        firebase_creds = base64.b64decode(FIREBASE_CREDENTIAL_BASE64).decode("utf-8")
-
-        # Write the JSON to the expected path
-        with open(FIREBASE_ADMIN_SDK_CREDENTIALS_PATH, "w") as f:
-            f.write(firebase_creds)
-    except Exception as e:
-        raise ValueError(f"Error decoding Firebase credentials: {e}")
-else:
-    raise ValueError("Firebase credentials not found or invalid!")
-
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -239,63 +184,4 @@ LOGGING = {
             "propagate": False,
         },
     },
-}
-
-SPECTACULAR_SETTINGS = {
-    "TITLE": "Core API",
-    "DESCRIPTION": "API for Core",
-    "VERSION": "1.0.0",
-    "SERVE_INCLUDE_SCHEMA": True,
-    "SERVE_URLCONF": "core.urls",
-    "SCHEMA_PATH_PREFIX": "api/v1/docs/",
-    "POSTPROCESSING_HOOKS": ["core.utils.schema.add_x_tag_groups"],
-    "TAGS": [
-        {
-            "name": "Auth",
-            "description": "Endpoints for authentication and user management",
-        },
-        {
-            "name": "Assessment",
-            "description": "Endpoints for assessments and related operations",
-        },
-        {"name": "Course", "description": "Endpoints for course management"},
-        {"name": "Institution", "description": "Endpoints for institution management"},
-        {"name": "User", "description": "Endpoints for user management"},
-        {
-            "name": "Module",
-            "description": "Endpoints for modules and related operations",
-        },
-        {
-            "name": "Section",
-            "description": "Endpoints for sections and related operations",
-        },
-        {
-            "name": "Question",
-            "description": "Endpoints for questions and related operations",
-        },
-        {
-            "name": "Course Instance",
-            "description": "Endpoints for course instances and related operations",
-        },
-        {
-            "name": "Video Assessment",
-            "description": "Endpoints for video assessments and related operations",
-        },
-        {
-            "name": "StandAlone Assessment",
-            "description": "Endpoints for stand alone assessments and related operations",
-        },
-        {
-            "name": "Solution",
-            "description": "Endpoints for solutions and related operations",
-        },
-        {
-            "name": "UserInstitution",
-            "description": "Endpoints for user-institution relationships",
-        },
-        {
-            "name": "UserCourseInstance",
-            "description": "Endpoints for user-course enrollments",
-        },
-   ],
 }

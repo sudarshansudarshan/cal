@@ -1,31 +1,57 @@
 from .base import *
+from decouple import config, Csv
 import sentry_sdk
 
 DEBUG = False
 
-SECRET_KEY = config("DJANGO_SECRET_KEY")
+SECRET_KEY = config("LMSE_DJANGO_SECRET_KEY")
+
 
 # TODO: Add hosts here
-ALLOWED_HOSTS = ["192.168.1.67", "localhost"]
-CORS_ALLOWED_ORIGINS = ["http://localhost:8000", "http://192.168.1.67:8000"]
+ALLOWED_HOSTS = config("LMSE_ALLOWED_HOSTS", cast=Csv())
+CORS_ALLOWED_ORIGINS = config("LMSE_CORS_ALLOWED_ORIGINS", cast=Csv())
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = config("LMSE_SECURE_SSL_REDIRECT", cast=bool)
 
-'''
+STATIC_URL = config("LMSE_STATIC_URL")
+
 sentry_sdk.init(
-    dsn=os.getenv("SENTRY_DSN"),
+    dsn=config("LMSE_SENTRY_DSN"),
     traces_sample_rate=1.0,
     # TODO: Set this to a reasonable value
     profiles_sample_rate=0.3,
-    send_default_pii=True
+    send_default_pii=True,
 )
-'''
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("LMSE_DB_NAME"),
+        "USER": config("LMSE_DB_USER"),
+        "PASSWORD": config("LMSE_DB_PASSWORD"),
+        "HOST": config("LMSE_DB_HOST"),
+        "PORT": config("LMSE_DB_PORT"),
+        "OPTIONS": {
+            "sslmode": "require",
+        },
+    }
+}
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+        "OPTIONS": {
+            "bucket_name": config("LMSE_GCP_BUCKET_NAME"),
+            "gzip": True,
+            "default_acl": "publicRead",
+        },
+    },
+}
+
 
 # TODO: Configure cache settings here
-
-# TODO: Add email settings here
 
 # TODO: Do some research before enabling this setting
 # SECURE_HSTS_SECONDS = 31536000  # 1 year
@@ -34,7 +60,3 @@ sentry_sdk.init(
 # TODO: Make sure we need this setting
 # DATABASES["default"]["CONN_MAX_AGE"] = 300
 # DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
-
-# TODO: Configure cache settings here
-
-# TODO: Add email settings here
