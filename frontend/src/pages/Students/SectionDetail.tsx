@@ -53,8 +53,7 @@ const StatusBadge = ({ status }) => (
 const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const alpha = assignment.item_type === 'video' ? 'v' : 'a'
-  const sectionItemId1 = `${alpha}${assignment.id}`
+  const sectionItemId1 = `${assignment.id}`
   const progressKey = `${courseId}-${sectionItemId1}`
   console.log('progressKey:', progressKey)
 

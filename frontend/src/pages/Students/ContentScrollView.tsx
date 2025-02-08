@@ -395,22 +395,8 @@ const ContentScrollView = () => {
               content[currentFrame].item_type,
               content[currentFrame - 1].item_type
             )
-
-            let alpha = 'v'
-            let beta = 'a'
-            if (content[currentFrame].item_type === 'video') {
-              alpha = 'v'
-            } else {
-              alpha = 'a'
-            }
-
-            if (content[currentFrame - 1].item_type === 'assessment') {
-              beta = 'a'
-            } else {
-              beta = 'v'
-            }
-            const sectionItemId1 = `${beta}${content[currentFrame - 1].id}`
-            const sectionItemId2 = `${alpha}${content[currentFrame].id}`
+            const sectionItemId1 = `${content[currentFrame - 1].id}`
+            const sectionItemId2 = `${content[currentFrame].id}`
 
             updateSectionItemProgress({
               courseInstanceId: courseId,
