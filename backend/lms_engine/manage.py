@@ -2,17 +2,16 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-import subprocess
 from decouple import config
 
 def main():
     """Run administrative tasks."""
 
-    django_env = config("DJANGO_ENVIRONMENT")
+    django_env = config("LMSE_DJANGO_ENVIRONMENT")
 
     if django_env:
         os.environ["DJANGO_SETTINGS_MODULE"] = f"core.settings.{django_env}"
-        print(config("DJANGO_ENVIRONMENT"))
+        print(config("LMSE_DJANGO_ENVIRONMENT"))
     else:
         print("DEVELOPMENT SERVER")
         os.environ["DJANGO_SETTINGS_MODULE"] = "core.settings.development"
