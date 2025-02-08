@@ -28,7 +28,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
-import { Cookie, Fullscreen, Pause, Play } from 'lucide-react'
+import { Fullscreen, Pause, Play } from 'lucide-react'
 import { Slider } from '@/components/ui/slider'
 
 import { toast } from 'sonner'
@@ -46,44 +46,12 @@ import {
 } from '@/store/ApiServices/ActivityEngine/GradingApiServices'
 import { useUpdateSectionItemProgressMutation } from '@/store/ApiServices/ActivityEngine/UpdatingApiServices'
 import { useFetchQuestionsWithAuthQuery } from '@/store/ApiServices/LmsEngine/DataFetchApiServices'
-import { Progress } from '@/components/ui/progress'
 
 import Cookies from 'js-cookie'
 import { useDispatch } from 'react-redux'
 import { clearProgress } from '@/store/slices/fetchStatusSlice'
 import { clearModuleProgress } from '@/store/slices/moduleProgressSlice'
 import { clearSectionProgress } from '@/store/slices/sectionProgressSlice'
-
-// Define interfaces for state and props
-interface AssessmentOption {
-  id: number
-  option_text: string
-}
-
-interface AssessmentQuestion {
-  id: number
-  text: string
-  options: AssessmentOption[]
-  hint?: string
-}
-
-interface ContentFrame {
-  id: number
-  item_type: 'video' | 'article' | 'assessment'
-  source?: string
-  title?: string
-  content?: string
-  start_time?: number
-  end_time?: number
-}
-
-interface PlayerState {
-  isPlaying: boolean
-  volume: number
-  currentTime: number
-  totalDuration: number
-  playbackSpeed: number
-}
 
 const ContentScrollView = () => {
   const location = useLocation()
@@ -95,7 +63,6 @@ const ContentScrollView = () => {
   const assignment = location.state?.assignment || {}
   const sectionId = location.state?.sectionId
   const courseId = location.state?.courseId
-  const moduleId = location.state?.moduleId
 
   const dispatch = useDispatch()
 
@@ -126,10 +93,11 @@ const ContentScrollView = () => {
   const [isPlayerReady, setIsPlayerReady] = useState(false)
   const [ytApiReady, setYtApiReady] = useState(false)
 
+  console.log(selectedAnswer, isAnswerCorrect, gradingData)
+
   //Responsible for fetching Items using RTK Query
   const { data: assignmentsData } = useFetchItemsWithAuthQuery(sectionId)
   const content = assignmentsData || []
-  const contentLength = content.length
 
   //Responsible for fetching the questions using RTK Query
   const { data: assessmentData } = useFetchQuestionsWithAuthQuery(assessmentId)
@@ -221,10 +189,8 @@ const ContentScrollView = () => {
             throw new Error('No attemptId received')
           }
         })
-        .catch((error) => {
-          toast('Failed to start assessment. Please try again.', {
-            type: 'error',
-          })
+        .catch(() => {
+          toast('Failed to start assessment. Please try again.')
         })
     }
   }
@@ -340,12 +306,12 @@ const ContentScrollView = () => {
     if (selectedOption === null) return
 
     setSelectedAnswer(selectedOption)
-    const question = questions[0].results[currentQuestionIndex]
+    const question = AssessmentData[0].results[currentQuestionIndex]
     const isCorrect = selectedOption === question.answer
     setIsAnswerCorrect(isCorrect)
 
     if (!isCorrect) {
-      toast('Incorrect Answer! Please try again.', { type: 'error' })
+      toast('Incorrect Answer! Please try again.')
       handlePrevFrame()
     } else {
       setSelectedOption(null)
@@ -454,27 +420,17 @@ const ContentScrollView = () => {
                 console.error('Failed to update progress.', error)
               })
           }
-          toast('Assessment Submitted successfully!', { type: 'success' })
+          toast('Assessment Submitted successfully!')
         }
       })
-      .catch((error) => {
-        toast('Failed to submit assessment. Please try again.', {
-          type: 'error',
-        })
+      .catch(() => {
+        toast('Failed to submit assessment. Please try again.')
       })
   }
 
   // This funtion is responsible to set the selected option after click on any option of question by user
   const handleOptionClick = (optionId) => {
     setSelectedOption(optionId)
-  }
-
-  // This funtion is responsible to go backward to the previous question
-  const handlePrevQuestion = () => {
-    setCurrentQuestionIndex(
-      (prevIndex) =>
-        (prevIndex - 1 + AssessmentData.length) % AssessmentData.length
-    )
   }
 
   // This funtion is responsible to go backward to the last frame

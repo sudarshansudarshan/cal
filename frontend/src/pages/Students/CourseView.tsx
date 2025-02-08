@@ -21,10 +21,9 @@
  *   - View button linking to course details
  */
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useFetchCoursesWithAuthQuery } from '../../store/ApiServices/LmsEngine/DataFetchApiServices'
 import { Link } from 'react-router-dom'
-import Cookies from 'js-cookie'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Select,
@@ -62,9 +61,9 @@ function useFetchCourseStatuses(courses: Course[]) {
   }, [courses])
 
   // Simulate an API call to fetch status
-  async function fetchCourseStatus(
-    courseId: string
-  ): Promise<'IN_PROGRESS' | 'COMPLETED' | 'UNKNOWN'> {
+  async function fetchCourseStatus(): Promise<
+    'IN_PROGRESS' | 'COMPLETED' | 'UNKNOWN'
+  > {
     // This should be replaced with a real API call
     return new Promise((resolve) => {
       setTimeout(() => {

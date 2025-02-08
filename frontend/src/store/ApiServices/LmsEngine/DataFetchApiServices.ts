@@ -57,7 +57,7 @@ export const apiService = createApi({
     }),
 
     // Module management endpoints
-    fetchModulesWithAuth: builder.query<{ modules: {}[] }, number>({
+    fetchModulesWithAuth: builder.query<{ modules: [] }, number>({
       query: (courseId) => ({
         url: `/course/modules/?course_id=${courseId}`,
         method: 'GET',

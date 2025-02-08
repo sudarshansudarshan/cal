@@ -19,9 +19,6 @@
 import React, { useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { useFetchSectionsWithAuthQuery } from '@/store/ApiServices/LmsEngine/DataFetchApiServices'
-import Cookies from 'js-cookie'
-import { useFetchSectionProgressQuery } from '@/store/apiService'
 import { fetchSectionProgress } from '@/store/slices/sectionProgressSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchSectionsWithAuth } from '@/store/slices/fetchSections'
@@ -72,7 +69,7 @@ const AssignmentRow: React.FC<AssignmentRowProps> = ({
 
   // Fetch section progress when component mounts or ids change
   useEffect(() => {
-    if (sectionProgress === undefined) {
+    if (!sectionProgress) {
       // Check if progress is not already fetched
       dispatch(
         fetchSectionProgress({ courseInstanceId, sectionId: String(sectionId) })
@@ -114,7 +111,6 @@ const SectionView = () => {
 
   const sectionData = useSelector((state) => state.sections.sections)
   const isLoading = useSelector((state) => state.sections.isLoading)
-  const error = useSelector((state) => state.sections.error)
   console.log(
     'section items',
     useSelector((state) => state.sections.sections)

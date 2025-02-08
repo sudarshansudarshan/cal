@@ -1,5 +1,5 @@
 // store.ts
-import { configureStore, combineReducers, Action } from '@reduxjs/toolkit'
+import { configureStore, combineReducers } from '@reduxjs/toolkit'
 import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage' // defaults to localStorage for web
 import { apiService, anotherApiService } from './apiService'

@@ -50,7 +50,7 @@ const authSlice = createSlice({
           state.user = {
             role: payload.role,
             email: payload.email,
-            name: full_name,
+            name: payload.full_name,
           }
           state.token = payload.access_token
           state.isLoggedIn = true

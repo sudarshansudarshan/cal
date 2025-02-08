@@ -22,7 +22,6 @@
 import React, { useEffect } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useFetchItemsWithAuthQuery } from '@/store/ApiServices/LmsEngine/DataFetchApiServices'
-import { useFetchSectionItemsProgressQuery } from '@/store/ApiServices/ActivityEngine/ProgressApiServices'
 import { Button } from '@/components/ui/button'
 import { Check, Lock } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -39,7 +38,11 @@ const statusClasses = {
  * StatusBadge Component
  * Displays a colored badge indicating content item status
  */
-const StatusBadge = ({ status }) => (
+interface StatusBadgeProps {
+  status: string
+}
+
+const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => (
   <span
     className={`rounded-full px-3 py-1 text-sm font-semibold ${statusClasses[status] || ''}`}
   >
@@ -51,7 +54,27 @@ const StatusBadge = ({ status }) => (
  * AssignmentRow Component
  * Displays a single content item with its details and action button
  */
-const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
+interface Assignment {
+  id: string
+  item_type: string
+  title: string
+  course: string
+  sequence: number
+}
+
+interface AssignmentRowProps {
+  assignment: Assignment
+  sectionId: string
+  courseId: string
+  moduleId: string
+}
+
+const AssignmentRow: React.FC<AssignmentRowProps> = ({
+  assignment,
+  sectionId,
+  courseId,
+  moduleId,
+}) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const alpha = assignment.item_type === 'video' ? 'v' : 'a'
@@ -164,7 +187,7 @@ const SectionDetails = () => {
             </div>
           </div>
           <div className='max-h-96 space-y-2 overflow-y-auto'>
-            {assignmentsData.map((assignment) => (
+            {assignmentsData?.map((assignment) => (
               <AssignmentRow
                 key={assignment.sequence}
                 assignment={assignment}
