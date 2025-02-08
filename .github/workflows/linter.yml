@@ -14,7 +14,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./frontend-cal
+        working-directory: ./frontend
 
     steps:
       - name: Checkout repository
@@ -40,7 +40,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./backend/lms_engine
 
     steps:
       - name: Checkout repository
@@ -49,21 +49,18 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.9'
+          python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install Poetry
+        run: pip install poetry
+        
+      - name: Install dependencies using Poetry
         run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install -r lms_engine/requirements.txt
-          pip install flake8 black
+          poetry install --no-root
 
       - name: Run flake8
-        run: |
-          source venv/bin/activate
-          flake8 .
-
+        run: poetry run flake8 .
+        
       - name: Run black
-        run: |
-          source venv/bin/activate
-          black --check .
+        run: poetry run black --check .
+        

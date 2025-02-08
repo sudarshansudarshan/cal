@@ -1,31 +1,19 @@
+from django.db import transaction
 from rest_framework import serializers
 
-from ...assessment.serializers import AssessmentSerializer
-from ..models import Video, Article
+from ...assessment.models import Assessment
+from ..models import Article, Section, SectionItemInfo, SectionItemType, Source, Video
 
 
 class VideoSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the Video model.
-    """
+    source = serializers.URLField()
+
     class Meta:
         model = Video
-        fields = '__all__'
+        exclude = ["created_at", "updated_at"]
 
 
 class ArticleSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the Article model.
-    """
     class Meta:
         model = Article
-        fields = '__all__'
-
-
-class SectionItemSerializer(serializers.Serializer):
-    """
-    Serializer for the Section model with nested items.
-    """
-    videos = VideoSerializer(many=True)
-    articles = ArticleSerializer(many=True)
-    assessments = AssessmentSerializer(many=True)
+        exclude = ["created_at", "updated_at"]

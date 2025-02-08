@@ -274,7 +274,8 @@ async def query_content(question: str = Form(...)):
         result = await query_manager.query(question)
         return JSONResponse(result)
     except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+        logging.error(f"Error in query_content endpoint: {e}", exc_info=True)
+        return JSONResponse({"error": "An internal error has occurred."}, status_code=500)
 
 @app.get("/content-index/")
 async def get_content_index():
