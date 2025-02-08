@@ -18,6 +18,7 @@ uuid = ">=1.30,<2.0"
 gunicorn = "^23.0.0"
 python-dotenv = "^1.0.1"
 sentry-sdk = "^2.20.0"
+psycopg2 = "^2.9.10"
 
 [tool.poetry.group.dev.dependencies]
 django-extensions = "^3.2.3"

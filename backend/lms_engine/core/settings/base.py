@@ -90,18 +90,31 @@ WSGI_APPLICATION = "core.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.{}".format(
-            config("DATABASE_ENGINE", default="sqlite3")
-        ),
-        "NAME": config("DATABSE_NAME", default="lms_db"),
-        "USER": config("DATABASE_USER", default="lms_db_user"),
-        "PASSWORD": config("DATABASE_PASSWORD", default="user1234"),
-        "HOST": config("DATABASE_HOST", default="127.0.0.1"),
-        "PORT": config("DATABASE_PORT", default="5432"),
+if config("DATABASE_ENGINE") == "sqlite3":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.{}".format(config("DATABASE_ENGINE", default="sqlite3")),
+            "NAME": config("DATABASE_NAME", default="lms_db")
+            }
+        }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.{}".format(
+                config("DATABASE_ENGINE", default="sqlite3")
+            ),
+            "NAME": config("DATABASE_NAME", default="lms_db"),
+            "USER": config("DATABASE_USER", default="lms_db_user"),
+            "PASSWORD": config("DATABASE_PASSWORD", default="user1234"),
+            "HOST": config("DATABASE_HOST", default="127.0.0.1"),
+            "PORT": config("DATABASE_PORT", default="5432"),
+            "OPTIONS": {
+                "sslmode": "require",
+            }
+        }
     }
-}
+
+print(DATABASES)
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",  # Default backend

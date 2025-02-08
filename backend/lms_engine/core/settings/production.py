@@ -6,7 +6,8 @@ DEBUG = False
 SECRET_KEY = config("DJANGO_SECRET_KEY")
 
 # TODO: Add hosts here
-ALLOWED_HOSTS = CORS_ALLOWED_ORIGINS = ["192.168.1.67", "localhost"]
+ALLOWED_HOSTS = ["192.168.1.67", "localhost"]
+CORS_ALLOWED_ORIGINS = ["http://localhost:8000", "http://192.168.1.67:8000"]
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
