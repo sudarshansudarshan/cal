@@ -80,15 +80,13 @@ const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
           courseInstanceId: courseId,
           sectionItemId: sectionItemId1,
         })
-      )
+      ).then(() => {
+        if (!progress) {
+          window.location.reload()
+        }
+      })
     }
   }, [dispatch, courseId, sectionItemId1, progress])
-
-  // .then(() => {
-  //   if (!progress) {
-  //     window.location.reload()
-  //   }
-  // })
 
   // Determine what status to display
   const displayStatus = () => {
@@ -163,7 +161,7 @@ const SectionDetails = () => {
   return (
     <div className='p-4'>
       <h1 className='mb-6 text-center text-3xl font-bold'>
-        Content of Section {sectionId}
+        Content of Section
       </h1>
       <div className='mx-auto max-w-4xl'>
         <div className='space-y-4'>

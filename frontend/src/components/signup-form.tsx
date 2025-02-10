@@ -131,7 +131,7 @@ export function SignUpForm({
 
       // Perform the Axios POST request
       await axios.post(
-        'http://103.191.209.61:3001/course-progress/initialize-progress',
+        'http://localhost:3001/course-progress/initialize-progress',
         postData
       )
       toast('Signup and data submission successful!', { type: 'success' })

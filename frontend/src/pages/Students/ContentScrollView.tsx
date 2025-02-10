@@ -424,12 +424,14 @@ const ContentScrollView = () => {
                         })
                       )
                     } else if (item.sections !== null) {
-                      dispatch(
-                        clearSectionProgress({
-                          courseInstanceId: courseId,
-                          sectionId: item.sections,
-                        })
-                      )
+                      item.sections.forEach((newsectionId) => {
+                        dispatch(
+                          clearSectionProgress({
+                            courseInstanceId: courseId,
+                            sectionId: newsectionId,
+                          })
+                        )
+                      })
                     }
                   })
                 } else {

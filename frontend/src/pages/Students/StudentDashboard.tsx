@@ -43,7 +43,7 @@ import { useState } from 'react'
 
 // Mock data for available courses
 
-const courses = [
+const CourseData = [
   { id: 1, name: 'Introduction to AI', duration: '6 weeks' },
   { id: 2, name: 'Data Science Basics', duration: '8 weeks' },
   { id: 3, name: 'Web Development', duration: '10 weeks' },
@@ -75,9 +75,9 @@ const StudentDashboard = () => {
   const [showAllCourses, setShowAllCourses] = useState(false)
   const [showAllOngoing, setShowAllOngoing] = useState(false)
 
-  const { data: newCourses } = useFetchCoursesWithAuthQuery()
-  const CourseData = newCourses?.results
-  console.log(CourseData)
+  // const { data: newCourses } = useFetchCoursesWithAuthQuery()
+  // const CourseData = newCourses?.results
+  // console.log(CourseData)
 
   // Limit displayed courses based on show all state
   const displayedCourses = showAllCourses ? CourseData : CourseData?.slice(0, 5)

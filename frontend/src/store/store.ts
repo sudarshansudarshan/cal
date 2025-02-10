@@ -12,10 +12,11 @@ import sectionProgressReducer from './slices/sectionProgressSlice'
 import moduleProgressReducer from './slices/moduleProgressSlice'
 import progressUpdateReducer from './slices/updateProgressSlice'
 import itemsReducer from './slices/fetchItems'
+import storageSession from 'redux-persist/lib/storage/session' // Importing sessionStorage
 
 const persistConfig = {
   key: 'root',
-  storage,
+  storage: storageSession,
   whitelist: [
     'auth',
     'courses',
