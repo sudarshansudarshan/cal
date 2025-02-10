@@ -57,7 +57,8 @@ const sectionProgressSlice = createSlice({
         const { courseInstanceId, sectionId } = action.meta.arg
         const progressKey = `${courseInstanceId}-${sectionId}`
         console.error(
-          `Error fetching progress for key: ${progressKey}`,
+          'Error fetching progress for key: %s',
+          progressKey,
           action.error
         )
       })
