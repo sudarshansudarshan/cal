@@ -22,7 +22,7 @@ import React, { useEffect, useState, useRef } from 'react'
 
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { useSidebar } from '@/components/ui/sidebar'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -109,6 +109,8 @@ const ContentScrollView = () => {
   )
   const [isPlaying, setIsPlaying] = useState(false)
 
+  const navigate = useNavigate()
+
   // Assessment State Management
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
@@ -118,7 +120,6 @@ const ContentScrollView = () => {
   const [totalDuration, setTotalDuration] = useState(0)
   const [volume, setVolume] = useState(50)
   const [playbackSpeed, setPlaybackSpeed] = useState(1)
-  const [assessmentId, setAssessmentId] = useState(1)
   const [startAssessment] = useStartAssessmentMutation()
   const [submitAssessment] = useSubmitAssessmentMutation()
   const [updateSectionItemProgress] = useUpdateSectionItemProgressMutation()
@@ -129,11 +130,7 @@ const ContentScrollView = () => {
   //Responsible for fetching Items using RTK Query
   const { data: assignmentsData } = useFetchItemsWithAuthQuery(sectionId)
   const content = assignmentsData || []
-  const contentLength = content.length
-
-  //Responsible for fetching the questions using RTK Query
-  const { data: assessmentData } = useFetchQuestionsWithAuthQuery(assessmentId)
-  const AssessmentData = assessmentData?.results
+  console.log('i am content', content[currentFrame + 1]?.id)
 
   // UseEffect to create player for each frame and to close the sidebar
   useEffect(() => {
@@ -204,14 +201,23 @@ const ContentScrollView = () => {
     initPlayer()
   }, [ytApiReady, currentFrame, content])
 
+  const [assessmentId, setAssessmentId] = useState(
+    content[currentFrame + 1]?.id
+  )
+
+  //Responsible for fetching the questions using RTK Query
+  const { data: assessmentData } = useFetchQuestionsWithAuthQuery(assessmentId)
+  const AssessmentData = assessmentData?.results
+
   //Funtion to fetch the assessment prior to a frame
   const fetchAssessment = (currentFrame) => {
+    setAssessmentId(content[currentFrame + 1].id)
     // Only Fetches the assessment when the next frame is assessment
     if (content[currentFrame + 1].item_type === 'assessment') {
-      setAssessmentId(content[currentFrame + 1].id)
+      const nextAssessmentId = content[currentFrame + 1]?.id
       startAssessment({
         courseInstanceId: courseId,
-        assessmentId: assessmentId.toString(),
+        assessmentId: nextAssessmentId.toString(),
       })
         .then((response) => {
           if (response.data && response.data.attemptId) {
@@ -354,6 +360,7 @@ const ContentScrollView = () => {
       )
     }
   }
+  console.log('i am checkkkk0  c', currentFrame, content.length)
 
   // This funtion called when user submits the assessment
   const handleSubmit = () => {
@@ -377,13 +384,6 @@ const ContentScrollView = () => {
             localStorage.setItem('nextFrame', nextFrameIndex)
             window.location.reload()
           } else {
-            setCurrentFrame((prevFrame) => (prevFrame + 1) % content.length)
-            setSelectedOption(null)
-            setSelectedOption(null)
-            setCurrentQuestionIndex(0)
-            setCurrentTime(0)
-            setIsPlaying(false)
-            fetchAssessment(currentFrame)
             console.log(
               'Hello',
               content[currentFrame].id,
@@ -439,6 +439,17 @@ const ContentScrollView = () => {
               .catch((error) => {
                 console.error('Failed to update progress.', error)
               })
+            const newframe = currentFrame + 1
+            console.log('for testing .............', newframe, content.length)
+            if (newframe !== content.length) {
+              setCurrentFrame((prevFrame) => (prevFrame + 1) % content.length)
+              setSelectedOption(null)
+              setSelectedOption(null)
+              setCurrentQuestionIndex(0)
+              setCurrentTime(0)
+              setIsPlaying(false)
+              fetchAssessment(currentFrame)
+            } else navigate('/course-view')
           }
           toast('Assessment Submitted successfully!', { type: 'success' })
         }

@@ -82,7 +82,9 @@ export function LoginForm({
       console.log('User credential:', userCredential)
       const user = userCredential.user
       console.log('User:', user)
+      console.log('user_id',user.uid)
       console.log('User email:', user.accessToken)
+      Cookies.set('user_id',user.uid)
       Cookies.set('access_token', user.accessToken)
 
       if (!user.email) {

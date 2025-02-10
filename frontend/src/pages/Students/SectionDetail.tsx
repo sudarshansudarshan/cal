@@ -80,13 +80,15 @@ const AssignmentRow = ({ assignment, sectionId, courseId, moduleId }) => {
           courseInstanceId: courseId,
           sectionItemId: sectionItemId1,
         })
-      ).then(() => {
-        if (!progress) {
-          window.location.reload()
-        }
-      })
+      )
     }
   }, [dispatch, courseId, sectionItemId1, progress])
+
+  // .then(() => {
+  //   if (!progress) {
+  //     window.location.reload()
+  //   }
+  // })
 
   // Determine what status to display
   const displayStatus = () => {
