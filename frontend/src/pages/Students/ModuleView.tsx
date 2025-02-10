@@ -57,7 +57,7 @@ const ModuleView = () => {
     data: moduleData,
     isLoading: moduleLoading,
     error: moduleError,
-  } = useFetchModulesWithAuthQuery(courseId ? parseInt(courseId, 10) : 0)
+  } = useFetchModulesWithAuthQuery(courseId ? courseId : 0)
 
   if (courseLoading || moduleLoading) {
     return <p>Loading course and modules...</p>
