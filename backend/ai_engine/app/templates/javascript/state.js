@@ -9,6 +9,8 @@ const state = {
     selectedSectionId: null,
     config: {},
     player: null,
+    hierarchyData: null,
+    isYouTubeIframeAPIReady: false,
   };
   
   export default state;

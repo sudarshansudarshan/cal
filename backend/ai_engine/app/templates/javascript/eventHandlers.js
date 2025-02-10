@@ -18,7 +18,7 @@ async function populateCourseDropdown() {
 }
 
 // Handle course selection and enable module dropdown
-document.getElementById("course-select").addEventListener("change", async (e) => {
+  async function populateModuleDropdown(e) {
   const courseId = e.target.value;
   const moduleSelect = document.getElementById("module-select");
   moduleSelect.innerHTML = '<option value="">Select Module</option>';
@@ -33,7 +33,6 @@ document.getElementById("course-select").addEventListener("change", async (e) =>
         option.textContent = module.title || "Unnamed Module";
         moduleSelect.appendChild(option);
       });
-
       moduleSelect.disabled = false; // Enable module dropdown
     }
   }
@@ -41,10 +40,10 @@ document.getElementById("course-select").addEventListener("change", async (e) =>
   // Reset section dropdown
   document.getElementById("section-select").innerHTML = '<option value="">Select Section</option>';
   document.getElementById("section-select").disabled = true;
-});
+};
 
 // Handle module selection and enable section dropdown
-document.getElementById("module-select").addEventListener("change", async (e) => {
+  async function populateSectionDropdown (e) {
   const moduleId = e.target.value;
   const sectionSelect = document.getElementById("section-select");
   sectionSelect.innerHTML = '<option value="">Select Section</option>';
@@ -63,8 +62,6 @@ document.getElementById("module-select").addEventListener("change", async (e) =>
       sectionSelect.disabled = false; // Enable section dropdown
     }
   }
-});
+};
 
-
-
-export { populateCourseDropdown };
+export { populateCourseDropdown, populateModuleDropdown, populateSectionDropdown };

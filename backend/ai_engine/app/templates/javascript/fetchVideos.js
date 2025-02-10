@@ -1,7 +1,8 @@
 // fetchVideos.js
 import state from "./state.js";
-import { getVideoDuration, isPlaylistUrl } from "./videoProcessing.js";
+import { getVideoDuration } from "./videoProcessing.js";
 import { displayVideoBlocks } from "./outputDisplay.js";
+import { isPlaylistUrl } from "./utils.js";
 
 async function fetchVideos() {
   const playlistUrl = document.getElementById("playlist-url").value;
@@ -34,11 +35,17 @@ async function fetchVideos() {
     } else {
       state.videoUrls = [playlistUrl];
     }
-
+    console.log("Video URLs:", state.videoUrls);
+    console.log("Data:", state.videoData);
     // Get durations for all videos
     for (let i = 0; i < state.videoUrls.length; i++) {
-      const videoId = state.videoUrls[i].match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=|\/sandalsResorts#\w\/\w\/.*\/))([^\/&\?]{10,12})/
-  );
+      const videoIdArray = state.videoUrls[i].match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=|\/sandalsResorts#\w\/\w\/.*\/))([^\/&\?]{10,12})/);
+      const videoId = videoIdArray ? videoIdArray[1] : null;
+      console.log("Video ID from the calling function of get video duration:", videoId);
+      if (!videoId) {
+        alert("Invalid video URL");
+        return;
+      }
       state.videoDurations[i] = await getVideoDuration(videoId);
     }
 

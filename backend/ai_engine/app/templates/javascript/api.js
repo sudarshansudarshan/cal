@@ -1,4 +1,5 @@
 import { config } from "./config.js";
+import state from "./state.js";
 
 async function fetchCourses() {
   try {
@@ -8,6 +9,7 @@ async function fetchCourses() {
     });
 
     const data = await response.json();
+    state.heirarchyData = data;
     return data.results || [];
   } catch (error) {
     console.error("Error fetching courses:", error);
