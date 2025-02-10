@@ -84,8 +84,8 @@ export function LoginForm({
       console.log('User:', user)
       console.log('user_id',user.uid)
       console.log('User email:', user.accessToken)
-      Cookies.set('user_id',user.uid)
-      Cookies.set('access_token', user.accessToken)
+      Cookies.set('user_id', user.uid, { secure: true, httpOnly: true })
+      Cookies.set('access_token', user.accessToken, { secure: true, httpOnly: true })
 
       if (!user.email) {
         throw new Error('No email found')
