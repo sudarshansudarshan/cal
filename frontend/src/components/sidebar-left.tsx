@@ -23,6 +23,23 @@ import { ModuleSwitcher } from './module-switcher'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchSectionsWithAuth } from '@/store/slices/fetchSections'
 import { fetchSectionItemsWithAuth } from '@/store/slices/fetchItems'
+import { fetchSectionProgress } from '@/store/slices/sectionProgressSlice'
+import { fetchProgress } from '@/store/slices/fetchStatusSlice'
+
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'INCOMPLETE':
+      return 'bg-red-500'
+    case 'IN_PROGRESS':
+      return 'bg-yellow-500'
+    case 'COMPLETE':
+      return 'bg-green-500'
+    default:
+      return 'bg-gray-400'
+  }
+}
+
 
 export function SidebarLeft({
   ...props
@@ -56,6 +73,53 @@ export function SidebarLeft({
     }
   }, [selectedSectionId, dispatch])
 
+  const progressKey = `${selectedCourseId}-${selectedSectionId}`
+
+  // Retrieve section progress from Redux state
+  const sectionProgress = useSelector(
+    (state) => state.sectionProgress
+  )
+  console.log(
+    'section items',
+    useSelector((state) => state.sections.sections)
+  )
+
+  // Fetch section progress when component mounts or ids change
+  React.useEffect(() => {
+    if (selectedSectionId !== '' && selectedCourseId !== '' && selectedModuleId !== '') {
+      sections.forEach((section) => {
+        const progressKey = `${selectedCourseId}-${section.id}`
+        if (!sectionProgress[progressKey]) {
+          dispatch(fetchSectionProgress({ courseInstanceId: selectedCourseId, sectionId: section.id }))
+        }
+      })
+    }
+
+  }, [dispatch, selectedCourseId, sections, sectionProgress])
+
+
+  // Retrieve progress from Redux state
+  const sectionItemProgress = useSelector((state) => state.progress)
+
+
+  // Dispatch fetchProgress on component mount or when ids change
+  React.useEffect(() => {
+
+
+    if (selectedSectionId !== '' && selectedCourseId !== '' && selectedModuleId !== '' && sections) {
+      sectionItems.forEach((item) => {
+        const progressKey = `${selectedCourseId}-${item.id}`
+        if (!sectionItemProgress[progressKey]) {
+          dispatch(
+            fetchProgress({
+              courseInstanceId: selectedCourseId,
+              sectionItemId: item.id,
+            }))
+        }
+      })
+    }
+  }, [dispatch, selectedCourseId, sectionItems, sectionItemProgress])
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -76,42 +140,55 @@ export function SidebarLeft({
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {sections?.map((section) => (
-              <Collapsible
-                key={section.id}
-                defaultOpen={false}
-                className='group/collapsible'
-              >
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton
-                      onClick={() => setSelectedSectionId(section.id)}
-                    >
-                      {section.title}
-                      <Plus className='ml-auto group-data-[state=open]/collapsible:hidden' />
-                      <Minus className='ml-auto group-data-[state=closed]/collapsible:hidden' />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  {sectionItems && (
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {sectionItems.map((item) => (
-                          <SidebarMenuSubItem key={item.id}>
-                            <SidebarMenuSubButton
-                              asChild
-                              isActive={item.isActive}
-                            >
-                              <a href={item.url}>{item.item_type}</a>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  )}
-                </SidebarMenuItem>
-              </Collapsible>
-            ))}
+            {sections?.map((section) => {
+              const progressKey = `${selectedCourseId}-${section.id}`
+              const progressStatus = sectionProgress[progressKey] || 'Pending'
+              const sectionDotColor = getStatusColor(progressStatus) // Get color for section status
+
+              return (
+                <Collapsible
+                  key={section.id}
+                  defaultOpen={false}
+                  className='group/collapsible'
+                >
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton onClick={() => setSelectedSectionId(section.id)}>
+                        <span className={`w-2 h-2 rounded-full ${sectionDotColor}`} /> {/* Section status dot */}
+                        <span className="ml-2">{section.title}</span> {/* Section Title */}
+                        <Plus className='ml-auto group-data-[state=open]/collapsible:hidden' />
+                        <Minus className='ml-auto group-data-[state=closed]/collapsible:hidden' />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+
+                    {sectionItems && (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {sectionItems.map((item) => {
+                            const itemProgressKey = `${selectedCourseId}-${item.id}`
+                            const itemProgress = sectionItemProgress[itemProgressKey] || 'Pending'
+                            const itemDotColor = getStatusColor(itemProgress)
+
+                            return (
+                              <SidebarMenuSubItem key={item.id}>
+                                <SidebarMenuSubButton asChild isActive={item.isActive}>
+                                  <a href={item.url} className="flex items-center gap-2">
+                                    <span className={`w-2 h-2 rounded-full ${itemDotColor}`} /> {/* Item status dot */}
+                                    {item.item_type}
+                                  </a>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            )
+                          })}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    )}
+                  </SidebarMenuItem>
+                </Collapsible>
+              )
+            })}
           </SidebarMenu>
+
         </SidebarGroup>
       </SidebarContent>
       <SidebarRail />
