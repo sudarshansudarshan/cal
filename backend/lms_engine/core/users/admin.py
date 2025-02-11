@@ -32,7 +32,6 @@ class UserCourseInstanceAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {"fields": ("user", "course")}),
-        (_("Timestamps"), {"fields": ("created_at",)}),
     )
 
     def save_model(self, request, obj, form, change):
