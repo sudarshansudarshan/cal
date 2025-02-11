@@ -86,8 +86,8 @@ export function SidebarLeft({
 
   // Fetch section progress when component mounts or ids change
   React.useEffect(() => {
-    if (selectedSectionId !== '' && selectedCourseId !== '' && selectedModuleId !== '') {
-      sections.forEach((section) => {
+    if (selectedCourseId !== '' && selectedModuleId !== '') {
+      (sections || []).forEach((section) => {
         const progressKey = `${selectedCourseId}-${section.id}`
         if (!sectionProgress[progressKey]) {
           dispatch(fetchSectionProgress({ courseInstanceId: selectedCourseId, sectionId: section.id }))
@@ -107,7 +107,7 @@ export function SidebarLeft({
 
 
     if (selectedSectionId !== '' && selectedCourseId !== '' && selectedModuleId !== '' && sections) {
-      sectionItems.forEach((item) => {
+      (sectionItems || []).forEach((item) => {
         const progressKey = `${selectedCourseId}-${item.id}`
         if (!sectionItemProgress[progressKey]) {
           dispatch(
