@@ -9,7 +9,7 @@ const state = {
     selectedSectionId: null,
     config: {},
     player: null,
-    hierarchyData: null,
+    hierarchyData: {},
     isYouTubeIframeAPIReady: false,
   };
   

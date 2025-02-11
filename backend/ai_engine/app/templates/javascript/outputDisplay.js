@@ -73,7 +73,7 @@ async function showVideoOutput(index) {
     .getElementsByClassName("video-block");
   Array.from(blocks).forEach((block) => block.classList.remove("active"));
   blocks[index].classList.add("active");
-
+  console.log("State's Hierarchy data", state.hierarchyData);
   // Display video information
   const videoInfo = document.getElementById("video-info");
   const selectedSectionId = state.selectedSectionId || null;
@@ -89,16 +89,8 @@ async function showVideoOutput(index) {
 
     <label for="section-info">Selected Section</label>
     <input type="text" id="section-info" value="${
-      state.hierarchyData?.results
-        .find((course) =>
-          course.modules.some((module) =>
-            module.sections.some((section) => section.id === selectedSectionId)
-          )
-        )
-        ?.modules.find((module) =>
-          module.sections.some((section) => section.id === selectedSectionId)
-        )
-        ?.sections.find((section) => section.id === selectedSectionId)?.title ||
+      state.hierarchyData[2]
+        .find((section) => section.id === selectedSectionId)?.title ||
       "No section selected"
     }" disabled />
   `;

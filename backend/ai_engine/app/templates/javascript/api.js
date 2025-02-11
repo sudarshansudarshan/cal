@@ -3,13 +3,14 @@ import state from "./state.js";
 
 async function fetchCourses() {
   try {
-    const response = await fetch(`${config.LMS_GET_URL}courses`, {
+    const response = await fetch(`${config.LMS_GET_URL}api/v1/course/courses/`, {
       method: "GET",
       headers: { "Content-Type": "application/json", Authorization: config.Authorization },
     });
 
     const data = await response.json();
-    state.heirarchyData = data;
+    state.hierarchyData[0] = data.results;
+    console.log("State's hierrarchyData course is set: ", data.results);
     return data.results || [];
   } catch (error) {
     console.error("Error fetching courses:", error);
@@ -19,12 +20,14 @@ async function fetchCourses() {
 
 async function fetchModules(courseId) {
   try {
-    const response = await fetch(`${config.LMS_GET_URL}modules?course_id=${courseId}`, {
+    const response = await fetch(`${config.LMS_GET_URL}api/v1/course/modules/?course_id=${courseId}`, {
       method: "GET",
       headers: { "Content-Type": "application/json", Authorization: config.Authorization },
     });
 
     const data = await response.json();
+    state.hierarchyData[1] = data.results;
+    console.log("State's hierrarchyData modules is set: ", data.results);
     return data.results || [];
   } catch (error) {
     console.error("Error fetching modules:", error);
@@ -34,12 +37,14 @@ async function fetchModules(courseId) {
 
 async function fetchSections(moduleId) {
   try {
-    const response = await fetch(`${config.LMS_GET_URL}sections?module_id=${moduleId}`, {
+    const response = await fetch(`${config.LMS_GET_URL}api/v1/course/sections/?module_id=${moduleId}`, {
       method: "GET",
       headers: { "Content-Type": "application/json", Authorization: config.Authorization },
     });
 
     const data = await response.json();
+    state.hierarchyData[2] = data.results;
+    console.log("State's hierrarchyData sections is set: ", data.results);
     return data.results || [];
   } catch (error) {
     console.error("Error fetching sections:", error);
