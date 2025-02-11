@@ -1,0 +1,8 @@
+.devcontainer/
+.vscode/
+
+.flake8
+pyproject.toml
+requirements-dev.txt
+
+core/docs/

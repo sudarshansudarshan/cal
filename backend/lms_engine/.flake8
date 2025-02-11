@@ -6,4 +6,4 @@ exclude =
     */migrations/*,
     venv,
     **/__init__.py  # Ensure all __init__.py files are excluded
-ignore = E203, E266, E501, W503, F401
+ignore = E203, E266, E501, W503, F401, F403, F405

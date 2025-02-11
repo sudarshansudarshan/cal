@@ -3,24 +3,20 @@
 import os
 import sys
 import subprocess
-
-# Run linting checks before executing the script
-# Remove in Production
-result = subprocess.run(
-    ["flake8", "--exclude=myenv,**/__init__.py,venv,.venv,dist,build"],
-    capture_output=True,
-    text=True,
-)
-
-if result.returncode != 0:
-    print("❌ Linting errors found:\n")
-    print(result.stdout)
-    sys.exit(1)
-
+from decouple import config
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
+
+    django_env = config("DJANGO_ENVIRONMENT")
+
+    if django_env:
+        print("PRODUCTION SERVER")
+        os.environ["DJANGO_SETTINGS_MODULE"] = f"core.settings.{django_env}"
+    else:
+        print("DEVELOPMENT SERVER")
+        os.environ["DJANGO_SETTINGS_MODULE"] = "core.settings.development"
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
