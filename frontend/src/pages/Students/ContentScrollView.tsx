@@ -22,7 +22,7 @@ import React, { useEffect, useState, useRef } from 'react'
 
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { useSidebar } from '@/components/ui/sidebar'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -53,6 +53,7 @@ import { useDispatch } from 'react-redux'
 import { clearProgress } from '@/store/slices/fetchStatusSlice'
 import { clearModuleProgress } from '@/store/slices/moduleProgressSlice'
 import { clearSectionProgress } from '@/store/slices/sectionProgressSlice'
+import { useRefresh } from '@/contextApi/refreshContext'
 
 // Define interfaces for state and props
 interface AssessmentOption {
@@ -86,6 +87,7 @@ interface PlayerState {
 }
 
 const ContentScrollView = () => {
+  const { triggerRefresh } = useRefresh()
   const location = useLocation()
   const [responseData, setResponseData] = useState<string | null>(null)
   const playerIntervalRef = useRef<number | null>(null)
@@ -101,13 +103,15 @@ const ContentScrollView = () => {
 
   // This ensures that the sidebar is open or not
   const { setOpen } = useSidebar()
-  setOpen(false)
+  setOpen(true)
 
   // Initialize currentFrame with a default value if assignment.sequence is undefined
   const [currentFrame, setCurrentFrame] = useState(
     assignment?.sequence ? assignment.sequence - 1 : 0
   )
   const [isPlaying, setIsPlaying] = useState(false)
+
+  const navigate = useNavigate()
 
   // Assessment State Management
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -118,7 +122,6 @@ const ContentScrollView = () => {
   const [totalDuration, setTotalDuration] = useState(0)
   const [volume, setVolume] = useState(50)
   const [playbackSpeed, setPlaybackSpeed] = useState(1)
-  const [assessmentId, setAssessmentId] = useState(1)
   const [startAssessment] = useStartAssessmentMutation()
   const [submitAssessment] = useSubmitAssessmentMutation()
   const [updateSectionItemProgress] = useUpdateSectionItemProgressMutation()
@@ -129,11 +132,6 @@ const ContentScrollView = () => {
   //Responsible for fetching Items using RTK Query
   const { data: assignmentsData } = useFetchItemsWithAuthQuery(sectionId)
   const content = assignmentsData || []
-  const contentLength = content.length
-
-  //Responsible for fetching the questions using RTK Query
-  const { data: assessmentData } = useFetchQuestionsWithAuthQuery(assessmentId)
-  const AssessmentData = assessmentData?.results
 
   // UseEffect to create player for each frame and to close the sidebar
   useEffect(() => {
@@ -204,14 +202,23 @@ const ContentScrollView = () => {
     initPlayer()
   }, [ytApiReady, currentFrame, content])
 
+  const [assessmentId, setAssessmentId] = useState(
+    content[currentFrame + 1]?.id
+  )
+
+  //Responsible for fetching the questions using RTK Query
+  const { data: assessmentData } = useFetchQuestionsWithAuthQuery(assessmentId)
+  const AssessmentData = assessmentData?.results
+
   //Funtion to fetch the assessment prior to a frame
   const fetchAssessment = (currentFrame) => {
+    setAssessmentId(content[currentFrame + 1].id)
     // Only Fetches the assessment when the next frame is assessment
     if (content[currentFrame + 1].item_type === 'assessment') {
-      setAssessmentId(content[currentFrame + 1].id)
+      const nextAssessmentId = content[currentFrame + 1]?.id
       startAssessment({
         courseInstanceId: courseId,
-        assessmentId: assessmentId.toString(),
+        assessmentId: nextAssessmentId.toString(),
       })
         .then((response) => {
           if (response.data && response.data.attemptId) {
@@ -287,8 +294,6 @@ const ContentScrollView = () => {
         const currentPlayerTime = playerRef.current.getCurrentTime()
         const endTime = content[currentFrame].end_time
 
-        // Log to debug
-        console.log('Current Time:', currentPlayerTime, 'End Time:', endTime)
 
         if (currentPlayerTime > endTime) {
           playerRef.current.pauseVideo() // Pause at end time
@@ -377,40 +382,8 @@ const ContentScrollView = () => {
             localStorage.setItem('nextFrame', nextFrameIndex)
             window.location.reload()
           } else {
-            setCurrentFrame((prevFrame) => (prevFrame + 1) % content.length)
-            setSelectedOption(null)
-            setSelectedOption(null)
-            setCurrentQuestionIndex(0)
-            setCurrentTime(0)
-            setIsPlaying(false)
-            fetchAssessment(currentFrame)
-            console.log(
-              'Hello',
-              content[currentFrame].id,
-              content[currentFrame - 1].id
-            )
-
-            console.log(
-              'Hello',
-              content[currentFrame].item_type,
-              content[currentFrame - 1].item_type
-            )
-
-            let alpha = 'v'
-            let beta = 'a'
-            if (content[currentFrame].item_type === 'video') {
-              alpha = 'v'
-            } else {
-              alpha = 'a'
-            }
-
-            if (content[currentFrame - 1].item_type === 'assessment') {
-              beta = 'a'
-            } else {
-              beta = 'v'
-            }
-            const sectionItemId1 = `${beta}${content[currentFrame - 1].id}`
-            const sectionItemId2 = `${alpha}${content[currentFrame].id}`
+            const sectionItemId1 = `${content[currentFrame - 1].id}`
+            const sectionItemId2 = `${content[currentFrame].id}`
 
             updateSectionItemProgress({
               courseInstanceId: courseId,
@@ -438,12 +411,14 @@ const ContentScrollView = () => {
                         })
                       )
                     } else if (item.sections !== null) {
-                      dispatch(
-                        clearSectionProgress({
-                          courseInstanceId: courseId,
-                          sectionId: item.sections,
-                        })
-                      )
+                      item.sections.forEach((newsectionId) => {
+                        dispatch(
+                          clearSectionProgress({
+                            courseInstanceId: courseId,
+                            sectionId: newsectionId,
+                          })
+                        )
+                      })
                     }
                   })
                 } else {
@@ -453,6 +428,17 @@ const ContentScrollView = () => {
               .catch((error) => {
                 console.error('Failed to update progress.', error)
               })
+            const newframe = currentFrame + 1
+            triggerRefresh()
+            if (newframe !== content.length) {
+              setCurrentFrame((prevFrame) => (prevFrame + 1) % content.length)
+              setSelectedOption(null)
+              setSelectedOption(null)
+              setCurrentQuestionIndex(0)
+              setCurrentTime(0)
+              setIsPlaying(false)
+              fetchAssessment(currentFrame)
+            } else navigate('/course-view')
           }
           toast('Assessment Submitted successfully!', { type: 'success' })
         }
