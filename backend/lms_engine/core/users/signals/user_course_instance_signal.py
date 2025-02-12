@@ -49,7 +49,7 @@ def send_course_instance_data(sender, instance: UserCourseInstance, created, **k
 
         payload = {
             "courseInstanceId": str(course.id),
-            "studentIds": [str(instance.user.id)],
+            "studentIds": [str(instance.user.firebase_uid)],
             "modules": modules_payload,
         }
 
