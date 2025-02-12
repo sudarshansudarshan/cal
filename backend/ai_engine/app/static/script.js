@@ -11,9 +11,6 @@ const videoData = {};
     let hierarchyData = null;
     let selectedSectionId = null;
     const config = {};
-    import Cookies from 'js-cookie';
-    let accessToken = Cookies.get('access_token');
-    console.log("CALL CALL CALLL", accessToken);
     // the above is the global variables that are used in the script
     // IndexedDB Storage Utility
 
