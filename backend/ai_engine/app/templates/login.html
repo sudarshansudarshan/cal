@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyA5_HJWyWaDpIohV4q6UpKqB6DP48Sbhsk",
+            authDomain: "http://calm-594ef.firebaseapp.com",
+            projectId: "calm-594ef",
+            storageBucket: "http://calm-594ef.firebasestorage.app",
+            messagingSenderId: "420629178412",
+            appId: "1:420629178412:web:ff85b63f0a6b246f218989",
+            measurementId: 'G-QR8DHVFDKD'
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        function login() {
+            var email = document.getElementById("email").value;
+            var password = document.getElementById("password").value;
+
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed in
+                    var user = userCredential.user;
+                    alert("Login successful!");
+                })
+                .catch((error) => {
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    alert("Error: " + errorMessage);
+                });
+        }
+    </script>
+</head>
+<body>
+    <h2>Login</h2>
+    <form onsubmit="login(); return false;">
+        <label for="email">Email:</label>
+        <input type="email" id="email" required><br><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" required><br><br>
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>

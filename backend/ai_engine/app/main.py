@@ -42,6 +42,13 @@ def serve_homepage():
     index_path = Path("app/templates/index.html")
     return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
 
+@app.get("/login", response_class=HTMLResponse)
+def login():
+    # Add your login logic here
+    # If login is successful, render the index.html page
+    index_path = Path("app/templates/index.html")
+    return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
+
 @app.get("/config")
 def get_config():
     return {

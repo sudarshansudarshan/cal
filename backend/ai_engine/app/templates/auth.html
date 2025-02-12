@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>My Firebase Auth App</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  </head>
+  <body>
+    <h1>Firebase Authentication</h1>
+    <div id="user-status">Not logged in</div>
+    
+    <h2>Sign Up</h2>
+    <form id="signup-form">
+      <input type="email" id="signup-email" placeholder="Email" required>
+      <input type="password" id="signup-password" placeholder="Password" required>
+      <button type="submit">Sign Up</button>
+    </form>
+
+    <h2>Login</h2>
+    <form id="login-form">
+      <input type="email" id="login-email" placeholder="Email" required>
+      <input type="password" id="login-password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+
+    <button id="logout-button" style="display: none;">Logout</button>
+
+    <script>
+      // Initialize Firebase
+      const firebaseConfig = {
+        apiKey: "AIzaSyA5_HJWyWaDpIohV4q6UpKqB6DP48Sbhsk",
+        authDomain: "calm-594ef.firebaseapp.com",
+        projectId: "calm-594ef",
+        storageBucket: "calm-594ef.firebasestorage.app",
+        messagingSenderId: "420629178412",
+        appId: "1:420629178412:web:ff85b63f0a6b246f218989",
+        measurementId: "G-QR8DHVFDKD"
+      };
+
+      firebase.initializeApp(firebaseConfig);
+
+      const signupForm = document.getElementById('signup-form');
+      const loginForm = document.getElementById('login-form');
+      const logoutButton = document.getElementById('logout-button');
+      const userStatusDiv = document.getElementById('user-status');
+
+      // Function to set a cookie
+      function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+          let date = new Date();
+          date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+          expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + value + "; path=/";
+      }
+
+      // Function to delete a cookie
+      function deleteCookie(name) {
+        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      }
+
+      // Sign-Up Functionality
+      signupForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('signup-email').value;
+        const password = document.getElementById('signup-password').value;
+
+        firebase.auth().createUserWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            console.log("User signed up:", userCredential.user);
+            signupForm.reset();
+          })
+          .catch((error) => {
+            console.error("Error during sign up:", error.message);
+            alert(error.message);
+          });
+      });
+
+      // Login Functionality
+      loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+
+        firebase.auth().signInWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            console.log("User logged in:", userCredential.user);
+            loginForm.reset();
+          })
+          .catch((error) => {
+            console.error("Error during login:", error.message);
+            alert(error.message);
+          });
+      });
+
+      // Logout Functionality
+      logoutButton.addEventListener('click', function() {
+        firebase.auth().signOut()
+          .then(() => {
+            console.log("User logged out");
+            deleteCookie("authToken"); // Remove token
+          })
+          .catch((error) => {
+            console.error("Error during logout:", error.message);
+            alert(error.message);
+          });
+      });
+
+      // Authentication State Changes
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          user.getIdToken(/* forceRefresh */ true)
+            .then(function(idToken) {
+              localStorage.setItem("authToken", idToken); // Store access token in cookie for 1 day
+              userStatusDiv.textContent = "Logged in as: " + user.email;
+              logoutButton.style.display = 'block';
+              window.location.href = ""; // Redirect to login page on login
+            })
+            .catch(function(error) {
+              console.error("Error retrieving token:", error);
+            });
+        } else {
+          localStorage.removeItem("authToken"); // Delete access token on logout
+          userStatusDiv.textContent = "Not logged in";
+          logoutButton.style.display = 'none';
+        }
+      });
+    </script>
+  </body>
+</html>
