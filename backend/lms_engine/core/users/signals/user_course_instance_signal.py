@@ -6,8 +6,9 @@ from core.users.models import UserCourseInstance
 import os
 from core.course.models import Course  # Import Course model if necessary
 import json
+import logging
 
-
+logger = logging.getLogger(__name__)
 
 
 
@@ -52,13 +53,14 @@ def send_course_instance_data(sender, instance: UserCourseInstance, created, **k
             "studentIds": [str(instance.user.firebase_uid)],
             "modules": modules_payload,
         }
-
-        print("Sending course initialization...", json.dumps(payload, indent=1))
+        logging.info(f"Sending to {AE_URL}")
+        logging.info(f"Sending course initialization... {json.dumps(payload, indent=1)}")
 
         # Send the POST request
         try:
             response = requests.post(AE_URL, json=payload)
             response.raise_for_status()
-            print("Successfully sent!")
+            logging.info("Successfully sent!")
         except requests.exceptions.RequestException as e:
-            print(f"Error sending course initialization: {e}")
+            logging.error(json.dumps(payload, indent=1))
+            logging.error(f"Error sending course initialization: {e}")
