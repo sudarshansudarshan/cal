@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+} from 'react'
 
 interface RefreshContextState {
   needRefresh: boolean
@@ -19,9 +25,9 @@ export const RefreshProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [needRefresh, setNeedRefresh] = useState(false)
 
-  const triggerRefresh = () => {
-    setNeedRefresh((prev) => !prev) // Toggles the refresh state
-  }
+  const triggerRefresh = useCallback(() => {
+    setNeedRefresh((prev) => !prev)
+  }, [])
 
   return (
     <RefreshContext.Provider value={{ needRefresh, triggerRefresh }}>

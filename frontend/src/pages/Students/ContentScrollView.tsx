@@ -172,7 +172,9 @@ const ContentScrollView = () => {
     if (!ytApiReady) return
 
     const initPlayer = () => {
+      console.log('hello ji',window.YT?.Player)
       if (!window.YT?.Player) {
+        console.log('YT Player not ready. Retrying in 100ms...')
         setTimeout(initPlayer, 100)
         return
       }
@@ -182,10 +184,15 @@ const ContentScrollView = () => {
       }
 
       const currentContent = content[currentFrame]
+      console.log(currentContent,"i am video loader",currentFrame, 'i am content type',currentContent?.item_type)
       if (currentContent?.item_type !== 'video') return
 
       const videoId = getYouTubeVideoId(currentContent.source)
+      console.log('i am video id',videoId,getYouTubeVideoId(currentContent.source))
       if (!videoId) return
+
+      
+      renderdataByType(currentFrame, currentFrame)
 
       playerRef.current = new window.YT.Player(`player-${currentFrame}`, {
         videoId,
@@ -382,13 +389,14 @@ const ContentScrollView = () => {
           Cookies.set('gradingData', response.data.isAnswerCorrect)
           setGradingData(response.data.isAnswerCorrect)
           if (response.data.isAnswerCorrect === false) {
-            const nextFrameIndex =
-              (currentFrame - 1 + content.length) % content.length
-            localStorage.setItem('nextFrame', nextFrameIndex)
-            toast('Incorrect Answer! The segment will now run again.')
-            setTimeout(() => {
-              window.location.reload()
-            }, 2000)
+            // const nextFrameIndex =
+            //   (currentFrame - 1 + content.length) % content.length
+            // localStorage.setItem('nextFrame', nextFrameIndex)
+            // toast('Incorrect Answer! The segment will now run again.')
+            // setTimeout(() => {
+            //   window.location.reload()
+            // }, 2000)
+            setCurrentFrame((prevFrame) => (prevFrame - 1) % content.length)
           } else {
             const sectionItemId1 = `${content[currentFrame - 1].id}`
             const sectionItemId2 = `${content[currentFrame].id}`
@@ -621,17 +629,20 @@ const ContentScrollView = () => {
   // This funtion is used for switch case according to the data that whenever the data type is video , assessment or article it will display the frame according to the type
   const renderdataByType = (frame, index) => {
     let videoId = null
-    if (frame?.item_type === 'video') {
-      videoId = getYouTubeVideoId(frame.source)
-    }
+    // if (frame?.item_type === 'video') {
+    //   videoId = getYouTubeVideoId(frame.source)
+    // }
+    videoId = getYouTubeVideoId(content[currentFrame].source)
 
-    switch (frame.item_type) {
+    console.log(frame,"i am frame",content[currentFrame].source)
+
+    switch (content[currentFrame].item_type) {
       case 'video':
         return (
           <iframe
             key={`player-${index}`}
             id={`player-${index}`}
-            title={frame.title}
+            title={content[currentFrame].title}
             src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&controls=0&modestbranding=1&showinfo=0&fs=1&iv_load_policy=3&cc_load_policy=1&autohide=1`}
             frameBorder='0'
             allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
