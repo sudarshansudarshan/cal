@@ -17,11 +17,14 @@ jobs:
 
       - name: Determine Version Bump
         id: versioning
-        uses: mathieudutour/github-tag-action@v6
+        uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          tag_prefix: "v"
-          default_bump: "patch"
+          tag_prefix: "v"  # Prefix version tags with "v"
+          default_bump: "patch"  # Default to patch version bump
+          fetch_all_tags: true  # Ensure GitHub fetches all tags
+          release_branches: "master,staging"  # Ensure versioning works only on these branches
+
 
   build:
     needs: versioning
