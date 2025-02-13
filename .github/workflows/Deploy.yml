@@ -103,7 +103,7 @@ jobs:
 
   deploy_production:
     name: Deploy to Production
-    needs: deploy_staging  # Ensure staging is deployed first
+    needs: [versioning, build, deploy_staging]  # Ensure staging is deployed first
     runs-on: ubuntu-latest
     environment: production  # Associate with GitHub Environment "production"
     steps:
