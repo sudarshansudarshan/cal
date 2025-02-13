@@ -23,45 +23,37 @@ export const fetchProgress = createAsyncThunk(
   }
 )
 
-// export const clearAndFetchProgress = createAsyncThunk(
-//   'progress/clearAndFetchProgress',
-//   async ({ courseInstanceId, sectionItemId }, { rejectWithValue }) => {
-//     try {
-//       // Clear the progress by setting it to null (or however you manage clearing it)
-//       // Then fetch new progress
-//       const token = Cookies.get('access_token')
-//       const studentId = Cookies.get('user_id')
-//       const response = await axios.post(
-//         `${ACTIVITY_URL}/course-progress/update-section-item-progress`,
-//         { courseInstanceId, sectionItemId, studentId },
-//         {
-//           headers: {
-//             Authorization: `Bearer ${token}`,
-//           },
-//         }
-//       )
+export const clearAndFetchProgress = createAsyncThunk(
+  'progress/clearAndFetchProgress',
+  async ({ courseInstanceId, sectionItemId }, { rejectWithValue }) => {
+    try {
+      // Clear the progress by setting it to null (or however you manage clearing it)
+      // Then fetch new progress
+      const token = Cookies.get('access_token')
+      const studentId = Cookies.get('user_id')
+      const response = await axios.get(
+        `${ACTIVITY_URL}/course-progress/section-item?courseInstanceId=${courseInstanceId}&sectionItemId=${sectionItemId}&studentId=${studentId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
 
-//       if (response.status === 200) {
-//         return {
-//           courseInstanceId,
-//           sectionItemId,
-//           progress: response.data.progress,
-//         }
-//       } else {
-//         throw new Error('Failed to fetch progress after clearing')
-//       }
-//     } catch (error) {
-//       return rejectWithValue(error.message)
-//     }
-//   }
-// )
-
-// dispatch(
-//                         clearAndFetchProgress({
-//                           courseInstanceId: newCourseInstanceId,
-//                           sectionItemId: newSectionItemId,
-//                         })
-//                         )
+      if (response.status === 200) {
+        return {
+          courseInstanceId,
+          sectionItemId,
+          progress: response.data.progress,
+        }
+      } else {
+        throw new Error('Failed to fetch progress after clearing')
+      }
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  }
+)
 
 const progressSlice = createSlice({
   name: 'progress',
@@ -77,11 +69,11 @@ const progressSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // .addCase(clearAndFetchProgress.fulfilled, (state, action) => {
-      //   const { courseInstanceId, sectionItemId, progress } = action.payload
-      //   const progressKey = `${courseInstanceId}-${sectionItemId}`
-      //   state[progressKey] = progress // Set the new progress in state
-      // })
+      .addCase(clearAndFetchProgress.fulfilled, (state, action) => {
+        const { courseInstanceId, sectionItemId, progress } = action.payload
+        const progressKey = `${courseInstanceId}-${sectionItemId}`
+        state[progressKey] = progress // Set the new progress in state
+      })
       .addCase(fetchProgress.pending, (state, action) => {
         // Log when the fetch starts
         const { courseInstanceId, sectionItemId } = action.meta.arg

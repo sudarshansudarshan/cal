@@ -50,9 +50,15 @@ import { Progress } from '@/components/ui/progress'
 
 import Cookies from 'js-cookie'
 import { useDispatch } from 'react-redux'
-import { clearProgress } from '@/store/slices/fetchStatusSlice'
+import {
+  clearAndFetchProgress,
+  clearProgress,
+} from '@/store/slices/fetchStatusSlice'
 import { clearModuleProgress } from '@/store/slices/moduleProgressSlice'
-import { clearSectionProgress } from '@/store/slices/sectionProgressSlice'
+import {
+  clearAndFetchSectionProgress,
+  clearSectionProgress,
+} from '@/store/slices/sectionProgressSlice'
 import { useRefresh } from '@/contextApi/refreshContext'
 
 // Define interfaces for state and props
@@ -294,7 +300,6 @@ const ContentScrollView = () => {
         const currentPlayerTime = playerRef.current.getCurrentTime()
         const endTime = content[currentFrame].end_time
 
-
         if (currentPlayerTime > endTime) {
           playerRef.current.pauseVideo() // Pause at end time
           clearInterval(playerIntervalRef.current) // Clear interval
@@ -380,7 +385,10 @@ const ContentScrollView = () => {
             const nextFrameIndex =
               (currentFrame - 1 + content.length) % content.length
             localStorage.setItem('nextFrame', nextFrameIndex)
-            window.location.reload()
+            toast('Incorrect Answer! The segment will now run again.')
+            setTimeout(() => {
+              window.location.reload()
+            }, 2000)
           } else {
             const sectionItemId1 = `${content[currentFrame - 1].id}`
             const sectionItemId2 = `${content[currentFrame].id}`
@@ -392,25 +400,31 @@ const ContentScrollView = () => {
             })
               .then((response) => {
                 if (response.data) {
+                  console.log(
+                    'Progress updated successfully.cdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
+                    response.data
+                  )
                   response.data.forEach((item) => {
-                    item.sectionItems.forEach((sectionItemId) => {
-                      const newCourseInstanceId = courseId
-                      const newSectionItemId = sectionItemId
-                      dispatch(
-                        clearProgress({
-                          courseInstanceId: newCourseInstanceId,
-                          sectionItemId: newSectionItemId,
-                        })
-                      )
-                    })
-                    if (item.modules !== null) {
-                      dispatch(
-                        clearModuleProgress({
-                          courseInstanceId: courseId,
-                          moduleId: item.modules,
-                        })
-                      )
-                    } else if (item.sections !== null) {
+                    if (Array.isArray(item.sectionItems)) {
+                      item.sectionItems.forEach((sectionItemId) => {
+                        const newCourseInstanceId = courseId
+                        const newSectionItemId = sectionItemId
+                        dispatch(
+                          clearProgress({
+                            courseInstanceId: newCourseInstanceId,
+                            sectionItemId: newSectionItemId,
+                          })
+                        )
+                        dispatch(
+                          clearAndFetchProgress({
+                            courseInstanceId: newCourseInstanceId,
+                            sectionItemId: newSectionItemId,
+                          })
+                        )
+                      })
+                    }
+
+                    if (Array.isArray(item.sections)) {
                       item.sections.forEach((newsectionId) => {
                         dispatch(
                           clearSectionProgress({
@@ -418,8 +432,22 @@ const ContentScrollView = () => {
                             sectionId: newsectionId,
                           })
                         )
+                        dispatch(
+                          clearAndFetchSectionProgress({
+                            courseInstanceId: courseId,
+                            sectionId: newsectionId,
+                          })
+                        )
                       })
                     }
+
+                    // Uncomment and add a similar check for item.modules if needed
+                    // if (Array.isArray(item.modules)) {
+                    //   dispatch(clearModuleProgress({
+                    //     courseInstanceId: courseId,
+                    //     moduleId: item.modules,
+                    //   }));
+                    // }
                   })
                 } else {
                   console.error('Failed to update progress.')
@@ -438,9 +466,8 @@ const ContentScrollView = () => {
               setCurrentTime(0)
               setIsPlaying(false)
               fetchAssessment(currentFrame)
-            } else navigate('/course-view')
+            } else navigate('/')
           }
-          toast('Assessment Submitted successfully!', { type: 'success' })
         }
       })
       .catch((error) => {
@@ -559,23 +586,13 @@ const ContentScrollView = () => {
           >
             Previous
           </button>
-          {isLastQuestion ? (
-            <button
-              onClick={handleSubmit}
-              disabled={!selectedOption}
-              className='rounded-lg bg-green-500 px-6 py-2 text-white shadow'
-            >
-              Submit
-            </button>
-          ) : (
-            <button
-              onClick={handleNextQuestion}
-              disabled={!selectedOption}
-              className='rounded-lg bg-green-500 px-6 py-2 text-white shadow'
-            >
-              Next
-            </button>
-          )}
+          <button
+            onClick={handleSubmit}
+            disabled={!selectedOption}
+            className='rounded-lg bg-green-500 px-6 py-2 text-white shadow'
+          >
+            Submit
+          </button>
         </div>
       </div>
     )
