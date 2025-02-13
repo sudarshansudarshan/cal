@@ -57,15 +57,15 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t vicharanashala/calm:${{ needs.versioning.outputs.new_version }} -f prod/lmse.Dockerfile backend/lms_engine/
+          docker build -t vicharanashala/calm:v${{ needs.versioning.outputs.new_version }} -f prod/lmse.Dockerfile backend/lms_engine/
       
       - name: Push Docker Image
         run: |
-          docker push vicharanashala/calm:${{ needs.versioning.outputs.new_version }}
+          docker push vicharanashala/calm:v${{ needs.versioning.outputs.new_version }}
           
   deploy_staging:
     name: Deploy to Staging
-    needs: build
+    needs: [versioning, build]
     runs-on: ubuntu-latest
     environment: staging  # Associate with the GitHub Environment "staging"
     steps:
