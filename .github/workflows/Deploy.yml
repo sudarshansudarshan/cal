@@ -77,11 +77,9 @@ jobs:
       - name: Deploy LMS Engine to Staging
         run: |
           IMAGE_VERSION=${{ needs.versioning.outputs.new_version }}
-          if [ -z "$IMAGE_VERSION" ]; then IMAGE_VERSION="latest"; fi
-          echo "Using Image Version: $IMAGE_VERSION"
           
           gcloud run deploy calm-lmse-staging \
-            --image=docker.io/vicharanashala/calm:$IMAGE_VERSION \
+            --image=docker.io/vicharanashala/calm:v$IMAGE_VERSION \
             --set-env-vars=LMSE_DJANGO_ENVIRONMENT=staging \
             --set-env-vars=LMSE_DJANGO_SECRET_KEY=${{ secrets.LMSE_DJANGO_SECRET_KEY }} \
             --set-env-vars=LMSE_DB_HOST=${{ secrets.LMSE_DB_HOST }} \
@@ -116,13 +114,9 @@ jobs:
       - name: Deploy LMS Engine to Production
         run: |
           IMAGE_VERSION=${{ needs.versioning.outputs.new_version }}
-          if [ -z "$IMAGE_VERSION" ]; then IMAGE_VERSION="latest"; fi
-          echo "Using Image Version: $IMAGE_VERSION"
           
-          gcloud run deploy calm-lmse-staging \
-            --image=docker.io/vicharanashala/calm:$IMAGE_VERSION \
-            --region=asia-south2 \
-            --project=${{ secrets.GCP_PROJECT_ID }} \
+          gcloud run deploy calm-lmse-production \
+            --image=docker.io/vicharanashala/calm:v$IMAGE_VERSION \
             --set-env-vars=LMSE_DJANGO_ENVIRONMENT=production \
             --set-env-vars=LMSE_DJANGO_SECRET_KEY=${{ secrets.LMSE_DJANGO_SECRET_KEY }} \
             --set-env-vars=LMSE_DB_HOST=${{ secrets.LMSE_DB_HOST }} \
@@ -138,8 +132,8 @@ jobs:
             --set-env-vars=LMSE_STATIC_URL=${{ secrets.LMSE_STATIC_URL }} \
             --set-env-vars='^#^LMSE_CSRF_TRUSTED_ORIGINS=${{ secrets.LMSE_CSRF_TRUSTED_ORIGINS }}' \
             --set-env-vars=ACTIVITY_ENGINE_URL=${{ secrets.ACTIVITY_ENGINE_URL }} \
-            --platform=managed \
-            --quiet \
-            --no-traffic
+            --region=asia-south2 \
+            --project=${{ secrets.GCP_PROJECT_ID }} \
+
           
-          gcloud run services update-traffic calm-lmse-production --to-latest
+          gcloud run services update-traffic calm-lmse-production --to-latest --region=asia-south2
