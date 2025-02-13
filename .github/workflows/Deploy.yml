@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   versioning:
+    name: Versioning
     runs-on: ubuntu-latest
     outputs:
       new_version: ${{ steps.versioning.outputs.new_version }}
@@ -36,6 +37,7 @@ jobs:
           dry_run: false  # Ensure the action applies the tag
 
   build:
+    name: Build
     needs: versioning
     runs-on: ubuntu-latest
     steps:
@@ -48,12 +50,17 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build & Push Docker Image
+      - name: Build Docker Image
         run: |
           docker build -t vicharanashala/calm:${{ needs.versioning.outputs.new_version }} -f prod/lmse.Dockerfile backend/lms_engine/
+      
+      - name: Push Docker Image
+        run: |
+          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
           docker push vicharanashala/calm:${{ needs.versioning.outputs.new_version }}
-
+          
   deploy:
+    name: Deploy
     needs: build
     runs-on: ubuntu-latest
     strategy:
