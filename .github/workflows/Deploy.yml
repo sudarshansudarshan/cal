@@ -100,7 +100,7 @@ jobs:
             --region=asia-south2 \
             --project=${{ secrets.GCP_PROJECT_ID }} \
             
-          gcloud run services update-traffic calm-lmse-staging --to-latest
+          gcloud run services update-traffic calm-lmse-staging --to-latest --region=asia-south2
 
   deploy_production:
     name: Deploy to Production
