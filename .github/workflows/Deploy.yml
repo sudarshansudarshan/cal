@@ -27,11 +27,12 @@ jobs:
         uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          tag_prefix: "v"  # Prefix version tags with "v"
-          default_bump: "patch"  # Default to patch version bump
-          fetch_all_tags: true  # Ensure GitHub fetches all tags
-          release_branches: "master,staging"  # Ensure versioning works only on these branches
-
+          tag_prefix: "v"
+          default_bump: "patch"
+          fetch_all_tags: true
+          release_branches: "master,staging"
+          create_annotated_tag: true  # Ensure tags are annotated
+          dry_run: false  # Ensure the action applies the tag
 
   build:
     needs: versioning
