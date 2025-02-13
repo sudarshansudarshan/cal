@@ -11,6 +11,7 @@ permissions:
   contents: write  # Allows the workflow to push new tags
   packages: write  # Allows pushing Docker images (if needed)
 
+
 jobs:
   versioning:
     runs-on: ubuntu-latest
