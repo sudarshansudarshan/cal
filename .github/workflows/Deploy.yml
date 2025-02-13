@@ -80,6 +80,7 @@ jobs:
           
           gcloud run deploy calm-lmse-staging \
             --image=docker.io/vicharanashala/calm:v$IMAGE_VERSION \
+            --port=8000 \
             --set-env-vars=LMSE_DJANGO_ENVIRONMENT=staging \
             --set-env-vars=LMSE_DJANGO_SECRET_KEY=${{ secrets.LMSE_DJANGO_SECRET_KEY }} \
             --set-env-vars=LMSE_DB_HOST=${{ secrets.LMSE_DB_HOST }} \
@@ -117,6 +118,7 @@ jobs:
           
           gcloud run deploy calm-lmse-production \
             --image=docker.io/vicharanashala/calm:v$IMAGE_VERSION \
+            --port=8000 \
             --set-env-vars=LMSE_DJANGO_ENVIRONMENT=production \
             --set-env-vars=LMSE_DJANGO_SECRET_KEY=${{ secrets.LMSE_DJANGO_SECRET_KEY }} \
             --set-env-vars=LMSE_DB_HOST=${{ secrets.LMSE_DB_HOST }} \
