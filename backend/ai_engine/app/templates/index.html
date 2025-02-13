@@ -11,10 +11,9 @@
 </head>
 <body>
   <div class="container">
-    <h1>Video Question Generator</h1>
+    <h1>Instructor LLM Dashboard</h1>
     <div class="url-container">
-      <input type="url" id="playlist-url" placeholder="Enter YouTube playlist or video URL" required /> <button
-        id="fetch-videos" class="inline">Submit</button>
+      <input type="url" id="playlist-url" placeholder="Enter YouTube playlist or video URL" required /> 
     </div>
     <div class="hierarchy-dropdowns">
       <div>
@@ -41,7 +40,10 @@
       <input type="number" id="default-segments" min="1" placeholder="Enter default segments count" />
       <label for="default-questions">Default Questions per Segment</label>
       <input type="number" id="default-questions" min="1" placeholder="Enter default questions count" />
-    </div>
+      <button id="fetch-videos" class="inline" style="display: block; margin: 10px auto; text-align: center;">
+        Submit
+    </button>
+    
     <div id="videos-container"></div>
     <form id="video-form">
       <!-- Model Selection Dropdown -->
@@ -64,38 +66,57 @@
       </div>
       <div id="segments-container" class="segments-container"></div>
       <div id="details-form">
+        <h2 style="text-align: center;">You can customise the default values here</h2>
+
+          <br>
           <h3 id="form-title">Segment Details</h3>
-          <label for="timestamp">Start time of the segment</label>
+          <label for="timestamp">Start time of the segment<h6>Segment 1 ends at the start time of Segment 2</h6></label>
+          
+          <br>
           <div style="display: flex; gap: 10px;">
               <input type="number" id="timestamp-hr" min="0" placeholder="HH" style="width: 33%;" />
               <input type="number" id="timestamp-min" min="0" max="59" placeholder="MM" style="width: 33%;" />
               <input type="number" id="timestamp-sec" min="0" max="59" placeholder="SS" style="width: 33%;" />
           </div>
-          <button type="button" id="recalculate-timestamps" class="inline">Recalculate Timestamps</button>
-          <label for="questions">Number of Questions</label>
-          <input type="number" id="questions" placeholder="Enter number of questions" />
-          <label for="type">Type of Questions</label>
+      
+          <button type="button" id="recalculate-timestamps" class="inline" style="display: block; margin: 10px auto; text-align: center;">
+            Recalculate Timestamps
+        </button>
+          <br>
+          <label for="questions">Number of Questions in this Segment</label>
+          <input type="number" id="questions" placeholder="Enter number of questions" style="width: 26ch;" />
+          <br>
+
+          <label for="type">Type of Questions in this Segment</label>
           <select id="type">
-              <option value="">Select type</option>
+              <option value="">Select type(Default Analytical)</option>
               <option value="analytical">Analytical</option>
-              <option value="case-study">Case Study</option>
+              <!-- <option value="analytical">Case Study</option> -->
           </select>
       </div>
-      <button type="submit">Upload</button>
+      <button type="submit" style="width: auto; padding: 10px 20px; white-space: nowrap;">
+        Upload
+    </button>
+    
   </form>  
     <div id="generating-sign">Generating<span class="dots"><span></span><span></span><span></span></span></div>
     <div id="output">
       <h3>Generated Output:</h3>
       <div id="output-videos-container"></div>
       <div id="video-info"></div>
+      <br>
       <h4>Segments</h4>
       <div id="output-segments-container" class="output-segments-container"></div>
       <div id="segment-details-container"></div>
+      <br>
       <h4>Questions</h4>
       <div id="output-questions-container" class="output-questions-container"></div>
       <div id="question-details-container"></div>
     </div>
-    <button id="confirm-btn" style="display:none;">Confirm & Download</button>
+    <button id="confirm-btn" style="display:none; width: auto; padding: 10px 20px; white-space: nowrap;">
+      Confirm & Upload
+  </button>
+  
   </div> 
   <script src="../static/script.js"></script>
   <div id="temp-player" style="display: none;"></div>

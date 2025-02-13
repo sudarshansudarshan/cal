@@ -136,3 +136,75 @@ Generate {1} questions as a JSON object in the following format:
                     }}
                 ]
 }}.'''
+
+PROMPT_NEW = """
+You are an advanced AI tasked with generating challenging university-level multiple-choice questions (MCQs)
+for each video segment based on its transcript. The input is a JSON object with the following structure:
+
+{{
+    "segments": [
+        {{
+            "text": "Transcript text of the segment.",
+            "num_questions": q,
+            "question_type": "analytical"  // or "case-study"
+        }},
+        ...
+    ]
+}}
+
+For each segment:
+- If "question_type" is "case-study", first create a unique case study or scenario inspired by the transcript.
+  Then, generate the specified number of challenging questions based on that case study.
+  For example:
+  {{
+      "case_study": "A new factory is established near a river, raising concerns about environmental impacts...",
+      "questions": [
+          {{
+              "question": "What is the most likely impact of the factory's operations when considering both economic and environmental factors?",
+              "options": ["Decreased oxygen levels", "Improved water clarity", "Increased fish population", "Soil erosion reduction"],
+              "correct_answer": 0
+          }},
+          ...
+      ]
+  }}
+- If "question_type" is "analytical", analyze the transcript to identify complex ideas and key concepts.
+  Generate the specified number of questions that test not just recall but require the application and integration
+  of knowledge, critical thinking, and problem-solving. For example:
+  {{
+      "questions": [
+          {{
+              "question": "Why is photosynthesis critical for ecosystems beyond just oxygen production?",
+              "options": ["It is the only carbon source", "It balances multiple ecological processes", "It creates necessary heat energy", "It limits water loss"],
+              "correct_answer": 1
+          }},
+          ...
+      ]
+  }}
+
+Each question must have 4 answer options with one correct answer (provided as a 0-based index).
+The questions should be challenging and require thoughtful analysis.
+
+Format your response as a JSON object with the structure:
+{{
+   "questions": [
+        {{
+           "segment": <segment index (starting from 1)>,
+           "questions": [
+                 {{
+                    "question": "<question_text>",
+                    "option_1": "<option1>",
+                    "option_2": "<option2>",
+                    "option_3": "<option3>",
+                    "option_4": "<option4>",
+                    "correct_answer": <0-based index>
+                 }},
+                 ...
+           ]
+        }},
+        ...
+   ]
+}}
+
+Here is the JSON input:
+{0}
+"""

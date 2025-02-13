@@ -1,182 +1,280 @@
+/* Global Reset */
 * {
-    box-sizing: border-box;
-  }
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+}
 
-  body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-  }
+body {
+  background-color:beige;
+  padding: 20px;
+}
 
-  .container {
-    max-width: 800px;
-    margin: auto;
-  }
+/* Main Container */
+.container {
+  max-width: 750px;
+  margin: auto;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-  label {
-    display: block;
-    margin: 10px 0 5px;
-  }
+/* Title */
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
 
-  input,
-  select,
-  button,
-  textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
+/* Input Containers */
+.url-container,
+.hierarchy-dropdowns,
+.default-settings,
+#video-form,
+#output {
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+}
+
+/* Labels */
+label {
+  display: block;
+  font-weight: bold;
+  margin: 10px 0 5px;
+  color: #444;
+}
+
+/* Input Fields */
+input,
+select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 18px;
+  height: 45px; /* Fixed height */
+}
+
+/* Properly Sized Textarea */
+textarea {
+  width: 100%;
+  height: 150px; /* Proper height */
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  resize: vertical; /* Allows vertical resizing */
+}
+
+/* Ensure Consistent Input Field Height */
+input[type="number"],
+input[type="text"],
+input[type="url"],
+input[type="password"],
+select {
+  height: 45px;
+}
+
+/* URL Input and Submit */
+.url-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.url-container input {
+  flex-grow: 1;
+}
+
+/* Dropdown Containers */
+.hierarchy-dropdowns div {
+  margin-bottom: 10px;
+}
+
+/* Default Settings */
+.default-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Video Form */
+#video-form {
+  display: none;
+}
+
+/* Video Player */
+#video-player-container {
+  position: relative;
+  padding-bottom: 56.25%;
+  /* 16:9 Aspect Ratio */
+  height: 0;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+#player {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Segment Details */
+#details-form {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 5px;
+  margin-top: 15px;
+}
+
+/* Time Input Styling */
+#details-form div {
+  display: flex;
+  gap: 10px;
+}
+
+#details-form input[type="number"] {
+  width: 100px; /* Adjusted width */
+  height: 40px;
+  text-align: center;
+}
+
+/* Button Styling */
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  display: block;
+  margin: 10px auto; /* Center the button */
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Inline Buttons (Submit Next to URL Box) */
+button.inline {
+  width: auto;
+  padding: 10px 15px;
+  display: inline-block;
+  margin-left: 10px;
+}
+
+/* Center All Buttons */
+button,
+#confirm-btn {
+  text-align: center;
+}
+
+/* Generating Animation */
+#generating-sign {
+  display: none;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #555;
+  margin: 20px 0;
+}
+
+/* Blinking Dots */
+.dots {
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.dots span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 3px;
+  background-color: #555;
+  border-radius: 50%;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% {
+      opacity: 0.2;
+  }
+  50% {
+      opacity: 1;
+  }
+}
+
+/* Output Section */
+#output {
+  display: none;
+}
+
+#output h3,
+#output h4 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* Video Blocks, Segment Blocks, and Question Blocks */
+.video-block,
+.segment-block,
+.question-block {
+  display: inline-block;
+  background-color: #eef2ff;
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin: 5px;
+  min-width: 100px;
+}
+
+.video-block:hover,
+.segment-block:hover,
+.question-block:hover {
+  background-color: #c3dafb;
+}
+
+.video-block.active,
+.segment-block.active,
+.question-block.active {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Confirm Button */
+#confirm-btn {
+  display: none;
+  margin-top: 20px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 600px) {
+  .url-container {
+      flex-direction: column;
+      gap: 5px;
+  }
+  
+  .time-input {
+      flex-direction: column;
   }
 
   button.inline {
-    width: auto;
-    margin-left: 10px;
+      width: 100%;
+      margin: 0;
   }
-
-  .url-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  textarea {
-    height: 80px;
-    resize: vertical;
-  }
-
-  .segments-container,
-  .output-segments-container,
-  .output-questions-container {
-    margin-top: 20px;
-  }
-
-  .video-block,
-  .segment-block,
-  .question-block {
-    display: inline-block;
-    margin: 5px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-    text-align: center;
-    background-color: #f9f9f9;
-    min-width: 100px;
-  }
-
-  .video-block:hover,
-  .segment-block:hover,
-  .question-block:hover {
-    background-color: #ddd;
-  }
-
-  .video-block.active,
-  .segment-block.active,
-  .question-block.active {
-    background-color: #007bff;
-    color: white;
-  }
-
-  #video-form,
-  #details-form {
-    display: none;
-    margin-top: 20px;
-  }
-
-  #video-player-container {
-    margin: 20px 0;
-    position: relative;
-    padding-bottom: 56.25%;
-    /* 16:9 aspect ratio */
-    height: 0;
-    overflow: hidden;
-  }
-
-  #player {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  .segment-details,
-  .question-details {
-    display: none;
-    margin-top: 20px;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-
-  .error-message {
-    color: #dc2626;
-    padding: 1rem;
-    margin: 1rem 0;
-    border: 1px solid #dc2626;
-    border-radius: 0.25rem;
-    background-color: #fef2f2;
-  }
-
-  #generating-sign {
-    display: none;
-    text-align: center;
-    margin: 20px 0;
-    font-size: 18px;
-    font-weight: bold;
-    color: #555;
-  }
-
-  .dots {
-    display: inline-block;
-    margin-left: 5px;
-  }
-
-  .dots span {
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    margin-right: 3px;
-    background-color: #555;
-    border-radius: 50%;
-    animation: blink 1.5s infinite;
-  }
-
-  .dots span:nth-child(2) {
-    animation-delay: 0.3s;
-  }
-
-  .dots span:nth-child(3) {
-    animation-delay: 0.6s;
-  }
-
-  .default-settings {
-    margin: 20px 0;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-  }
-
-  #recalculate-timestamps {
-    width: auto;
-    margin-top: 10px;
-    margin-bottom: 15px;
-  }
-
-  .default-settings label {
-    margin-top: 0;
-  }
-
-  .default-settings input {
-    margin-bottom: 10px;
-  }
-
-  @keyframes blink {
-
-    0%,
-    100% {
-      opacity: 0.2;
-    }
-
-    50% {
-      opacity: 1;
-    }
-  }
+}

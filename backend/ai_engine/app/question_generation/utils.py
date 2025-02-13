@@ -39,17 +39,17 @@ def parse_llama_json(text: str) -> Dict:
         start_idx = text.find("{")
         end_idx = text.rfind("}") + 1
         if start_idx == -1 or end_idx == -1:
+            print("No valid JSON found in the text; returning empty result")
+            print("Raw response:", text)
             return empty_response
-
         json_part = text[start_idx:end_idx]
         parsed_data = json.loads(json_part)
-
         if not isinstance(parsed_data, dict):
             return empty_response
         if "questions" not in parsed_data:
+            print("Failed to parse JSON, returning empty structured result")
             parsed_data["questions"] = empty_response["questions"]
-
         return parsed_data
-    except:
-        print(f"Failed to parse JSON, returning empty structured result")
+    except Exception as e:
+        print(f"Failed to parse JSON: {e}; returning empty structured result")
         return empty_response

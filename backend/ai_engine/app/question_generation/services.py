@@ -2,7 +2,7 @@
 import asyncio
 import uuid
 from fastapi import HTTPException
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import google.generativeai as genai
 import soundfile as sf
 import whisper
@@ -19,6 +19,7 @@ import os
 from dotenv import load_dotenv
 from .prompts import *
 import requests
+import json
 
 load_dotenv()
 os.environ["PATH"] += os.pathsep + os.getenv("FFMPEG_PATH") # Configure FFMPEG locally
@@ -34,10 +35,41 @@ class GeminiService:
         genai.configure(api_key=user_api_key)
 
     async def generate_content(self, prompt: str) -> str:
-        """Generate content from Gemini AI with rate limiting"""
-        response = await asyncio.to_thread(self.model.generate_content, prompt)
-        await asyncio.sleep(10)  # Maintain rate limiting
-        return response.text
+        # """Generate content from Gemini AI with rate limiting"""
+        # response = await asyncio.to_thread(self.model.generate_content, prompt)
+        # await asyncio.sleep(10)  # Maintain rate limiting
+        # return response.text
+        marker = "Here is the JSON input:"
+        json_start = prompt.find(marker)
+        if json_start != -1:
+            json_str = prompt[json_start + len(marker):].strip()
+            try:
+                payload = json.loads(json_str)
+                segments = payload.get("segments", [])
+                print(f"Making a call to the LLM with {len(segments)} segments")
+            except Exception as e:
+                print("Could not parse JSON payload to count segments:", e)
+        else:
+            print("JSON input marker not found in prompt.")
+
+        max_retries = 3
+        backoff_times = [10, 20, 30]
+        attempt = 0
+        while attempt < max_retries:
+            try:
+                response = await asyncio.to_thread(self.model.generate_content, prompt)
+                await asyncio.sleep(10)  # Delay to prevent hitting API rate limits
+                return response.text
+            except Exception as e:
+                error_message = str(e).lower()
+                if "429" in error_message or "resource exhausted" in error_message:
+                    print(f"Received 429 resource exhausted error, retrying in {backoff_times[attempt]} seconds...")
+                    await asyncio.sleep(backoff_times[attempt])
+                    attempt += 1
+                else:
+                    raise e
+        print("Max retries reached for Gemini API due to resource exhaustion. Exiting.")
+        exit(1)
     
 class OllamaService:
     def __init__(self):
@@ -79,14 +111,115 @@ class VideoProcessor:
         full_transcript = " ".join([segment.text for segment in segments])
         await upload_text(full_transcript, title)
 
-        questions = await self.generate_questions_for_segments(segments, user_api_key, segment_wise_q_no, segment_wise_q_model)
+        batches = self.batch_segments(segments, segment_wise_q_no, segment_wise_q_model)
+        final_questions = []
+        global_segment_index = 1  # To track the global segment index across batches
+        max_retries = 5
 
+        for batch_segments_list, batch_q_no, batch_q_model in batches:
+            retries = 0
+            valid = False
+            batch_question_data = {}
+            while retries < max_retries:
+                try:
+                    batch_response = await self.generate_questions_for_video(batch_segments_list, user_api_key, batch_q_no, batch_q_model)
+                except Exception as e:
+                    error_message = str(e).lower()
+                    if "429" in error_message or "resource exhausted" in error_message:
+                        wait_time = 10 * (retries + 1)
+                        print(f"Received 429 resource exhausted error, retrying in {wait_time} seconds...")
+                        await asyncio.sleep(wait_time)
+                        retries += 1
+                        continue
+                    else:
+                        raise e
+                batch_question_data = parse_llama_json(batch_response)
+                if ("questions" in batch_question_data and
+                batch_question_data["questions"] and
+                batch_question_data["questions"][0].get("questions", []) and
+                batch_question_data["questions"][0]["questions"][0].get("question", "") != ""):
+                    valid = True
+                    break
+                else:
+                    print("JSON parsing failed for this batch, retrying...")
+                    retries += 1
+                    await asyncio.sleep(10 * retries)
+            if not valid:
+                print("Max retries reached for this batch, skipping batch.")
+                global_segment_index += len(batch_segments_list)
+                continue
+            print("Number of question groups in batch:", len(batch_question_data.get("questions", [])))
+            batch_groups = batch_question_data.get("questions", [])
+            for i in range(len(batch_segments_list)):
+                requested = batch_q_no[i]
+                processed_questions = []
+                if i < len(batch_groups):
+                    group = batch_groups[i]
+                    questions = group.get("questions", [])
+                    for q in questions:
+                        options = q.pop("options", [])
+                        for j, option in enumerate(options, 1):
+                            q[f"option_{j}"] = option
+                        processed_questions.append(q)
+                    if len(processed_questions) < requested:
+                        missing = requested - len(processed_questions)
+                        for _ in range(missing):
+                            processed_questions.append({
+                                "question": "",
+                                "option_1": "",
+                                "option_2": "",
+                                "option_3": "",
+                                "option_4": "",
+                                "correct_answer": 0
+                            })
+                else:
+                    for _ in range(requested):
+                        processed_questions.append({
+                            "question": "",
+                            "option_1": "",
+                            "option_2": "",
+                            "option_3": "",
+                            "option_4": "",
+                            "correct_answer": 0
+                        })
+                for q in processed_questions:
+                    q["segment"] = global_segment_index
+                    final_questions.append(q)
+                global_segment_index += 1
         for seg in segments:
-            seg.title = title
-            seg.video_url = url
-            seg.description = description
+                seg.title = title
+                seg.video_url = url
+                seg.description = description
+        return VideoResponse(segments=segments, questions=final_questions)
+    
+    def batch_segments(self, segments: List[Dict],
+                   segment_q_no: List[int],
+                   segment_q_model: List[str],
+                   max_total_questions: int = 25) -> List[Tuple[List[Dict], List[int], List[str]]]:
+        """
+        Batches segments into groups such that the sum of questions in each batch does not exceed max_total_questions.
+        Returns a list of tuples: (batch_segments, batch_q_no, batch_q_model).
+        """
+        batches = []
+        current_batch_segments = []
+        current_batch_q_no = []
+        current_batch_q_model = []
+        current_sum = 0
 
-        return VideoResponse(segments=segments, questions=questions)
+        for seg, qno, qmodel in zip(segments, segment_q_no, segment_q_model):
+            if current_sum + qno > max_total_questions and current_batch_segments:
+                batches.append((current_batch_segments, current_batch_q_no, current_batch_q_model))
+                current_batch_segments = []
+                current_batch_q_no = []
+                current_batch_q_model = []
+                current_sum = 0
+            current_batch_segments.append(seg)
+            current_batch_q_no.append(qno)
+            current_batch_q_model.append(qmodel)
+            current_sum += qno
+        if current_batch_segments:
+            batches.append((current_batch_segments, current_batch_q_no, current_batch_q_model))
+        return batches
 
     async def get_raw_transcript(self, video_id: str) -> List[Dict]:
         try:
@@ -171,65 +304,35 @@ class VideoProcessor:
         result = self.whisper_model.transcribe(segment_file)
         return VideoSegment(text=result["text"], start_time=start_time, end_time=end_time)
 
-    async def generate_questions_for_segments(self, segments: List[VideoSegment], user_api_key: str, segment_wise_q_no: List[int], segment_wise_q_model: List[str]) -> List[Question]:
-        questions = []
+    async def generate_questions_for_video(self, segments: List[Dict], user_api_key: str, segment_wise_q_no: List[int], segment_wise_q_model: List[str]) -> str:
+        payload_segments = []
         for i, segment in enumerate(segments):
-            questions_response = await self.generate_questions_from_prompt(
-                segment.text,
-                user_api_key,
-                segment_wise_q_no[i],
-                segment_wise_q_model[i]
-            )
-            question_data = parse_llama_json(questions_response)
-            print("QUESTION DATAA:\n",question_data)
-
-            if "case_study" in question_data:
-                case_study_text = question_data.pop("case_study")
-                for question in question_data["questions"]:
-                    options = question.pop("options")
-                    question_dict = {
-                        "question": f"Case study:\n{case_study_text}\nQuestion:\n{question['question']}",
-                        "option_1": options[0],
-                        "option_2": options[1],
-                        "option_3": options[2],
-                        "option_4": options[3],
-                        "correct_answer": question["correct_answer"],
-                        "segment": i + 1
-                    }
-                    questions.append(Question(**question_dict))
-            else:
-                for question in question_data["questions"]:
-                    options = question.pop("options")
-                    question_dict = {
-                        "question": question["question"],
-                        "option_1": options[0],
-                        "option_2": options[1],
-                        "option_3": options[2],
-                        "option_4": options[3],
-                        "correct_answer": question["correct_answer"],
-                        "segment": i + 1
-                    }
-                    questions.append(Question(**question_dict))
-
-        return questions
-
-    async def generate_questions_from_prompt(self, text: str, user_api_key: str, n_questions: int, q_model: str) -> str:
-        """Generate questions using AI service"""
-        prompt = self._get_prompt(text, n_questions, q_model)
-        print("APIIIKEYYYYYYCHECKKKKKKKK: ", user_api_key)
-        
-        # self.ai_service.set_api_key(os.getenv("API_KEY"))
+            payload_segments.append({
+                "text": segment.text,
+                "num_questions": segment_wise_q_no[i],
+                "question_type": segment_wise_q_model[i]
+            })
+        payload = {"segments": payload_segments}
+        prompt = self._get_prompt(json.dumps(payload))
         return await self.ai_service.generate_content(prompt)
 
-    def _get_prompt(self, text:str, n: int, q_model: str) -> str:
-        """Return appropriate prompt template based on question type"""
-        if q_model == "case-study":
-            task_description = TASK_DESCRIPTION_CASE_STUDY.format(n)
-            prompt = task_description + PROMPT_CASE_STUDY.format(text, n)
-            return prompt
+    # async def generate_questions_from_prompt(self, text: str, user_api_key: str, n_questions: int, q_model: str) -> str:
+    #     """Generate questions using AI service"""
+    #     prompt = self._get_prompt(text, n_questions, q_model)
+    #     print("APIIIKEYYYYYYCHECKKKKKKKK: ", user_api_key)
+        
+    #     # self.ai_service.set_api_key(os.getenv("API_KEY"))
+    #     return await self.ai_service.generate_content(prompt)
 
-        task_description = TASK_DESCRIPTION_ANALYTICAL
-        prompt = task_description + PROMPT_ANALYTICAL.format(text, n)
+    def _get_prompt(self, text:str) -> str:
+        """Return appropriate prompt template based on question type"""
+        # if q_model == "case-study":
+        #     task_description = TASK_DESCRIPTION_CASE_STUDY.format(n)
+        #     prompt = task_description + PROMPT_CASE_STUDY.format(text, n)
+        #     return prompt
+
+        # task_description = TASK_DESCRIPTION_ANALYTICAL
+        prompt = PROMPT_NEW.format(text)
         return prompt
 
 class PlaylistProcessor:

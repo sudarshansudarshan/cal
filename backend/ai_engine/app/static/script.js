@@ -528,50 +528,53 @@ document.getElementById('section-select').addEventListener('change', (e) => { //
       });
     }
 
+    
     const numSegmentsInput = document.getElementById('num-segments');
+if (numSegmentsInput) {
     numSegmentsInput.addEventListener('input', () => {
-      if (currentVideo === null) return;
+        if (currentVideo === null) return;
 
-      const numSegments = numSegmentsInput.value || 0;
-      const segmentsContainer = document.getElementById('segments-container');
-      const currentSegments = videoData[currentVideo].segments;
+        const numSegments = numSegmentsInput.value || 0;
+        const segmentsContainer = document.getElementById('segments-container');
+        const currentSegments = videoData[currentVideo]?.segments || {};
 
-      // Clear container
-      segmentsContainer.innerHTML = '';
+        // Clear container
+        segmentsContainer.innerHTML = '';
 
-      // Calculate segment duration based on video duration
-      const videoDuration = videoDurations[currentVideo];
-      const segmentDuration = videoDuration / numSegments;
+        // Calculate segment duration based on video duration
+        const videoDuration = videoDurations[currentVideo];
+        const segmentDuration = videoDuration / numSegments;
 
-      // Create new segments object
-      const newSegments = {};
+        // Create new segments object
+        const newSegments = {};
 
-      for (let i = 1; i <= numSegments; i++) {
-        const segmentBlock = document.createElement('div');
-        segmentBlock.className = 'segment-block';
-        segmentBlock.textContent = `Segment ${i}`;
-        segmentBlock.setAttribute('data-segment', i);
-        segmentBlock.addEventListener('click', () => openSegmentForm(i));
-        segmentsContainer.appendChild(segmentBlock);
+        for (let i = 1; i <= numSegments; i++) {
+            const segmentBlock = document.createElement('div');
+            segmentBlock.className = 'segment-block';
+            segmentBlock.textContent = `Segment ${i}`;
+            segmentBlock.setAttribute('data-segment', i);
+            segmentBlock.addEventListener('click', () => openSegmentForm(i));
+            segmentsContainer.appendChild(segmentBlock);
 
-        // Preserve existing segment data if available
-        if (currentSegments[i]) {
-          newSegments[i] = {
-            ...currentSegments[i]
-          };
-        } else {
-          // Only calculate new timestamp for new segments
-          newSegments[i] = {
-            timestamp: i === 1 ? 0 : (i - 1) * segmentDuration,
-            questions: defaultQuestions || null,
-            type: 'analytical'
-          };
+            // Preserve existing segment data if available
+            if (currentSegments[i]) {
+                newSegments[i] = { ...currentSegments[i] };
+            } else {
+                newSegments[i] = {
+                    timestamp: i === 1 ? 0 : (i - 1) * segmentDuration,
+                    questions: defaultQuestions || null,
+                    type: 'analytical'
+                };
+            }
         }
-      }
 
-      // Replace old segments with new ones
-      videoData[currentVideo].segments = newSegments;
+        // Replace old segments with new ones
+        videoData[currentVideo].segments = newSegments;
     });
+} else {
+    console.error("num-segments input field not found.");
+}
+
 
     function openSegmentForm(segmentNumber) {
       currentSegment = segmentNumber;
@@ -672,7 +675,7 @@ document.getElementById('section-select').addEventListener('change', (e) => { //
       for (const videoIndex of videoIndices) {
         const videoSegments = getTotalSegments(videoIndex);
 
-        if (currentBatchSegments + videoSegments > 15) {
+        if (currentBatchSegments + videoSegments > 30) {
           if (currentBatch.length > 0) {
             batches.push(currentBatch);
           }
@@ -887,24 +890,6 @@ document.getElementById('section-select').addEventListener('change', (e) => { //
       videoInfo.innerHTML = `
     <label for="video-url">Video URL</label>
     <input type="text" id="video-url" value="${data.video_url}" disabled />
-
-    <label for="title">Title</label>
-    <input type="text" id="title" value="${data.title}" />
-
-    <label for="description">Description</label>
-    <textarea id="description">${data.description}</textarea>
-
-    <label for="section-info">Selected Section</label>
-    <input type="text" id="section-info" value="${hierarchyData?.results
-          .find(course => course.modules.some(module =>
-            module.sections.some(section => section.id === selectedSectionId)
-          ))
-          ?.modules
-          .find(module => module.sections.some(section => section.id === selectedSectionId))
-          ?.sections
-          .find(section => section.id === selectedSectionId)
-          ?.title || 'No section selected'
-        }" disabled />
   `;
 
       // Display segments
@@ -1047,119 +1032,136 @@ document.getElementById('section-select').addEventListener('change', (e) => { //
 
 
       document.getElementById('confirm-btn').addEventListener('click', async () => {
-    if (!selectedSectionId) {
-        alert('Please select a section before submitting');
-        return;
-    }
-
-    // Save modifications before uploading
-    if (currentVideo !== null) {
-        saveVideoEdits(currentVideo);
-    }
-
-    const videoIndices = Object.keys(modifiedResponseData).map(Number);
-    const errors = [];
-
-    let sequenceCounter = 1;  // Initialize sequence number counter
-
-    for (const videoIndex of videoIndices) {
-        const data = modifiedResponseData[videoIndex];
-        console.log("keyboard smash", data.segments);
-
-        // Step 1: Upload Video to LMS for each segment
-        for (let i = 0; i < data.segments.length; i++) {
-            const segment = data.segments[i];
-            try {
-                const videoPayload = {
-                    source: segment.video_url,
-                    title: segment.title,
-                    description: segment.description,
-                    section: selectedSectionId,  // Add section_id here for each segment
-                    start_time: parseInt(segment.start_time, 10),
-                    end_time: parseInt(segment.end_time, 10),
-                    transcript: segment.text,
-                    sequence: sequenceCounter  // Assign sequence number for the video
-                };
-                sequenceCounter = sequenceCounter + 1;
-
-                const videoResponse = await fetch(config.VIDEO_UPLOAD_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': config.Authorization },
-                    body: JSON.stringify(videoPayload),
-                });
-
-                if (!videoResponse.ok) throw new Error(`Video Upload Failed: ${videoResponse.status}`);
-                const videoResult = await videoResponse.json();
-                const videoId = videoResult.video_id; 
-
-                // Step 2: Upload Assessment Data for the current video
-                const assessmentPayload = {
-                    title: `Assessment number ${i + 1}`,  // Title should be "Assessment number" = i (iteration number)
-                    question_visibility_limit: 9,  // Set default question visibility limit
-                    time_limit: 9,  // Set default time limit
-                    section: selectedSectionId,  // Section is the same as the video to which this assessment belongs
-                    sequence: sequenceCounter,  // Set sequence number for the assessment (next number after video)
-                };
-                sequenceCounter = sequenceCounter + 1;
-
-                const assessmentResponse = await fetch(config.ASSESSMENT_UPLOAD_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': config.Authorization },
-                    body: JSON.stringify(assessmentPayload),
-                });
-
-                if (!assessmentResponse.ok) throw new Error(`Assessment Upload Failed: ${assessmentResponse.status}`);
-                const assessmentResult = await assessmentResponse.json();
-                const assessmentId = assessmentResult.id; // Assuming API returns assessment_id
-
-                // Step 3: Upload Questions for the current assessment (Only if segment matches)
-                for (let j = 0; j < data.questions.length; j++) {
-                    const question = data.questions[j];
-                    if (question.segment === i + 1) {  // Check if the question's segment matches the current segment number
-                        const questionPayload = {
-                            text: question.question,
-                            type: "MCQ",  // Assuming it's an MCQ type
-                            marks: 1,  // Default marks
-                            assessment: assessmentId,  // Link question to the current assessment
-                            options: [
-                                { option_text: question.option_1 },
-                                { option_text: question.option_2 },
-                                { option_text: question.option_3 },
-                                { option_text: question.option_4 }
-                            ],
-                            solution_option_index: question.correct_answer  // Assuming correct_answer is the index of the correct option
+        const confirmButton = document.getElementById('confirm-btn');
+    
+        if (!selectedSectionId) {
+            alert('Please select a section before submitting');
+            return;
+        }
+    
+        // Disable button and change style
+        confirmButton.disabled = true;
+        confirmButton.style.backgroundColor = "#ccc"; // Grey out the button
+        confirmButton.style.cursor = "not-allowed";
+    
+        // Save modifications before uploading
+        if (currentVideo !== null) {
+            saveVideoEdits(currentVideo);
+        }
+    
+        const videoIndices = Object.keys(modifiedResponseData).map(Number);
+        const errors = [];
+        let sequenceCounter = 1; // Initialize sequence number counter
+    
+        try {
+            for (const videoIndex of videoIndices) {
+                const data = modifiedResponseData[videoIndex];
+                console.log("keyboard smash", data.segments);
+    
+                for (let i = 0; i < data.segments.length; i++) {
+                    const segment = data.segments[i];
+                    try {
+                        const videoPayload = {
+                            source: segment.video_url,
+                            title: segment.title,
+                            description: segment.description,
+                            section: selectedSectionId, 
+                            start_time: parseInt(segment.start_time, 10),
+                            end_time: parseInt(segment.end_time, 10),
+                            transcript: segment.text,
+                            sequence: sequenceCounter
                         };
-
-                        const questionResponse = await fetch(config.QUESTIONS_UPLOAD_URL, {
+                        sequenceCounter++;
+    
+                        const videoResponse = await fetch(config.VIDEO_UPLOAD_URL, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'Authorization': config.Authorization },
-                            body: JSON.stringify(questionPayload),
+                            body: JSON.stringify(videoPayload),
                         });
-
-                        if (!questionResponse.ok) throw new Error(`Question Upload Failed: ${questionResponse.status}`);
+    
+                        if (!videoResponse.ok) throw new Error(`Video Upload Failed: ${videoResponse.status}`);
+                        const videoResult = await videoResponse.json();
+                        const videoId = videoResult.video_id; 
+    
+                        const assessmentPayload = {
+                            title: `Assessment number ${i + 1}`,  
+                            question_visibility_limit: 9,
+                            time_limit: 9,
+                            section: selectedSectionId,
+                            sequence: sequenceCounter,
+                        };
+                        sequenceCounter++;
+    
+                        const assessmentResponse = await fetch(config.ASSESSMENT_UPLOAD_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': config.Authorization },
+                            body: JSON.stringify(assessmentPayload),
+                        });
+    
+                        if (!assessmentResponse.ok) throw new Error(`Assessment Upload Failed: ${assessmentResponse.status}`);
+                        const assessmentResult = await assessmentResponse.json();
+                        const assessmentId = assessmentResult.id; 
+    
+                        for (let j = 0; j < data.questions.length; j++) {
+                            const question = data.questions[j];
+                            if (question.segment === i + 1) {
+                                const questionPayload = {
+                                    text: question.question,
+                                    type: "MCQ",
+                                    marks: 1,
+                                    assessment: assessmentId,
+                                    options: [
+                                        { option_text: question.option_1 },
+                                        { option_text: question.option_2 },
+                                        { option_text: question.option_3 },
+                                        { option_text: question.option_4 }
+                                    ],
+                                    solution_option_index: question.correct_answer
+                                };
+    
+                                const questionResponse = await fetch(config.QUESTIONS_UPLOAD_URL, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json', 'Authorization': config.Authorization },
+                                    body: JSON.stringify(questionPayload),
+                                });
+    
+                                if (!questionResponse.ok) throw new Error(`Question Upload Failed: ${questionResponse.status}`);
+                            }
+                        }
+    
+                        await questionDB.saveVideoData({
+                            ...data,
+                            video_id: videoId,
+                            assessment_id: assessmentId
+                        });
+    
+                    } catch (error) {
+                        console.error('Error:', error);
+                        errors.push(error.message);
                     }
                 }
-
-                // Save data to IndexedDB for backup
-                await questionDB.saveVideoData({
-                    ...data,
-                    video_id: videoId,
-                    assessment_id: assessmentId
-                });
-
-            } catch (error) {
-                console.error('Error:', error);
-                errors.push(error.message);
             }
+    
+            if (errors.length > 0) {
+                alert('Some uploads failed:\n' + errors.join('\n'));
+    
+                // Enable button again if there were errors
+                confirmButton.disabled = false;
+                confirmButton.style.backgroundColor = "#007bff"; // Restore original color
+                confirmButton.style.cursor = "pointer";
+            } else {
+                alert('All videos, assessments, and questions submitted successfully!');
+            }
+    
+        } catch (error) {
+            console.error('Unexpected error:', error);
+            
+            // Enable button if an unexpected error occurs
+            confirmButton.disabled = false;
+            confirmButton.style.backgroundColor = "#007bff";
+            confirmButton.style.cursor = "pointer";
         }
-    }
-
-    // Display errors or success message
-    if (errors.length > 0) {
-        alert('Some uploads failed:\n' + errors.join('\n'));
-    } else {
-        alert('All videos, assessments, and questions submitted successfully!');
-    }
-});
+    });
+    
 
 });
