@@ -56,6 +56,7 @@ def send_course_instance_data(sender, instance: UserCourseInstance, created, **k
         logging.info(f"Sending to {AE_URL}")
         logging.info(f"Sending course initialization... {json.dumps(payload, indent=1)}")
 
+
         # Send the POST request
         try:
             response = requests.post(AE_URL, json=payload)
@@ -64,3 +65,4 @@ def send_course_instance_data(sender, instance: UserCourseInstance, created, **k
         except requests.exceptions.RequestException as e:
             logging.error(json.dumps(payload, indent=1))
             logging.error(f"Error sending course initialization: {e}")
+
