@@ -3,8 +3,13 @@ name: Deploy LMS Engine to Cloud Run
 on:
   push:
     branches:
+      - master
       - staging
-  workflow_dispatch:  # Allows manual deployments
+  workflow_dispatch:
+
+permissions:
+  contents: write  # Allows the workflow to push new tags
+  packages: write  # Allows pushing Docker images (if needed)
 
 jobs:
   versioning:
@@ -14,17 +19,18 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Ensure full git history is available
 
       - name: Determine Version Bump
         id: versioning
         uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          tag_prefix: "v"  # Prefix version tags with "v"
-          default_bump: "patch"  # Default to patch version bump
-          fetch_all_tags: true  # Ensure GitHub fetches all tags
-          release_branches: "master,staging"  # Ensure versioning works only on these branches
-
+          tag_prefix: "v"
+          default_bump: "patch"
+          fetch_all_tags: true
+          release_branches: "master,staging"
 
   build:
     needs: versioning
