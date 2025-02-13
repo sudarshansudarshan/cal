@@ -99,6 +99,7 @@ jobs:
             --set-env-vars=ACTIVITY_ENGINE_URL=${{ secrets.ACTIVITY_ENGINE_URL }} \
             --region=asia-south2 \
             --project=${{ secrets.GCP_PROJECT_ID }} \
+            
           gcloud run services update-traffic calm-lmse-staging --to-latest
 
   deploy_production:
