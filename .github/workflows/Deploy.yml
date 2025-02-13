@@ -76,8 +76,12 @@ jobs:
 
       - name: Deploy LMS Engine to Staging
         run: |
+          IMAGE_VERSION=${{ needs.versioning.outputs.new_version }}
+          if [ -z "$IMAGE_VERSION" ]; then IMAGE_VERSION="latest"; fi
+          echo "Using Image Version: $IMAGE_VERSION"
+          
           gcloud run deploy calm-lmse-staging \
-            --image=docker.io/vicharanashala/calm:${{ needs.versioning.outputs.new_version }} \
+            --image=docker.io/vicharanashala/calm:$IMAGE_VERSION \
             --region=asia-south2 \
             --project=${{ secrets.GCP_PROJECT_ID }} \
             --set-env-vars=LMSE_DJANGO_ENVIRONMENT=staging \
@@ -114,8 +118,12 @@ jobs:
 
       - name: Deploy LMS Engine to Production
         run: |
-          gcloud run deploy calm-lmse-production \
-            --image=docker.io/vicharanashala/calm:${{ needs.versioning.outputs.new_version }} \
+          IMAGE_VERSION=${{ needs.versioning.outputs.new_version }}
+          if [ -z "$IMAGE_VERSION" ]; then IMAGE_VERSION="latest"; fi
+          echo "Using Image Version: $IMAGE_VERSION"
+          
+          gcloud run deploy calm-lmse-staging \
+            --image=docker.io/vicharanashala/calm:$IMAGE_VERSION \
             --region=asia-south2 \
             --project=${{ secrets.GCP_PROJECT_ID }} \
             --set-env-vars=LMSE_DJANGO_ENVIRONMENT=production \
