@@ -87,7 +87,9 @@ const chartConfig = {
 
 export function Chart() {
   const dispatch = useDispatch()
-  const courseData = useSelector((state) => state.weeklyProgress?.weeklyProgress?.courseData)
+  const courseData = useSelector(
+    (state) => state.weeklyProgress?.weeklyProgress?.courseData
+  )
   console.log('courseData1', courseData1)
   console.log('courseData', courseData)
 

@@ -191,27 +191,27 @@ export function SidebarLeft({
                                   asChild
                                   isActive={item.isActive}
                                 >
-                                    <div
+                                  <div
                                     className='flex items-center gap-2'
                                     onClick={() => {
                                       if (itemProgress !== 'INCOMPLETE') {
-                                      if (item.item_type === 'video') {
-                                        navigate('/content-scroll-view', {
-                                        state: {
-                                          assignment,
-                                          sectionId,
-                                          courseId,
-                                          moduleId,
-                                        },
-                                        })
-                                      } else if (
-                                        item.item_type === 'assessment'
-                                      ) {
-                                        toast('Watch video first')
-                                      }
+                                        if (item.item_type === 'video') {
+                                          navigate('/content-scroll-view', {
+                                            state: {
+                                              assignment,
+                                              sectionId,
+                                              courseId,
+                                              moduleId,
+                                            },
+                                          })
+                                        } else if (
+                                          item.item_type === 'assessment'
+                                        ) {
+                                          toast('Watch video first')
+                                        }
                                       }
                                     }}
-                                    >
+                                  >
                                     <span
                                       className={`size-2 rounded-full ${itemDotColor}`}
                                     />{' '}
@@ -221,7 +221,7 @@ export function SidebarLeft({
                                       itemProgress === 'INCOMPLETE') && (
                                       <Lock className='ml-auto' />
                                     )}
-                                    </div>
+                                  </div>
                                 </SidebarMenuSubButton>
                               </SidebarMenuSubItem>
                             )

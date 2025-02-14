@@ -179,7 +179,7 @@ const ContentScrollView = () => {
     if (!ytApiReady) return
 
     const initPlayer = () => {
-      console.log('hello ji',window.YT?.Player)
+      console.log('hello ji', window.YT?.Player)
       if (!window.YT?.Player) {
         console.log('YT Player not ready. Retrying in 100ms...')
         setTimeout(initPlayer, 100)
@@ -191,14 +191,23 @@ const ContentScrollView = () => {
       }
 
       const currentContent = content[currentFrame]
-      console.log(currentContent,"i am video loader",currentFrame, 'i am content type',currentContent?.item_type)
+      console.log(
+        currentContent,
+        'i am video loader',
+        currentFrame,
+        'i am content type',
+        currentContent?.item_type
+      )
       if (currentContent?.item_type !== 'video') return
 
       const videoId = getYouTubeVideoId(currentContent.source)
-      console.log('i am video id',videoId,getYouTubeVideoId(currentContent.source))
+      console.log(
+        'i am video id',
+        videoId,
+        getYouTubeVideoId(currentContent.source)
+      )
       if (!videoId) return
 
-      
       renderdataByType(currentFrame, currentFrame)
 
       playerRef.current = new window.YT.Player(`player-${currentFrame}`, {
@@ -643,7 +652,7 @@ const ContentScrollView = () => {
     // }
     videoId = getYouTubeVideoId(content[currentFrame].source)
 
-    console.log(frame,"i am frame",content[currentFrame].source)
+    console.log(frame, 'i am frame', content[currentFrame].source)
 
     switch (content[currentFrame].item_type) {
       case 'video':
