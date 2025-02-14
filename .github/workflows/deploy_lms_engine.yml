@@ -96,7 +96,7 @@ jobs:
     name: Deploy to Production(Activity Engine)
     needs: [versioning, deploy_activity_engine_staging]
     runs-on: ubuntu-latest
-    environment: staging
+    environment: production
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -109,7 +109,7 @@ jobs:
       - name: Deploy Activity Engine to Cloud Functions
         run: |
           cd backend/activity_engine
-          gcloud functions deploy calm-ae-staging \
+          gcloud functions deploy calm-ae-production \
             --runtime=nodejs20 \
             --trigger-http \
             --allow-unauthenticated \
