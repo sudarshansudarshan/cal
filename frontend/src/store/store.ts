@@ -18,6 +18,7 @@ import moduleProgressReducer from './slices/moduleProgressSlice'
 import progressUpdateReducer from './slices/updateProgressSlice'
 import sidebarStateReducer from './slices/sidebarSlice'
 import itemsReducer from './slices/fetchItems'
+import weeklyProgressReducer from './slices/FetchWeeklyProgress'
 import storageSession from 'redux-persist/lib/storage/session' // Importing sessionStorage
 
 const persistConfig = {
@@ -33,6 +34,7 @@ const persistConfig = {
     'moduleProgress',
     'items',
     'sidebarState',
+    'weeklyProgress',
   ],
 }
 
@@ -47,6 +49,7 @@ const rootReducer = combineReducers({
   sectionProgress: sectionProgressReducer,
   moduleProgress: moduleProgressReducer,
   progressUpdate: progressUpdateReducer,
+  weeklyProgress: weeklyProgressReducer,
   [apiService.reducerPath]: apiService.reducer,
   [anotherApiService.reducerPath]: anotherApiService.reducer,
 })

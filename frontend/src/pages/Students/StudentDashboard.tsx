@@ -43,6 +43,7 @@ import { useEffect, useState } from 'react'
 import { Chart } from '@/components/ChartDashboard'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchCoursesWithAuth } from '@/store/slices/courseSlice'
+import { fetchWeeklyProgress } from '@/store/slices/FetchWeeklyProgress'
 
 // Mock data for available courses
 
@@ -82,12 +83,47 @@ const StudentDashboard = () => {
   const CourseData = useSelector((state) => state.courses.courses ?? null)
 
   useEffect(() => {
-      console.log('Courses:', CourseData)
-      if (!CourseData || CourseData.length === 0) {
-        console.log('Dispatching fetchCoursesWithAuth')
-        dispatch(fetchCoursesWithAuth())
-      }
-    }, [dispatch, CourseData])
+    console.log('Courses:', CourseData)
+    if (!CourseData || CourseData.length === 0) {
+      console.log('Dispatching fetchCoursesWithAuth')
+      dispatch(fetchCoursesWithAuth())
+    }
+  }, [dispatch, CourseData])
+
+  const courseProgressData = useSelector(
+    (state) => state.weeklyProgress?.weeklyProgress?.courseData
+  )
+  console.log('courseData', courseProgressData)
+
+  useEffect(() => {
+    if (!courseProgressData || Object.keys(courseProgressData).length === 0) {
+      console.log('Dispatching fetchWeeklyProgress')
+      dispatch(fetchWeeklyProgress())
+    }
+  }, [dispatch, courseProgressData])
+
+  const calculateAverageProgress = (data) => {
+    const courseAverages = Object.keys(data).map((courseKey) => {
+      const entries = data[courseKey]
+      const total = entries.reduce((acc, curr) => acc + curr.User, 0)
+      return total / entries.length // Average per course
+    })
+
+    return (
+      courseAverages.reduce((acc, curr) => acc + curr, 0) /
+      courseAverages.length
+    )
+  }
+
+  // State for average progress
+  const [averageProgress, setAverageProgress] = useState(0)
+  console.log('averagePrdsdcsdcsdcogress', averageProgress)
+
+  useEffect(() => {
+    if (Object.keys(courseProgressData).length > 0) {
+      setAverageProgress(calculateAverageProgress(courseProgressData))
+    }
+  }, [courseProgressData])
 
   // const { data: newCourses } = useFetchCoursesWithAuthQuery()
   // const CourseData = newCourses?.results
@@ -132,7 +168,7 @@ const StudentDashboard = () => {
             <div className='text-2xl font-bold'>
               {Math.round(
                 ongoingCourses.reduce(
-                  (acc, course) => acc + parseInt(course.progression),
+                  (acc) => acc + parseInt(averageProgress),
                   0
                 ) / ongoingCourses.length
               )}
