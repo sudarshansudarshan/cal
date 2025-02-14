@@ -63,7 +63,7 @@ jobs:
         run: |
           docker push vicharanashala/calm:v${{ needs.versioning.outputs.new_version }}
           
-  deploy_activity_engine:
+  deploy_activity_engine_staging:
     name: Deploy to Staging(Activity Engine)
     needs: versioning
     runs-on: ubuntu-latest
@@ -91,9 +91,38 @@ jobs:
             --set-env-vars=AE_DATABASE_STRING=${{ secrets.AE_DATABASE_STRING }} \
             --set-env-vars=LMSE_URL=${{ secrets.LMSE_URL }} \
             --set-env-vars='^#^AE_CORS_ALLOWED_ORIGINS=${{ secrets.AE_CORS_ALLOWED_ORIGINS }}'
-
-          
-  deploy_staging:
+            
+  deploy_activity_engine_production:
+    name: Deploy to Production(Activity Engine)
+    needs: [versioning, deploy_activity_engine_staging]
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+    
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+  
+      - name: Deploy Activity Engine to Cloud Functions
+        run: |
+          cd backend/activity_engine
+          gcloud functions deploy calm-ae-staging \
+            --runtime=nodejs20 \
+            --trigger-http \
+            --allow-unauthenticated \
+            --region=asia-south2 \
+            --source=. \
+            --entry-point activityEngine \
+            --set-env-vars=NODE_ENV=${{ secrets.NODE_ENV }} \
+            --set-env-vars=AE_DATABASE_STRING=${{ secrets.AE_DATABASE_STRING }} \
+            --set-env-vars=LMSE_URL=${{ secrets.LMSE_URL }} \
+            --set-env-vars='^#^AE_CORS_ALLOWED_ORIGINS=${{ secrets.AE_CORS_ALLOWED_ORIGINS }}'
+  
+            
+  deploy_lms_engine_staging:
     name: Deploy to Staging(LMS Engine)
     needs: [versioning, build]
     runs-on: ubuntu-latest
@@ -131,9 +160,9 @@ jobs:
             
           gcloud run services update-traffic calm-lmse-staging --to-latest --region=asia-south2
 
-  deploy_production:
+  deploy_lms_engine_production:
     name: Deploy to Production
-    needs: [versioning, build, deploy_staging]  # Ensure staging is deployed first
+    needs: [versioning, build, deploy_lms_engine_staging]  # Ensure staging is deployed first
     runs-on: ubuntu-latest
     environment: production  # Associate with GitHub Environment "production"
     steps:
