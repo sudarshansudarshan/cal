@@ -83,6 +83,22 @@ const videoData = {};
       }
     }
 
+    function setTokenFromUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('access_token');
+      
+      if (token) {
+      document.cookie = `access_token=${token}; path=/;`;
+      console.log('Token set in cookies:', token);
+      return token;
+      } else {
+      console.log('No token found in URL');
+      return null;
+      }
+    }
+
+    const token = setTokenFromUrl();
+
     const questionDB = new QuestionIndexedDB();
     const configLoaded = fetch("/config")
     .then(response => response.json())
@@ -91,7 +107,7 @@ const videoData = {};
         config.VIDEO_UPLOAD_URL = data.VIDEO_UPLOAD_URL;
         config.ASSESSMENT_UPLOAD_URL= data.ASSESSMENT_UPLOAD_URL;
         config.QUESTIONS_UPLOAD_URL= data.QUESTIONS_UPLOAD_URL;
-        config.Authorization=data.Authorization;
+        config.Authorization=token;
 
         console.log("Config Loaded:", config); // Debugging log
     })

@@ -10,6 +10,8 @@ from fastapi.responses import HTMLResponse
 
 from dotenv import load_dotenv
 import os
+from fastapi import Request
+from fastapi.responses import JSONResponse
 
 
 app = FastAPI(
@@ -48,6 +50,17 @@ def login():
     # If login is successful, render the index.html page
     index_path = Path("app/templates/index.html")
     return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
+
+
+@app.post("/gettoken")
+async def get_token(request: Request):
+    data = await request.json()
+    print("sun zaraaaaaa", data)
+    token = data.get("token")
+    print("tokkkk", token)
+    if token:
+        return JSONResponse(content={"message": "Token received", "token": token})
+    return JSONResponse(content={"message": "Token not provided"}, status_code=400)
 
 @app.get("/config")
 def get_config():
