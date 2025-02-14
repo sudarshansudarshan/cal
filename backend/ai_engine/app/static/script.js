@@ -1043,6 +1043,7 @@ if (numSegmentsInput) {
         confirmButton.disabled = true;
         confirmButton.style.backgroundColor = "#ccc"; // Grey out the button
         confirmButton.style.cursor = "not-allowed";
+        confirmButton.textContent = "Uploading, please wait...";
     
         // Save modifications before uploading
         if (currentVideo !== null) {
@@ -1162,6 +1163,188 @@ if (numSegmentsInput) {
             confirmButton.style.cursor = "pointer";
         }
     });
-    
+    document.getElementById('download-questions').addEventListener('click', () => {
+    const questionsData = modifiedResponseData; // Use the same data being uploaded
 
+    if (!questionsData || Object.keys(questionsData).length === 0) {
+        alert("No questions available to download.");
+        return;
+    }
+
+    // Convert the data to a JSON string with indentation for readability
+    const jsonString = JSON.stringify(questionsData, null, 4);
+
+    // Create a Blob with the JSON data
+    const blob = new Blob([jsonString], { type: 'application/json' });
+
+    // Create a link element to trigger the download
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'questions.json'; // Name of the file to be downloaded
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+});
+document.getElementById('upload-json').addEventListener('click', async () => {
+  const uploadButton = document.getElementById('upload-json');
+  const fileInput = document.getElementById('json-upload');
+  const file = fileInput.files[0];
+
+  if (!file) {
+      alert("Please select a JSON file before uploading.");
+      return;
+  }
+
+  if (file.type !== "application/json") {
+      alert("Invalid file type. Please upload a JSON file.");
+      return;
+  }
+
+  // Disable button and change style
+  uploadButton.disabled = true;
+  uploadButton.style.backgroundColor = "#ccc"; // Grey out the button
+  uploadButton.style.cursor = "not-allowed";
+  uploadButton.textContent = "Uploading, please wait...";
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+      try {
+          // Parse JSON
+          const jsonData = JSON.parse(e.target.result);
+
+          // Validate JSON format
+          if (!jsonData || Object.keys(jsonData).length === 0) {
+              throw new Error("Invalid JSON format.");
+          }
+
+          // Call function to upload data
+          await uploadJsonData(jsonData);
+
+          // If upload is successful, keep the button disabled
+          alert("All videos, assessments, and questions uploaded successfully!");
+      } catch (error) {
+          alert("Error processing JSON file: " + error.message);
+          console.error("JSON Parsing Error:", error);
+
+          // Enable button again if an error occurs
+          uploadButton.disabled = false;
+          uploadButton.style.backgroundColor = "#007bff"; // Restore original color
+          uploadButton.style.cursor = "pointer";
+      }
+  };
+
+  reader.readAsText(file);
+});
+
+
+async function uploadJsonData(jsonData) {
+  const errors = [];
+  let sequenceCounter = 1; // Maintain order
+
+  for (const [videoIndex, videoData] of Object.entries(jsonData)) {
+      try {
+          console.log(`Processing video index: ${videoIndex}`);
+
+          for (const segment of videoData.segments) {
+              try {
+                  // Step 1: Upload Video Segment
+                  const videoPayload = {
+                      source: segment.video_url,
+                      title: segment.title,
+                      description: segment.description,
+                      section: selectedSectionId, // Using the videoIndex as section_id
+                      start_time: parseInt(segment.start_time, 10),
+                      end_time: parseInt(segment.end_time, 10),
+                      transcript: segment.text,
+                      sequence: sequenceCounter++
+                  };
+
+                  const videoResponse = await fetch(config.VIDEO_UPLOAD_URL, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json', 'Authorization': config.Authorization },
+                      body: JSON.stringify(videoPayload),
+                  });
+
+                  if (!videoResponse.ok) throw new Error(`Video Upload Failed: ${videoResponse.status}`);
+                  const videoResult = await videoResponse.json();
+                  const videoId = videoResult.video_id;
+
+                  console.log(`✅ Video uploaded: ${segment.title}`);
+
+                  // Step 2: Upload Assessment for This Video
+                  const assessmentPayload = {
+                      title: `Assessment for ${segment.title}`,
+                      question_visibility_limit: 9,
+                      time_limit: 10,
+                      section: selectedSectionId, // Associate assessment with the video index
+                      sequence: sequenceCounter++
+                  };
+
+                  const assessmentResponse = await fetch(config.ASSESSMENT_UPLOAD_URL, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json', 'Authorization': config.Authorization },
+                      body: JSON.stringify(assessmentPayload),
+                  });
+
+                  if (!assessmentResponse.ok) throw new Error(`Assessment Upload Failed: ${assessmentResponse.status}`);
+                  const assessmentResult = await assessmentResponse.json();
+                  const assessmentId = assessmentResult.id;
+
+                  console.log(`✅ Assessment uploaded: ${segment.title}`);
+
+                  // Step 3: Upload Questions for This Segment
+                  for (const question of videoData.questions) {
+                      if (question.segment === videoData.segments.indexOf(segment) + 1) { // Match segment number
+                          const questionPayload = {
+                              text: question.question,
+                              type: "MCQ",
+                              marks: 1,
+                              assessment: assessmentId,
+                              options: [
+                                  { option_text: question.option_1 },
+                                  { option_text: question.option_2 },
+                                  { option_text: question.option_3 },
+                                  { option_text: question.option_4 }
+                              ],
+                              solution_option_index: question.correct_answer
+                          };
+
+                          const questionResponse = await fetch(config.QUESTIONS_UPLOAD_URL, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json', 'Authorization': config.Authorization },
+                              body: JSON.stringify(questionPayload),
+                          });
+
+                          if (!questionResponse.ok) throw new Error(`Question Upload Failed: ${questionResponse.status}`);
+                      }
+                  }
+
+                  console.log(`✅ Questions uploaded for segment: ${segment.title}`);
+
+                  // Step 4: Save Data Locally (Backup)
+                  await questionDB.saveVideoData({
+                      ...segment,
+                      video_id: videoId,
+                      assessment_id: assessmentId
+                  });
+
+              } catch (error) {
+                  console.error('Error:', error);
+                  errors.push(error.message);
+              }
+          }
+
+      } catch (error) {
+          console.error('Unexpected error:', error);
+          errors.push(error.message);
+      }
+  }
+
+  // Display upload results
+  if (errors.length > 0) {
+      alert('Some uploads failed:\n' + errors.join('\n'));
+  } else {
+      alert('All videos, assessments, and questions uploaded successfully!');
+  }
+}
 });

@@ -15,6 +15,8 @@
     <div class="url-container">
       <input type="url" id="playlist-url" placeholder="Enter YouTube playlist or video URL" required /> 
     </div>
+    
+
     <div class="hierarchy-dropdowns">
       <div>
         <label for="course-select">Course</label>
@@ -35,6 +37,18 @@
         </select>
       </div>
     </div>
+    <h3> You can directly upload the questions below if you have a valid JSON file</h3>
+    
+    <input type="file" id="json-upload" accept=".json" 
+       style="display: block; margin: 15px 0; width: 200px; padding: 5px; font-size: 14px;">
+
+<button id="upload-json" style="width: 150px; padding: 8px 12px; font-size: 14px; white-space: nowrap;">
+    Upload JSON
+</button>
+
+<br>
+<h3> Fill the below fields if you want to generate the questions and follow the steps ahead</h3>
+<br>
     <div class="default-settings">
       <label for="default-segments">Default Number of Segments</label>
       <input type="number" id="default-segments" min="1" placeholder="Enter default segments count" />
@@ -117,6 +131,10 @@
     <button id="confirm-btn" style="display:none; width: auto; padding: 10px 20px; white-space: nowrap;">
       Confirm & Upload
   </button>
+  <button id="download-questions" style="width: auto; padding: 10px 20px; white-space: nowrap;">
+    Download Questions
+</button>
+
   
   </div> 
   <script src="../static/script.js"></script>
