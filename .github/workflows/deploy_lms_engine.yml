@@ -89,7 +89,7 @@ jobs:
             --set-env-vars=NODE_ENV=${{ secrets.NODE_ENV }} \
             --set-env-vars=AE_DATABASE_STRING=${{ secrets.AE_DATABASE_STRING }} \
             --set-env-vars=LMSE_URL=${{ secrets.LMSE_URL }} \
-            --set-env-vars=AE_CORS_ALLOWED_ORIGINS=${{ secrets.AE_CORS_ALLOWED_ORIGINS }}
+            --set-env-vars='^#^AE_CORS_ALLOWED_ORIGINS=${{ secrets.AE_CORS_ALLOWED_ORIGINS }}'
 
           
   deploy_staging:
