@@ -21,7 +21,7 @@ admin.initializeApp({
 });
 
 const prisma = new PrismaClient();
-const PORT = 3000;
+const PORT = 8080;
 
 // Use CORS middleware first with dynamic origins
 app.use(cors({
