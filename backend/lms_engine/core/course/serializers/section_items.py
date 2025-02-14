@@ -12,6 +12,12 @@ class VideoSerializer(serializers.ModelSerializer):
         model = Video
         exclude = ["created_at", "updated_at"]
 
+    def create(self, validated_data):   
+        source_data = validated_data.pop("source")
+        source_obj, created = Source.objects.get_or_create(url=source_data)
+        video = Video.objects.create(source=source_obj, **validated_data)
+        return video
+
 
 class ArticleSerializer(serializers.ModelSerializer):
     class Meta:

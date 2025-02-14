@@ -92,13 +92,13 @@ poetry run python3 manage.py makemigrations users institution course assessment
 Then, apply the migrations:
 
 ```sh
-python manage.py migrate
+poetry run python3 manage.py migrate
 ```
 
 ### Create a Superuser
 
 ```sh
-python manage.py createsuperuser
+poetry run python3 manage.py createsuperuser
 ```
 
 Follow the prompts to set up an admin user.
@@ -106,7 +106,7 @@ Follow the prompts to set up an admin user.
 ### Run Development Server
 
 ```sh
-python manage.py runserver
+poetry run python3 manage.py runserver
 ```
 
 The LMS API should now be available at **[http://127.0.0.1:8000/](http://127.0.0.1:8000/)**.
@@ -114,6 +114,10 @@ The LMS API should now be available at **[http://127.0.0.1:8000/](http://127.0.0
 ---
 
 ## 4. Setup with Docker (Production/Containerized Environment)
+
+0. Install infisical, guide https://infisical.com/docs/cli/overview
+1.  infisical init
+2.   infisical run --env=prod --path=/LMS_ENGINE/ poetry run python3 manage.py runserver
 
 This method is primarily suited for **deployment** but can also be used for local development.
 
@@ -269,6 +273,41 @@ Following these best practices will help maintain clean, readable, and error-fre
 - Ensure `FIREBASE_ADMIN_SDK_CREDENTIALS_PATH` is correctly set up to avoid authentication errors.
 
 For any issues, check logs and confirm dependencies are correctly installed.
+
+---
+
+## 10. Local Development, Build and Deploy
+
+For local development, 
+Initialize gcloud CLI and run - 
+`gcloud auth application-default login`
+
+Build- `sudo docker build -t vicharanashala/calm:v0.0.17 -f prod/lmse.Dockerfile backend/lms_engine/`
+Push- `sudo docker push vicharanashala/calm:v0.0.17`
+Deploy-
+```
+gcloud run deploy calm-lmse \
+--image=docker.io/vicharanashala/calm:v0.0.17 \
+--set-env-vars=LMSE_DJANGO_ENVIRONMENT=production \
+--set-env-vars='LMSE_DJANGO_SECRET_KEY=__SECRET__' \
+--set-env-vars=LMSE_DB_HOST=__SECRET__ \
+--set-env-vars=LMSE_DB_NAME=__SECRET__ \
+--set-env-vars=LMSE_DB_PASSWORD=__SECRET__ \
+--set-env-vars=LMSE_DB_PORT=__SECRET__ \
+--set-env-vars=LMSE_DB_USER=__SECRET__ \
+--set-env-vars='^#^LMSE_ALLOWED_HOSTS=__CSV_ENV__' \
+--set-env-vars='^#^LMSE_CORS_ALLOWED_ORIGINS=__CSV_ENV__' \
+--set-env-vars=LMSE_SECURE_SSL_REDIRECT=0 \
+--set-env-vars='LMSE_SENTRY_DSN=__SECRET__' \
+--set-env-vars=LMSE_GCP_BUCKET_NAME=__SECRET__ \
+--set-env-vars='LMSE_STATIC_URL=__SECRET__' \
+--set-env-vars='^#^LMSE_CSRF_TRUSTED_ORIGINS=__CSV_ENV__' \
+--set-env-vars='ACTIVITY_ENGINE_URL=__SECRET__' \
+--region=asia-south2 \
+--project=vicharanashala-calm \
+ && gcloud run services update-traffic calm-lmse --to-latest
+```
+
 
 ---
 
