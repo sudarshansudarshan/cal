@@ -107,7 +107,7 @@ const videoData = {};
         config.VIDEO_UPLOAD_URL = data.VIDEO_UPLOAD_URL;
         config.ASSESSMENT_UPLOAD_URL= data.ASSESSMENT_UPLOAD_URL;
         config.QUESTIONS_UPLOAD_URL= data.QUESTIONS_UPLOAD_URL;
-        config.Authorization=token;
+        config.Authorization=`Bearer ${token}`;
 
         console.log("Config Loaded:", config); // Debugging log
     })
