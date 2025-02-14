@@ -3,7 +3,9 @@ import {https} from 'firebase-functions';
 import { PrismaClient } from '@prisma/client';
 import AssessmentGrading from './routes/AssessmentGrading';
 import ProgressTracking from './routes/ProgressTracking';
+import FetchProgress from './routes/FetchProgress';
 import GoogleAuthhVerification from './routes/GoogleAuthhVerification';
+import BulkProcess from './routes/BulkProgress';
 import cors from 'cors';
 import admin from 'firebase-admin';
 import * as dotenv from 'dotenv';
@@ -38,6 +40,8 @@ app.get('/', (req, res) => {
 app.use(AssessmentGrading);
 app.use(ProgressTracking);
 app.use(GoogleAuthhVerification);
+app.use(BulkProcess);
+app.use(FetchProgress);
 
 exports.activityEngine = https.onRequest(app);
 // app.listen(PORT, () => {
