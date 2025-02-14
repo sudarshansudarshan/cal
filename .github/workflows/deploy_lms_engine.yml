@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write  # Allows the workflow to push new tags
+  contents: write   # Allows the workflow to push new tags
   packages: write  # Allows pushing Docker images (if needed)
 
 
