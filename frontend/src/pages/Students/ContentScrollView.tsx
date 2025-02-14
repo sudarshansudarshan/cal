@@ -108,8 +108,15 @@ const ContentScrollView = () => {
   const dispatch = useDispatch()
 
   // This ensures that the sidebar is open or not
-  const { setOpen } = useSidebar()
-  setOpen(true)
+  const { setOpen } = useSidebar() // Access setOpen to control the sidebar state
+  const hasSetOpen = useRef(false) // Ref to track if setOpen has been called
+
+  useEffect(() => {
+    if (!hasSetOpen.current) {
+      setOpen(true) // Set the sidebar to closed by default
+      hasSetOpen.current = true // Mark as called
+    }
+  }, [setOpen])
 
   // Initialize currentFrame with a default value if assignment.sequence is undefined
   const [currentFrame, setCurrentFrame] = useState(
@@ -396,8 +403,10 @@ const ContentScrollView = () => {
             // setTimeout(() => {
             //   window.location.reload()
             // }, 2000)
+            toast('Incorrect Answer! The segment will now run again.')
             setCurrentFrame((prevFrame) => (prevFrame - 1) % content.length)
           } else {
+            toast('Correct Answer! Moving to the next segment !')
             const sectionItemId1 = `${content[currentFrame - 1].id}`
             const sectionItemId2 = `${content[currentFrame].id}`
 
