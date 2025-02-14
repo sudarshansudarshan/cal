@@ -86,6 +86,7 @@ jobs:
             --allow-unauthenticated \
             --region=asia-south2 \
             --source=. \
+            --function activityEngine \
             --set-env-vars=NODE_ENV=${{ secrets.NODE_ENV }} \
             --set-env-vars=AE_DATABASE_STRING=${{ secrets.AE_DATABASE_STRING }} \
             --set-env-vars=LMSE_URL=${{ secrets.LMSE_URL }} \
