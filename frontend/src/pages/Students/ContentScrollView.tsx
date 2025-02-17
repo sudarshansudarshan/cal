@@ -179,9 +179,7 @@ const ContentScrollView = () => {
     if (!ytApiReady) return
 
     const initPlayer = () => {
-      console.log('hello ji', window.YT?.Player)
       if (!window.YT?.Player) {
-        console.log('YT Player not ready. Retrying in 100ms...')
         setTimeout(initPlayer, 100)
         return
       }
@@ -191,23 +189,12 @@ const ContentScrollView = () => {
       }
 
       const currentContent = content[currentFrame]
-      console.log(
-        currentContent,
-        'i am video loader',
-        currentFrame,
-        'i am content type',
-        currentContent?.item_type
-      )
       if (currentContent?.item_type !== 'video') return
 
       const videoId = getYouTubeVideoId(currentContent.source)
-      console.log(
-        'i am video id',
-        videoId,
-        getYouTubeVideoId(currentContent.source)
-      )
       if (!videoId) return
 
+      
       renderdataByType(currentFrame, currentFrame)
 
       playerRef.current = new window.YT.Player(`player-${currentFrame}`, {
@@ -322,8 +309,9 @@ const ContentScrollView = () => {
         if (!playerRef.current) return
         const currentPlayerTime = playerRef.current.getCurrentTime()
         const endTime = content[currentFrame].end_time
+        console.log("current Time : ",currentPlayerTime, "end Time : ",endTime)
 
-        if (currentPlayerTime > endTime) {
+        if (currentPlayerTime >= endTime) {
           playerRef.current.pauseVideo() // Pause at end time
           clearInterval(playerIntervalRef.current) // Clear interval
           setCurrentFrame((prevFrame) => (prevFrame + 1) % content.length)
@@ -426,10 +414,6 @@ const ContentScrollView = () => {
             })
               .then((response) => {
                 if (response.data) {
-                  console.log(
-                    'Progress updated successfully.cdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
-                    response.data
-                  )
                   response.data.forEach((item) => {
                     if (Array.isArray(item.sectionItems)) {
                       item.sectionItems.forEach((sectionItemId) => {
@@ -652,7 +636,6 @@ const ContentScrollView = () => {
     // }
     videoId = getYouTubeVideoId(content[currentFrame].source)
 
-    console.log(frame, 'i am frame', content[currentFrame].source)
 
     switch (content[currentFrame].item_type) {
       case 'video':
@@ -666,6 +649,7 @@ const ContentScrollView = () => {
             allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
             allowFullScreen
             className='pointer-events-none size-full cursor-none'
+            loading='lazy'
           ></iframe>
         )
       case 'article':

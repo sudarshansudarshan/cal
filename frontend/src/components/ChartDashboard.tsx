@@ -77,16 +77,17 @@ const courseData1 = {
 const chartConfig = {
   Average: {
     label: 'Average',
-    color: 'hsl(var(--chart-1))',
+    color: 'black',
   },
   User: {
     label: 'User',
-    color: 'hsl(var(--chart-2))',
+    color: 'gray',
   },
 } satisfies ChartConfig
 
 export function Chart() {
   const dispatch = useDispatch()
+  const courses = useSelector((state) => state.courses.courses ?? null)
   const courseData = useSelector(
     (state) => state.weeklyProgress?.weeklyProgress?.courseData
   )
@@ -94,7 +95,7 @@ export function Chart() {
   console.log('courseData', courseData)
 
   useEffect(() => {
-    if (!courseData || Object.keys(courseData).length === 0) {
+    if (!courseData || Object.keys(courseData || '').length === 0) {
       console.log('Dispatching fetchWeeklyProgress')
       dispatch(fetchWeeklyProgress())
     }
@@ -129,7 +130,7 @@ export function Chart() {
   console.log('averageProgress', averageProgress)
 
   useEffect(() => {
-    if (Object.keys(courseData).length > 0) {
+    if (Object.keys(courseData || '').length > 0) {
       setAverageProgress(calculateAverageProgress(courseData))
     }
   }, [courseData])
@@ -144,19 +145,28 @@ export function Chart() {
         <div className='flex w-full items-center justify-between'>
           <div className='flex flex-col gap-1'>
             <CardTitle>Progress Chart</CardTitle>
-            <CardDescription>Weekly progress</CardDescription>
+            <CardDescription>Updates once a day</CardDescription>
           </div>
           <Select onValueChange={handleSelectChange}>
             <SelectTrigger className='w-[180px]'>
               <SelectValue placeholder='Select Course' />
             </SelectTrigger>
             <SelectContent>
-              {Object.keys(courseData || {}).map((courseKey) => (
-                <SelectItem
-                  key={courseKey}
-                  value={courseKey}
-                >{`Course ${courseKey.slice(-1)}`}</SelectItem>
-              ))}
+              {Object.keys(courseData || {}).map((courseKey) => {
+                // Find the corresponding course info from the courses state using courseKey
+                const courseInfo = courses.find(
+                  (course) => course.course_id === courseKey
+                )
+
+                return (
+                  <SelectItem
+                    key={courseInfo ? courseInfo.course_id : courseKey} // Fallback to courseKey if courseInfo is undefined
+                    value={courseInfo ? courseInfo.course_id : courseKey}
+                  >
+                    {courseInfo ? courseInfo.name : 'Unknown Course'}
+                  </SelectItem>
+                )
+              })}
             </SelectContent>
           </Select>
         </div>
@@ -170,7 +180,10 @@ export function Chart() {
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => {
+                const date = new Date(value)
+                return date.toLocaleDateString('en-US', { weekday: 'short' })
+              }}
             />
             <ChartTooltip
               cursor={false}
@@ -179,6 +192,12 @@ export function Chart() {
             <Bar dataKey='Average' fill='var(--color-Average)' radius={4} />
             <Bar dataKey='User' fill='var(--color-User)' radius={4} />
           </BarChart>
+          <h1 className='flex justify-center text-sm font-semibold text-gray-600'>
+            Course Progress Comparision Graph
+          </h1>
+          <h1 className='flex justify-center text-sm text-gray-600'>
+            All Student Average / You
+          </h1>
         </ChartContainer>
       </CardContent>
     </Card>

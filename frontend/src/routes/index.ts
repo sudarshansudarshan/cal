@@ -20,11 +20,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: '',
-        element: React.createElement(
-          AuthWrapper,
-          {},
-          React.createElement(Home)
-        ),
+        element: React.createElement(AuthWrapper, {}, React.createElement(Home)),
         children: [
           {
             path: '',

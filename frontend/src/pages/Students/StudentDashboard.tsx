@@ -78,6 +78,7 @@ const StudentDashboard = () => {
   // State for controlling table expansion
   const [showAllCourses, setShowAllCourses] = useState(false)
   const [showAllOngoing, setShowAllOngoing] = useState(false)
+  const [completedCourses, setcompletedCourses] = useState(0)
   const dispatch = useDispatch()
 
   const CourseData = useSelector((state) => state.courses.courses ?? null)
@@ -93,6 +94,7 @@ const StudentDashboard = () => {
   const courseProgressData = useSelector(
     (state) => state.weeklyProgress?.weeklyProgress?.courseData
   )
+
   console.log('courseData', courseProgressData)
 
   useEffect(() => {
@@ -102,28 +104,39 @@ const StudentDashboard = () => {
     }
   }, [dispatch, courseProgressData])
 
-  const calculateAverageProgress = (data) => {
-    const courseAverages = Object.keys(data).map((courseKey) => {
+  const calculateLatestAverageProgress = (data) => {
+    let completed = 0
+    const latestEntries = Object.keys(data).map((courseKey) => {
       const entries = data[courseKey]
-      const total = entries.reduce((acc, curr) => acc + curr.User, 0)
-      return total / entries.length // Average per course
+      // Create a copy of the entries array to avoid mutating the original state
+      const sortedEntries = [...entries].sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      )
+      const latestProgress = sortedEntries[0].User // Latest progress
+      if (latestProgress === 100) completed += 1 // Increment if latest progress is 100%
+      console.log("Hellossdfncdhbvjsbvjsjdvbjhsdvj",completed)
+      return latestProgress
     })
+    setcompletedCourses(completed)
+    console.log('Latest Entries:', completed)
 
+    // Calculate the average of latest entries across all courses
+    if (latestEntries.length === 0) return 0 // Avoid division by zero if no entries exist
     return (
-      courseAverages.reduce((acc, curr) => acc + curr, 0) /
-      courseAverages.length
+      latestEntries.reduce((acc, curr) => acc + curr, 0) / latestEntries.length
     )
   }
 
   // State for average progress
   const [averageProgress, setAverageProgress] = useState(0)
-  console.log('averagePrdsdcsdcsdcogress', averageProgress)
 
   useEffect(() => {
-    if (Object.keys(courseProgressData).length > 0) {
-      setAverageProgress(calculateAverageProgress(courseProgressData))
+    if (Object.keys(courseProgressData || {}).length > 0) {
+      setAverageProgress(calculateLatestAverageProgress(courseProgressData))
     }
   }, [courseProgressData])
+
+  console.log('Average Progress', averageProgress)
 
   // const { data: newCourses } = useFetchCoursesWithAuthQuery()
   // const CourseData = newCourses?.results
@@ -160,7 +173,7 @@ const StudentDashboard = () => {
         <Card>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
             <CardTitle className='text-sm font-medium'>
-              Average Progress
+              All Courses Average Progress
             </CardTitle>
             <TrendingUp className='size-4 text-muted-foreground' />
           </CardHeader>
@@ -182,13 +195,7 @@ const StudentDashboard = () => {
             <Award className='size-4 text-muted-foreground' />
           </CardHeader>
           <CardContent>
-            <div className='text-2xl font-bold'>
-              {
-                ongoingCourses.filter(
-                  (course) => parseInt(course.progression) === 100
-                ).length
-              }
-            </div>
+            <div className='text-2xl font-bold'>{completedCourses}</div>
           </CardContent>
         </Card>
       </div>
@@ -212,23 +219,21 @@ const StudentDashboard = () => {
           <div className='flex-1 px-6 py-4'>
             <Table>
               <TableCaption>
-                Your ongoing courses and their progress.
+                Your ongoing courses.
               </TableCaption>
               <TableHeader>
                 <TableRow>
                   <TableHead className='w-[100px]'>ID</TableHead>
                   <TableHead>Name</TableHead>
-                  <TableHead className='text-right'>Progress</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {displayedOngoing.map((course) => (
                   <TableRow key={course.id}>
-                    <TableCell className='font-medium'>{course.id}</TableCell>
-                    <TableCell>{course.name}</TableCell>
-                    <TableCell className='text-right'>
-                      {course.progression}
+                    <TableCell className='font-medium'>
+                      {displayedOngoing.indexOf(course) + 1}
                     </TableCell>
+                    <TableCell>{course.name}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
