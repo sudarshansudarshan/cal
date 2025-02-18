@@ -60,6 +60,13 @@ import {
   clearSectionProgress,
 } from '@/store/slices/sectionProgressSlice'
 import { useRefresh } from '@/contextApi/refreshContext'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 // Define interfaces for state and props
 interface AssessmentOption {
@@ -141,10 +148,19 @@ const ContentScrollView = () => {
   const [gradingData, setGradingData] = useState<boolean | null>(null)
   const [isPlayerReady, setIsPlayerReady] = useState(false)
   const [ytApiReady, setYtApiReady] = useState(false)
+  const [videoQuality, setVideoQuality] = useState('large')
 
   //Responsible for fetching Items using RTK Query
   const { data: assignmentsData } = useFetchItemsWithAuthQuery(sectionId)
   const content = assignmentsData || []
+
+  const qualityLabels = {
+    small: '360p',
+    medium: '480p',
+    large: '720p',
+    hd1080: 'HD 1080p',
+    default: 'Auto',
+  }
 
   // UseEffect to create player for each frame and to close the sidebar
   useEffect(() => {
@@ -194,7 +210,6 @@ const ContentScrollView = () => {
       const videoId = getYouTubeVideoId(currentContent.source)
       if (!videoId) return
 
-      
       renderdataByType(currentFrame, currentFrame)
 
       playerRef.current = new window.YT.Player(`player-${currentFrame}`, {
@@ -216,6 +231,7 @@ const ContentScrollView = () => {
     }
 
     initPlayer()
+    setPlaybackSpeed(1) // Reset the playback speed to 1x when changing frames
   }, [ytApiReady, currentFrame, content])
 
   const [assessmentId, setAssessmentId] = useState(
@@ -258,6 +274,8 @@ const ContentScrollView = () => {
     setTotalDuration(duration)
     event.target.setVolume(volume)
 
+    event.target.setPlaybackQuality(videoQuality)
+
     if (content[currentFrame].item_type === 'video') {
       const startTime = content[currentFrame].start_time
       const endTime = content[currentFrame].end_time
@@ -296,6 +314,13 @@ const ContentScrollView = () => {
     playerRef.current.setVolume(value[0])
   }
 
+  const handleQualityChange = (quality) => {
+    setVideoQuality(quality)
+    if (playerRef.current) {
+      playerRef.current.setPlaybackQuality(quality)
+    }
+  }
+
   // Whenever the state of video changed like pause , play , ended this funtion is called
   const onPlayerStateChange = (event) => {
     if (event.data === window.YT.PlayerState.PLAYING) {
@@ -309,7 +334,12 @@ const ContentScrollView = () => {
         if (!playerRef.current) return
         const currentPlayerTime = playerRef.current.getCurrentTime()
         const endTime = content[currentFrame].end_time
-        console.log("current Time : ",currentPlayerTime, "end Time : ",endTime)
+        console.log(
+          'current Time : ',
+          currentPlayerTime,
+          'end Time : ',
+          endTime
+        )
 
         if (currentPlayerTime >= endTime) {
           playerRef.current.pauseVideo() // Pause at end time
@@ -636,7 +666,6 @@ const ContentScrollView = () => {
     // }
     videoId = getYouTubeVideoId(content[currentFrame].source)
 
-
     switch (content[currentFrame].item_type) {
       case 'video':
         return (
@@ -763,7 +792,9 @@ const ContentScrollView = () => {
                       <button
                         key={speed}
                         className={`mx-1 rounded-full px-3 py-1 text-sm ${
-                          playbackSpeed === speed ? 'bg-gray-500' : ''
+                          playbackSpeed === speed
+                            ? 'bg-gray-500'
+                            : 'bg-gray-200'
                         }`}
                         onClick={() => {
                           setPlaybackSpeed(speed)
@@ -775,6 +806,41 @@ const ContentScrollView = () => {
                       </button>
                     ))}
                   </div>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button disabled={!isPlayerReady}>
+                        {qualityLabels[videoQuality] || 'Quality'}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem
+                        onSelect={() => handleQualityChange('small')}
+                      >
+                        360p
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={() => handleQualityChange('medium')}
+                      >
+                        480p
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={() => handleQualityChange('large')}
+                      >
+                        720p
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={() => handleQualityChange('hd1080')}
+                      >
+                        HD 1080p
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={() => handleQualityChange('default')}
+                      >
+                        Auto
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
 
                   {/* Right section: Fullscreen toggle */}
                   <div>
