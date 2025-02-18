@@ -193,10 +193,10 @@ export function Chart() {
             <Bar dataKey='User' fill='var(--color-User)' radius={4} />
           </BarChart>
           <h1 className='flex justify-center text-sm font-semibold text-gray-600'>
-            Course Progress Comparision Graph
+            Compare, Compete, Conquer!
           </h1>
           <h1 className='flex justify-center text-sm text-gray-600'>
-            All Student Average / You
+            Class Average / Your Progress
           </h1>
         </ChartContainer>
       </CardContent>

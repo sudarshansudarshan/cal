@@ -194,6 +194,7 @@ const ContentScrollView = () => {
       const videoId = getYouTubeVideoId(currentContent.source)
       if (!videoId) return
 
+      
       renderdataByType(currentFrame, currentFrame)
 
       playerRef.current = new window.YT.Player(`player-${currentFrame}`, {
@@ -308,12 +309,7 @@ const ContentScrollView = () => {
         if (!playerRef.current) return
         const currentPlayerTime = playerRef.current.getCurrentTime()
         const endTime = content[currentFrame].end_time
-        console.log(
-          'current Time : ',
-          currentPlayerTime,
-          'end Time : ',
-          endTime
-        )
+        console.log("current Time : ",currentPlayerTime, "end Time : ",endTime)
 
         if (currentPlayerTime >= endTime) {
           playerRef.current.pauseVideo() // Pause at end time
@@ -639,6 +635,7 @@ const ContentScrollView = () => {
     //   videoId = getYouTubeVideoId(frame.source)
     // }
     videoId = getYouTubeVideoId(content[currentFrame].source)
+
 
     switch (content[currentFrame].item_type) {
       case 'video':

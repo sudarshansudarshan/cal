@@ -114,7 +114,7 @@ const StudentDashboard = () => {
       )
       const latestProgress = sortedEntries[0].User // Latest progress
       if (latestProgress === 100) completed += 1 // Increment if latest progress is 100%
-      console.log('Hellossdfncdhbvjsbvjsjdvbjhsdvj', completed)
+      console.log("Hellossdfncdhbvjsbvjsjdvbjhsdvj",completed)
       return latestProgress
     })
     setcompletedCourses(completed)
@@ -218,7 +218,9 @@ const StudentDashboard = () => {
           </div>
           <div className='flex-1 px-6 py-4'>
             <Table>
-              <TableCaption>Your ongoing courses.</TableCaption>
+              <TableCaption>
+                Your ongoing courses.
+              </TableCaption>
               <TableHeader>
                 <TableRow>
                   <TableHead className='w-[100px]'>ID</TableHead>
